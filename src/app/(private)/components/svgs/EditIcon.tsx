@@ -1,0 +1,29 @@
+import { SVGProps } from 'react';
+
+interface EditIconProps extends SVGProps<SVGSVGElement> {
+    className?: string;
+    style?: React.CSSProperties;
+}
+
+export default function EditIcon({ className = '', style, ...props }: EditIconProps) {
+    return (
+        <svg
+            width="38"
+            height="39"
+            viewBox="0 0 38 39"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className={className}
+            style={style}
+            {...props}
+        >
+            <path
+                d="M17.333 6.16667H5.66634C4.78229 6.16667 3.93444 6.51786 3.30932 7.14298C2.6842 7.7681 2.33301 8.61595 2.33301 9.5V32.8333C2.33301 33.7174 2.6842 34.5652 3.30932 35.1904C3.93444 35.8155 4.78229 36.1667 5.66634 36.1667H28.9997C29.8837 36.1667 30.7316 35.8155 31.3567 35.1904C31.9818 34.5652 32.333 33.7174 32.333 32.8333V21.1667M29.833 3.66667C30.496 3.00363 31.3953 2.63113 32.333 2.63113C33.2707 2.63113 34.17 3.00363 34.833 3.66667C35.496 4.32971 35.8685 5.22899 35.8685 6.16667C35.8685 7.10435 35.496 8.00363 34.833 8.66667L18.9997 24.5L12.333 26.1667L13.9997 19.5L29.833 3.66667Z"
+                stroke="currentColor"
+                strokeWidth="4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+        </svg>
+    );
+} 

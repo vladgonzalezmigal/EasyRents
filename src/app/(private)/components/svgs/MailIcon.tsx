@@ -1,0 +1,23 @@
+import { SVGIconProps } from '@/app/(private)/utils/styling';
+
+export default function MailIcon({ style, className }: SVGIconProps) {
+  return (
+    <svg
+      width="40"
+      height="40"
+      viewBox="0 0 40 40"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      style={style}
+      className={className}
+    >
+      <path
+        d="M36.6663 10C36.6663 8.16667 35.1663 6.66667 33.333 6.66667H6.66634C4.83301 6.66667 3.33301 8.16667 3.33301 10M36.6663 10V30C36.6663 31.8333 35.1663 33.3333 33.333 33.3333H6.66634C4.83301 33.3333 3.33301 31.8333 3.33301 30V10M36.6663 10L19.9997 21.6667L3.33301 10"
+        stroke="currentColor"
+        strokeWidth="4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}

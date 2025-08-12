@@ -1,0 +1,20 @@
+import { SVGIconProps } from '@/app/(private)/utils/styling';
+
+export default function CheckIcon({ style, className }: SVGIconProps) {
+  return (
+    <svg 
+      width="20" 
+      height="20" 
+      viewBox="0 0 20 20" 
+      fill="none" 
+      xmlns="http://www.w3.org/2000/svg"
+      style={style}
+      className={className}
+    >
+      <path 
+        d="M8.33333 13.6667L5 10.3333L6.16667 9.16668L8.33333 11.3333L13.8333 5.83334L15 7.00001L8.33333 13.6667Z" 
+        fill="currentColor"
+      />
+    </svg>
+  );
+} 
