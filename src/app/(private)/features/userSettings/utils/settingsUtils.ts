@@ -10,30 +10,30 @@ import AccountSection from '../components/account/AccountSection';
 import EmployeeSection from '../components/currentEmployees/EmployeeSelection';
 
 export const sections = [
+    // {
+    //   id: 'expenses',
+    //   title: 'Expenses',
+    //   icon: ExpensesIcon,
+    //   content: VendorSection
+    // },
+    // {
+    //   id: 'payroll',
+    //   title: 'Payroll',
+    //   icon: PayrollIcon,
+    //   content: EmployeeSection
+    // },
     {
-      id: 'expenses',
-      title: 'Expenses',
-      icon: ExpensesIcon,
-      content: VendorSection
-    },
-    {
-      id: 'payroll',
-      title: 'Payroll',
-      icon: PayrollIcon,
-      content: EmployeeSection
-    },
-    {
-      id: 'sales',
-      title: 'Sales',
+      id: 'companies',
+      title: 'Companies',
       icon: SalesIcon,
       content: StoreSection
     },
-    {
-      id: 'email',
-      title: 'Email',
-      icon: MailIcon,
-      content: EmailSection
-    },
+    // {
+    //   id: 'email',
+    //   title: 'Email',
+    //   icon: MailIcon,
+    //   content: EmailSection
+    // },
     {
       id: 'account',
       title: 'Account',

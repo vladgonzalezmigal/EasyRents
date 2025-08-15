@@ -8,4 +8,3 @@ export interface EmailResponse {
     emails: Email[] | null;
     error: string | null;
 }
-

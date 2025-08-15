@@ -5,7 +5,7 @@ import CreateBtn from '../CreateBtn';
 import { useStore } from '@/store';
 
 export default function CreateStore() {
-    const { storeState, createStore, isCudStoreLoading } = useStore();
+    const { companyState: companyState, createCompany: createStore, isCudCompanyLoading: isCudStoreLoading } = useStore();
     const [storeName, setStoreName] = useState('');
     const [validInput, setValidInput] = useState(true);
     const [hasEdited, setHasEdited] = useState(false);
@@ -15,7 +15,7 @@ export default function CreateStore() {
         setStoreName(newValue);
         setHasEdited(true);
 
-        const existingStores = storeState.stores?.map(s => s.store_name) || [];
+        const existingStores = companyState.data?.map(s => s.company_name) || [];
         const isValid = newValue.trim() !== '' && !existingStores.includes(newValue);
         setValidInput(isValid);
     };
@@ -31,9 +31,9 @@ export default function CreateStore() {
 
     return (
         <div>
-            <h3 className="text-xl font-semibold text-[#404040]">Create Store</h3>
+            <h3 className="text-xl font-semibold text-[#404040]">Create New Company</h3>
             <div className="h-[16px] text-center"> 
-            {storeState.error && (
+            {companyState.error && (
                  <p className="text-sm font-semibold text-red-500">  Something went wrong!</p>
             )}
              
@@ -42,7 +42,7 @@ export default function CreateStore() {
             <div className="bg-white border border-[#E4F0F6] rounded-lg shadow-sm px-4 py-6 max-w-[600px]">
                 {/* Form Label */}
                 <div className="flex mb-3">
-                    <label htmlFor="storeName" className="text-[16px] text-[#80848A] font-semibold">Store Name</label>
+                    <label htmlFor="storeName" className="text-[16px] text-[#80848A] font-semibold">Company Name</label>
                 </div>
                 {/* Form Inputs & Button */}
                 <div className="flex gap-4 pb-4">
@@ -55,7 +55,7 @@ export default function CreateStore() {
                             className={`w-[240px] h-[40px] border border-2 rounded-md px-3 focus:outline-none focus:ring-1 focus:ring-[#2A7D7B] ${
                                 hasEdited && !validInput ? 'border-red-500' : 'border-[#8ABBFD]'
                             }`}
-                            placeholder="LA 24"
+                            placeholder="Jason Properties"
                         />
                     </div>
                     <CreateBtn onSubmit={handleSubmit} disabled={hasEdited && !validInput || isCudStoreLoading} />

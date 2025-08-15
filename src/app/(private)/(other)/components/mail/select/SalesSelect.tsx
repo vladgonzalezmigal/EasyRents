@@ -1,7 +1,7 @@
 'use client';
 
 import { useStore } from "@/store";
-import { Store } from "../../../../features/userSettings/types/storeTypes";
+import { Company } from "../../../../features/userSettings/types/CompanyTypes";
 
 interface SalesSelectProps {
     selectedStores: string[];
@@ -9,8 +9,8 @@ interface SalesSelectProps {
 }
 
 export default function SalesSelect({ selectedStores, onStoreSelect }: SalesSelectProps) {
-    const { storeState } = useStore();
-    const storeSubpages: Store[] | null = storeState.stores?.filter(store => store.active) || null;
+    const { companyState: storeState } = useStore();
+    const storeSubpages: Company[] | null = storeState.stores?.filter(store => store.active) || null;
 
     return (
         <div className="flex flex-wrap gap-4 ">

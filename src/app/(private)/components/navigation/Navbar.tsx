@@ -10,7 +10,7 @@ import SalesIcon from "../svgs/SalesIcon";
 import ExpensesIcon from "../svgs/ExpensesIcon";
 import PayrollIcon from "../svgs/PayrollIcon";
 import StoreLinks from "./StoreLinks";
-import { Store } from "../../features/userSettings/types/storeTypes";
+import { Company } from "../../features/userSettings/types/CompanyTypes";
 import { useStore } from "@/store";
 import ChevronNav from "./ChevronNav";
 import SettingsSubLinks from "./SettingsSubLinks";
@@ -28,8 +28,8 @@ type SettingsType = 'expenses' | 'payroll';
 export default function Navbar({ backURL }: NavbarProps) {
     const pathname = usePathname();
     const activePage: string | undefined = getActiveForm(pathname);
-    const { storeState, setGlobalLoading } = useStore();
-    const storeSubpages : Store[] | null  = storeState.stores?.filter(store => store.active) || null;
+    const { companyState: storeState, setGlobalLoading } = useStore();
+    const storeSubpages : Company[] | null  = storeState.stores?.filter(store => store.active) || null;
     // if null need to ask user to refresh page
     const formPages: string[] = ["sales", "expenses", "payroll"];
     formPages[0] = formPages[0] + (storeSubpages? `/${storeSubpages[0].id}` : '');

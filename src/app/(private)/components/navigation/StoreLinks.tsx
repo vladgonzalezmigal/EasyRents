@@ -3,12 +3,12 @@
 import { usePathname } from "next/navigation";
 import { useStore } from "@/store";
 import { getActiveSubpage } from "../../utils/nav";
-import { Store } from "../../features/userSettings/types/storeTypes";
+import { Company } from "../../features/userSettings/types/CompanyTypes";
 import Link from "next/link";
 
 export default function StoreLinks() {
-  const { storeState } = useStore();
-  const storeSubpages: Store[] | null = storeState.stores?.filter(store => store.active) || null;
+  const { companyState: storeState } = useStore();
+  const storeSubpages: Company[] | null = storeState.stores?.filter(store => store.active) || null;
   const pathname = usePathname();
   const pathParts = pathname.split('/');
 

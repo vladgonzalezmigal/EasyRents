@@ -18,7 +18,7 @@ import { Loading } from "@/app/components/Loading";
 
 export default function SalesFormPage() {
     const { store_id, year, month } = useParams();
-    const { storeState } = useStore();
+    const { companyState: storeState } = useStore();
     const { stores } = storeState;
 
     let store_name = stores?.find((store) => store.id === parseInt(store_id as string))?.store_name;

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Store } from '../../types/storeTypes';
+import { Company } from '../../types/CompanyTypes';
 import SettingsEditInput from '../edits/SettingsEditInput';
 import SettingsEditActive from '../edits/SettingsEditActive';
 import SaveIcon from '@/app/(private)/components/svgs/SaveIcon';
@@ -9,16 +9,16 @@ import EditIcon from '@/app/(private)/components/svgs/EditIcon';
 import { useStore } from '@/store';
 
 interface DisplayStoreRowsProps {
-    filteredStores: Store[];
+    filteredStores: Company[];
     editingRows: Set<number>;
-    getStoreData: (storeId: number) => Store | undefined;
+    getStoreData: (storeId: number) => Company | undefined;
     handleStoreNameChange: (storeId: number, newName: string) => void;
     handleStatusToggle: (storeId: number) => void;
     handleEditClick: (storeId: number) => void;
     isValidName: (storeId: number) => boolean;
 }
 
-export default function DisplayStoreRows({
+export default function DisplayCompanyRows({
     filteredStores,
     editingRows,
     getStoreData,
@@ -27,13 +27,13 @@ export default function DisplayStoreRows({
     handleEditClick,
     isValidName
 }: DisplayStoreRowsProps) {
-    const { isCudStoreLoading } = useStore();
+    const { isCudCompanyLoading: isCudStoreLoading } = useStore();
 
     if (filteredStores.length === 0) {
         return (
             <tr>
                 <td colSpan={3} className="text-center text-gray-500 py-4">
-                    No stores found
+                    No companies found
                 </td>
             </tr>
         );
@@ -47,7 +47,7 @@ export default function DisplayStoreRows({
                 return (
                     <tr key={store.id} className="hover:bg-gray-50">
                         <SettingsEditInput
-                            value={storeData?.store_name || ''}
+                            value={storeData?.company_name || ''}
                             onChange={(newName) => handleStoreNameChange(store.id, newName)}
                             isEditing={isEditing}
                             disabled={isEditing && isValidName(store.id)}

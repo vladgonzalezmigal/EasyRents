@@ -36,7 +36,7 @@ export default function MailPage() {
     awakeBackend();
   }, []);
   const today = new Date();
-  const { storeState, vendorState, emailState } = useStore();
+  const { companyState: storeState, vendorState, emailState } = useStore();
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [selectedStores, setSelectedStores] = useState<number[]>([]);

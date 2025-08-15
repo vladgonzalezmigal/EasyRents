@@ -1,17 +1,17 @@
-import { Store, StoreResponse } from "../types/storeTypes";
+import { Company, CompanyResponse } from "../types/CompanyTypes";
 import { Vendor, VendorResponse } from "../types/vendorTypes";
 import { Email, EmailResponse } from "../types/emailTypes";
 import { CurrentEmployee, CurrentEmployeeResponse } from "../types/employeeTypes";
 import { PostgrestError } from "@supabase/supabase-js";
 
-export function handleApiResponse<T extends Store[] | Vendor[] | Email[] | CurrentEmployee[], R extends StoreResponse | VendorResponse | EmailResponse | CurrentEmployeeResponse>(
+export function handleApiResponse<T extends Company[] | Vendor[] | Email[] | CurrentEmployee[], R extends CompanyResponse | VendorResponse | EmailResponse | CurrentEmployeeResponse>(
   apiData: T | null,
   apiError: PostgrestError | null,
-  dataType: 'stores' | 'vendors' | 'emails' | 'current_employees'
+  dataType: 'companies' | 'vendors' | 'emails' | 'current_employees'
 ): R {
   if (apiError) {
-    if (dataType === 'stores') {
-      return { stores: null, error: apiError.message || "Unknown error" } as R;
+    if (dataType === 'companies') {
+      return { data : null, error: apiError.message || "Unknown error" } as R;
     } else if (dataType === 'emails') {
       return { emails: null, error: apiError.message || "Unknown error" } as R;
     } else if (dataType === 'current_employees') {
@@ -19,8 +19,8 @@ export function handleApiResponse<T extends Store[] | Vendor[] | Email[] | Curre
     }
     return { vendors: null, error: apiError.message || "Unknown error" } as R;
   } else {
-    if (dataType === 'stores') {
-      return { stores: apiData as Store[], error: null } as R;
+    if (dataType === 'companies') {
+      return { data: apiData as Company[], error: null } as R;
     } else if (dataType === 'emails') {
       return { emails: apiData as Email[], error: null } as R;
     } else if (dataType === 'current_employees') {

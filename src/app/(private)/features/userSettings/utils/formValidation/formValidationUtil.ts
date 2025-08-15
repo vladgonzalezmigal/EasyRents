@@ -1,5 +1,5 @@
 import { Vendor } from '@/app/(private)/features/userSettings/types/vendorTypes';
-import { Store } from '@/app/(private)/features/userSettings/types/storeTypes';
+import { Company } from '@/app/(private)/features/userSettings/types/CompanyTypes';
 
 interface ValidationResult {
     isValid: boolean;
@@ -50,8 +50,8 @@ export const vendorFormValidation = {
 // store form validation
 
 export const storeFormValidation = {
-    isStoreNameEmpty: (store: Store | undefined): ValidationResult => {
-        if (!store?.store_name || store.store_name.trim() === '') {
+    isStoreNameEmpty: (company: Company | undefined): ValidationResult => {
+        if (!company?.company_name || company.company_name.trim() === '') {
             return {
                 isValid: false,
                 message: 'Store name cannot be empty'
@@ -60,22 +60,22 @@ export const storeFormValidation = {
         return { isValid: true };
     },
     
-    isStoreNameDuplicate: (store: Store | undefined, existingStores: string[], originalStoreName: string): ValidationResult => {
-        if (!store?.store_name) {
+    isStoreNameDuplicate: (store: Company | undefined, existingStores: string[], originalStoreName: string): ValidationResult => {
+        if (!store?.company_name) {
             return { isValid: true };
         }
         
-        const normalizedStoreName = store.store_name.trim().toUpperCase();
+        const normalizedStoreName = store.company_name.trim().toUpperCase();
         if (existingStores.includes(normalizedStoreName) && normalizedStoreName !== originalStoreName) {
             return {
                 isValid: false,
-                message: 'Store name already exists'
+                message: 'Company name already exists'
             };
         }
         return { isValid: true };
     },
 
-    validateStoreForm: (store: Store | undefined, existingStores: string[], originalStoreName: string): ValidationResult => {
+    validateStoreForm: (store: Company | undefined, existingStores: string[], originalStoreName: string): ValidationResult => {
         const nameValidation = storeFormValidation.isStoreNameEmpty(store);
         if (!nameValidation.isValid) {
             return nameValidation;

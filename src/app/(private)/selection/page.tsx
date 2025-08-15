@@ -12,7 +12,7 @@ import Link from "next/link";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { storeState } = useStore();
+  const { companyState: storeState } = useStore();
   const { stores } = storeState;
 
   // Get current month and year
@@ -47,7 +47,7 @@ export default function DashboardPage() {
     <div className="w-full h-full flex flex-col items-center">
       <div className=" w-[600px] h-full flex flex-col items-center justify-center ">
         <h1 className=" mb-8 text-3xl text-center font-bold text-[#2F2F2F]">
-          Welcome, Choose a Document:
+          Welcome, Choose a Company:
         </h1>
         {/* Main Contnet */}
         <div className="flex flex-col space-y-4 w-full relative">

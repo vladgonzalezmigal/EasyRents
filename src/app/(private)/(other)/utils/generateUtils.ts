@@ -1,7 +1,7 @@
 import { Sales, Payroll, Expense } from '@/app/(private)/types/formTypes';
 import { getMonthDateRange } from '@/app/(private)/utils/dateUtils';
 import { fetchSalesData, fetchPayrollData, fetchExpenseData } from '../utils/mailUtils';
-import { Store } from "../../features/userSettings/types/storeTypes";
+import { Company } from "../../features/userSettings/types/CompanyTypes";
 
 interface StoreSalesData {
     storeName: string;
@@ -39,7 +39,7 @@ interface ExpenseGenerationResult {
  * @async
  * @function generateSalesPdfs
  * @param {number[]} selectedStores - Array of store IDs to generate PDFs for
- * @param {Store[]} stores - Array of store objects containing store information
+ * @param {Company[]} stores - Array of store objects containing store information
  * @param {number} currentYear - The year to generate PDFs for
  * @param {number} currentMonth - The month to generate PDFs for (0-11)
  * @returns {Promise<SalesGenerationResult>} Promise resolving to sales generation result
@@ -47,7 +47,7 @@ interface ExpenseGenerationResult {
  */
 export async function generateSalesPdfs(
     selectedStores: number[],
-    stores: Store[],
+    stores: Company[],
     currentYear: number,
     currentMonth: number,
 ): Promise<SalesGenerationResult> {

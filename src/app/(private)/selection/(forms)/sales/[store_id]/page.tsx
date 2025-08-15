@@ -5,7 +5,7 @@ import { useStore } from "@/store";
 import { useParams } from "next/navigation";
 export default function SalesSelectionPage() {
   const { store_id } = useParams();
-  const { storeState } = useStore();
+  const { companyState: storeState } = useStore();
   const { stores } = storeState;
 
 

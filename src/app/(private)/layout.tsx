@@ -11,8 +11,8 @@ interface LayoutProps {
 }
 
 const ProtectedLayout = ({ children }: LayoutProps) => {
-  const { fetchStore, fetchVendorData, fetchEmail, fetchCurrentEmployees, setGlobalLoading,
-    isLoadingStore, isLoadingVendors, storeState, vendorState, emailState, isGlobalLoading } = useStore();
+  const { fetchCompany: fetchCompany, companyState: companyState, setGlobalLoading, 
+   isGlobalLoading, isLoadingCompany: isLoadingStore, } = useStore();
 
   // (1) Health check effect
   useEffect(() => {
@@ -27,7 +27,8 @@ const ProtectedLayout = ({ children }: LayoutProps) => {
   }, []);
 
    // (2) load user settings 
-   const loadingSettings : boolean = isLoadingStore || isLoadingVendors;
+   const loadingSettings : boolean = isLoadingStore 
+  //  || isLoadingVendors;
 
   // Settings fetch effect
   useEffect(() => {
@@ -35,22 +36,22 @@ const ProtectedLayout = ({ children }: LayoutProps) => {
     const fetchSettings = async () => {
       try {
         await Promise.all([
-           fetchStore(),
-           fetchVendorData(),
-           fetchEmail(),
-           fetchCurrentEmployees()
+           fetchCompany(),
+          //  fetchVendorData(),
+          //  fetchEmail(),
+          //  fetchCurrentEmployees()
         ]);
       } catch (e) {
         console.error("Error loading settings:", e);
       }
     };
 
-    const missingSettings = (storeState.stores === null) || (vendorState.vendors === null);
+    const missingSettings = (companyState.data === null);
 
     if (missingSettings) { // only fetch settings if user is authenticated and settings are missing
        fetchSettings();
     }
-  }, [fetchStore, fetchVendorData, fetchEmail, fetchCurrentEmployees, storeState, vendorState, emailState]);
+  }, [fetchCompany, companyState]);
 
   // (2) monitor path changes
   const pathname = usePathname();

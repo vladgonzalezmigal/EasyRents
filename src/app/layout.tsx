@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Easy Accounting",
-  description: "Easily manage expenses, payroll, & sales without excel",
+  title: "Easy Rents",
+  description: "Easily manage your rental properties",
 };
 
 export default function RootLayout({

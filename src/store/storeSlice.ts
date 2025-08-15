@@ -1,110 +1,106 @@
-import { Store, StoreResponse } from "@/app/(private)/features/userSettings/types/storeTypes";
-import { storeService } from "@/app/(private)/features/userSettings/utils/storeUtils";
+import { Company, CompanyResponse } from "@/app/(private)/features/userSettings/types/CompanyTypes";
+import { companyService } from "@/app/(private)/features/userSettings/utils/companyUtils";
 
-export interface StoreSlice {
-    storeState: StoreResponse;
-    isLoadingStore: boolean;
-    isCudStoreLoading: boolean;
-    // fetch store data 
-    fetchStore: () => Promise<void>;
-    updateStore: (store: Store) => Promise<void>;
-    createStore: (store_name: string) => Promise<void>;
+export interface CompanySlice {
+    companyState: CompanyResponse;
+    isLoadingCompany: boolean;
+    isCudCompanyLoading: boolean;
+    fetchCompany: () => Promise<void>;
+    updateCompany: (company: Company) => Promise<void>;
+    createCompany: (company_name: string) => Promise<void>;
 }
 
-export const createStoreSlice = (
-    set: (partial: Partial<StoreSlice> | ((state: StoreSlice) => Partial<StoreSlice>)) => void,
-    // get: () => StoreSlice
-): StoreSlice => ({
-    // initial state
-    storeState: { stores: null, error: null },
-    isLoadingStore: false,
-    isCudStoreLoading: false,
-    fetchStore: async () => {
+export const createCompanySlice = (
+    set: (partial: Partial<CompanySlice> | ((state: CompanySlice) => Partial<CompanySlice>)) => void,
+): CompanySlice => ({
+    companyState: { data: null, error: null }, // initial state
+    isLoadingCompany: false,
+    isCudCompanyLoading: false,
+    fetchCompany: async () => {
         try {
-            set({ isLoadingStore: true });
-            const storeData = await storeService.fetchStores();
-            set({ storeState: storeData, isLoadingStore: false });
+            set({ isLoadingCompany: true });
+            const companyData = await companyService.fetchCompanies();
+            set({ companyState: companyData, isLoadingCompany: false });
         } catch (err) {
             const errorMessage = err instanceof Error
             ? err.message
-            : "Error fetching store data.";
+            : "Error fetching company data.";
             set({
-                isLoadingStore: false,
-                storeState: { stores: null, error: errorMessage },
+                isLoadingCompany: false,
+                companyState: { data: null, error: errorMessage },
             });
         }
     },
 
-    createStore: async (store_name: string) => {
+    createCompany: async (company_name: string) => {
         try {
-            set({ isCudStoreLoading: true });
-            const storeData = await storeService.createStore(store_name);
-            if (storeData.stores !== null) {
+            set({ isCudCompanyLoading: true });
+            const companyData = await companyService.createCompany(company_name);
+            if (companyData.data !== null) {
                 set((state) => {
-                    const currentStores = state.storeState.stores || [];
+                    const currentCompanies = state.companyState.data || [];
                     return {
-                        isCudStoreLoading: false,
-                        storeState: { 
-                            stores: [...currentStores, ...(storeData.stores || [])], 
+                        isCudCompanyLoading: false,
+                        companyState: { 
+                            data: [...currentCompanies, ...(companyData.data || [])], 
                             error: null 
                         }
                     };
                 });
             } else {
                 set((state) => ({
-                    isCudStoreLoading: false,
-                    storeState: { stores: state.storeState.stores, error: storeData.error }
+                    isCudCompanyLoading: false,
+                    companyState: { data: state.companyState.data, error: companyData.error }
                 }));
             }
         } catch (err) {
             const errorMessage = err instanceof Error
             ? err.message
-            : "Error creating store data.";
-            set({ isCudStoreLoading: false, storeState: { stores: null, error: errorMessage } });
+            : "Error creating company data.";
+            set({ isCudCompanyLoading: false, companyState: { data: null, error: errorMessage } });
         }
     },
 
-    updateStore: async (store: Store) => {
+    updateCompany: async (company: Company) => {
         try {   
-            set({ isCudStoreLoading: true });
-            const storeData = await storeService.updateStore(store);
+            set({ isCudCompanyLoading: true });
+            const companyData = await companyService.updateCompany(company);
             
-            if (storeData.error === null) {
-                // Update only the specific vendor in the existing state
+            if (companyData.error === null) {
                 set((state) => {
-                    const currentStores = state.storeState.stores || [];
-                    const updatedStores = currentStores.map(s => 
-                        s.id === store.id ? store : s
+                    const currentCompanies = state.companyState.data || [];
+                    const updatedCompanies = currentCompanies.map(c => 
+                        c.id === company.id ? company : c
                     );
                     
                     return {
-                        storeState: {
-                            stores: updatedStores,
+                        companyState: {
+                            data: updatedCompanies,
                             error: null
                         },
-                        isCudStoreLoading: false
+                        isCudCompanyLoading: false
                     };
                 });
             } else {
                 // If there was an error, just update the error message
                 set((state) => ({
-                    isCudStoreLoading: false,
-                    storeState: {
-                        stores: state.storeState.stores,
-                        error: storeData.error
+                    isCudCompanyLoading: false,
+                    companyState: {
+                        data: state.companyState.data,
+                        error: companyData.error
                     }
                 }));
             }
         } catch (err) {
             const errorMessage = err instanceof Error
                 ? err.message
-                : "Error updating store data.";
+                : "Error updating company data.";
             
             // Keep existing vendors but update the error message
             set((state) => ({
-                isCudStoreLoading: false,
-                storeState: {
-                    stores: state.storeState.stores,
+                isCudCompanyLoading: false,
+                companyState: {
+                    data: state.companyState.data,
                     error: errorMessage
                 }
             }));
