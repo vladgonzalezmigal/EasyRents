@@ -10,7 +10,7 @@ import DisplayCompanyRows from './DisplayStoreRows';
 import { storeFormValidation } from '@/app/(private)/features/userSettings/utils/formValidation/formValidationUtil';
 import { useStore } from '@/store';
 
-export default function DisplayStores() {
+export default function DisplayCompanies() {
     const { updateCompany: updateStore, companyState: companyState } = useStore();
     let companies: Company[] = [];
     if (companyState.data) {

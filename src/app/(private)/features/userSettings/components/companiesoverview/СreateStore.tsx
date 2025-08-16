@@ -4,7 +4,7 @@ import { useState } from 'react';
 import CreateBtn from '../CreateBtn';
 import { useStore } from '@/store';
 
-export default function CreateStore() {
+export default function CreateCompany() {
     const { companyState: companyState, createCompany: createStore, isCudCompanyLoading: isCudStoreLoading } = useStore();
     const [storeName, setStoreName] = useState('');
     const [validInput, setValidInput] = useState(true);

@@ -3,6 +3,7 @@
 import { sections } from '@/app/(private)/features/userSettings/utils/settingsUtils';
 import GearIcon from '../../components/svgs/GearIcon'
 import LineBreak from '../../features/userSettings/components/LineBreak';
+import CompanySection from '../../features/userSettings/components/individual_company/CompaniesSection';
 
 export default function SettingsPage() {
  
@@ -17,6 +18,7 @@ export default function SettingsPage() {
       <div className="">
         {/* Divider */}
         <div className="flex pl-2 flex-wrap gap-4">
+          {/* Company Navigation Links */}
           {sections.map((section) => (
             <a 
               key={section.id}
@@ -32,6 +34,8 @@ export default function SettingsPage() {
       </div>
      {/* Main Settings Content */}
       <div className="space-y-16">
+        {/* Individual Companies */}
+          <CompanySection />
         {sections.map((section) => (
             <div key={section.id}> 
           <section 
