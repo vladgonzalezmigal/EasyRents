@@ -39,7 +39,7 @@ export default function CreateCompany() {
              
             </div>
            
-            <div className="bg-white border border-[#E4F0F6] rounded-lg shadow-sm px-4 py-6 max-w-[600px]">
+            <form onSubmit={handleSubmit} className="bg-white border border-[#E4F0F6] rounded-lg shadow-sm px-4 py-6 max-w-[600px]">
                 {/* Form Label */}
                 <div className="flex mb-3">
                     <label htmlFor="storeName" className="text-[16px] text-[#80848A] font-semibold">Company Name</label>
@@ -58,9 +58,9 @@ export default function CreateCompany() {
                             placeholder="Jason Properties"
                         />
                     </div>
-                    <CreateBtn onSubmit={handleSubmit} disabled={hasEdited && !validInput || isCudStoreLoading} />
+                    <CreateBtn disabled={hasEdited && !validInput || isCudStoreLoading} />
                 </div>
-            </div>
+            </form>
         </div>
     );
 }

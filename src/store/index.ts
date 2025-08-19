@@ -2,19 +2,19 @@
 
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { createCompanySlice, CompanySlice } from "./storeSlice";
+import { createCompanySlice, CompanySlice } from "./companySlice";
 import { StateCreator } from "zustand";
 import { createVendorSlice, VendorSlice } from "./vendorSlice";
 import { createEmailSlice, EmailSlice } from "./emailSlice";
-import { createCurrentEmployeeSlice, CurrentEmployeeSlice } from "./currentEmployeeSlice";
+import { createPropertySlice, PropertySlice } from "./propertySlice";
 import { createGlobalLoadingSlice, GlobalLoadingSlice } from "./globalLoadingSlice";
 import { createAccountSlice, AccountSlice } from "./accountSlice";
 
-export type StoreState = CompanySlice & GlobalLoadingSlice & AccountSlice;
+export type StoreState = CompanySlice & GlobalLoadingSlice & AccountSlice & PropertySlice;
 // & VendorSlice & EmailSlice & CurrentEmployeeSlice & GlobalLoadingSlice ;
 
 // Wrap each slice-creator so that TypeScript knows they extend StoreState:
-const createStoreSliceWithStore: StateCreator<StoreState, [], [], CompanySlice> = (set,) =>
+const createCompanySliceWithStore: StateCreator<StoreState, [], [], CompanySlice> = (set,) =>
     createCompanySlice(set, );
 
 // const createVendorSliceWithStore: StateCreator<StoreState, [], [], VendorSlice> = (set,) =>
@@ -23,8 +23,8 @@ const createStoreSliceWithStore: StateCreator<StoreState, [], [], CompanySlice> 
 // const createEmailSliceWithStore: StateCreator<StoreState, [], [], EmailSlice> = (set,) =>
 //     createEmailSlice(set, );
 
-// const createCurrentEmployeeSliceWithStore: StateCreator<StoreState, [], [], CurrentEmployeeSlice> = (set,) =>
-//     createCurrentEmployeeSlice(set, );
+const createPropertySliceWithStore: StateCreator<StoreState, [], [], PropertySlice> = (set, get) =>
+    createPropertySlice(set, get);
 
 const createGlobalLoadingSliceWithStore: StateCreator<StoreState, [], [], GlobalLoadingSlice> = (set,) =>
     createGlobalLoadingSlice(set, );
@@ -40,10 +40,10 @@ const createAccountSliceWithStore: StateCreator<StoreState, [], [], AccountSlice
 export const useStore = create<StoreState>()(
     persist(
         (set, get, store) => ({
-            ...createStoreSliceWithStore(set, get, store),
+            ...createCompanySliceWithStore(set, get, store),
             // ...createVendorSliceWithStore(set, get, store),
             // ...createEmailSliceWithStore(set, get, store),
-            // ...createCurrentEmployeeSliceWithStore(set, get, store),
+            ...createPropertySliceWithStore(set, get, store),
             ...createGlobalLoadingSliceWithStore(set, get, store),
             ...createAccountSliceWithStore(set, get, store),
         }),
@@ -54,7 +54,7 @@ export const useStore = create<StoreState>()(
                 stores: state.companyState.data,
                 // vendors: state.vendorState.vendors,
                 // emails: state.emailState.emails,
-                // currentEmployees: state.currentEmployeeState.currentEmployees,
+                properties: state.propertyState,
                 isGlobalLoading: state.isGlobalLoading,
                 userEmail: state.userEmail,
             }),

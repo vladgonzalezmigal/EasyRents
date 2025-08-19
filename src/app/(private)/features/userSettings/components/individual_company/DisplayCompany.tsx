@@ -1,9 +1,14 @@
 import { useState } from "react";
 import { Company } from "../../types/CompanyTypes";
+import { filterByIncludes } from "../../../utils/searchUtils";
 import SearchBar from "../SearchBar";
+import CreateProperty from "./CreateProperty";
+import { Property } from "../../types/propertyTypes";
+import DisplayPropertyRows from "./DisplayPropertyRows";
 import MinimizeIcon from "@/app/(private)/components/svgs/MinimizeIcon";
 import MaximizeIcon from "@/app/(private)/components/svgs/MaximizeIcon";
 import MailIcon from "@/app/(private)/components/svgs/MailIcon";
+import { useStore } from "@/store";
 
 interface CompanyTemplateProps {
     activeCompany: Company;
@@ -14,8 +19,28 @@ export default function CompanyTemplate(
         activeCompany: activeCompany,
     }: CompanyTemplateProps
 ) {
+    const { propertyState } = useStore()
+    const propertyResponse = propertyState.data?.get(activeCompany.id);
+    const properties =  Array.isArray(propertyResponse)
+            ? propertyResponse
+            : propertyResponse?.data ?? []
+    const [filteredProperites, setFilteredProperties] = useState<Property[]>(properties);
     const [isMaximized, setIsMaximized] = useState<boolean>(true);
+    const [searchByAddr, setsearchByAddr] = useState<boolean>(true);
+
+    const handleSwapSearchMode = () => {
+        setsearchByAddr((prev) => !prev);
+        setFilteredProperties(properties); // Reset filtered properties when swapping search mode
+    };
     const toggleMaximize = () => setIsMaximized(prev => !prev);
+
+    const handleSearch = (query: string) => {
+            const filteredQueries = filterByIncludes(properties.map(p => searchByAddr ? p.address : p.tenant_name), query);
+            const matchedProperties = filteredQueries.map(query => 
+                properties.find(property => (searchByAddr ? property.address : property.tenant_name) === query)
+            ).filter((property): property is Property => property !== undefined);
+            setFilteredProperties(matchedProperties);
+    };
 
     return (
         <section
@@ -31,7 +56,9 @@ export default function CompanyTemplate(
             {/* Company main content  */}
             <div className=" rounded-b-lg pt-8 pb-12 pl-4 bg-[#F2FBFA] shadow-sm">
                 <div className="max-w-[850px] ">
-                    <h3 className="text-xl text-left font-semibold text-[#404040] mb-4">Rents</h3>
+                    {/* Create Property */}
+                    <CreateProperty company_id={activeCompany.id} />
+                    <h3 className="text-xl text-left font-semibold text-[#404040] my-4">Properties</h3>
                     {/* Begin Table Container  */}
                     <div className="bg-white border border-[#E4F0F6] rounded-lg shadow-sm pb-4">
                         <div className="">
@@ -39,10 +66,19 @@ export default function CompanyTemplate(
                             <div className={` ${isMaximized ? "min-h-[360px] max-h-[360px] overflow-y-auto" : "  "}`}>
                                 {/* Begin Table Header */}
                                 <div className="flex items-center justify-center border-b border-b-[#E4F0F6] py-4 relative">
-                                    {/* Search Bar */}
-                                    <div>
-                                        {/* <SearchBar onSearch={handleSearch} placeholder="JR REAL.." /> */}
+                                    {/* Search Bar and Swap Button */}
+                                    <div className="flex items-center gap-2">
+                                        <SearchBar onSearch={handleSearch} placeholder={searchByAddr ? 'El Agave Azul...' : 'Joaquin Rodri...'} />
+                                        <button
+                                            onClick={handleSwapSearchMode}
+                                            className={`border-2 text-[#0C3C74] border-[#8ABBFD] h-[40px] px-4 bg-[#DFF4F3] rounded-3xl transition-colors duration-200 flex items-center justify-center gap-1 ${
+                                                'cursor-pointer hover:bg-[#B6E8E4]'
+                                            }`}
+                                        >
+                                            <span>{searchByAddr ? 'name' : 'address'}</span>
+                                        </button>
                                     </div>
+                                    {/* Maximize/Minimize Button */}
                                     <button
                                         onClick={toggleMaximize}
                                         className="absolute right-4 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -79,23 +115,20 @@ export default function CompanyTemplate(
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white divide-y divide-[#E4F0F6] divide-y-[2px] border-b border-[#E4F0F6]">
-                                        {/* <DisplayCompanyRows
-                                        filteredStores={filteredStores}
-                                        editingRows={editingRows}
-                                        getStoreData={getStoreData}
-                                        handleStoreNameChange={handleStoreNameChange}
-                                        handleStatusToggle={handleStatusToggle}
-                                        handleEditClick={handleEditClick}
-                                        isValidName={isValidName}
-                                    /> */}
+                                        {properties.length === 0 ? (
+                                            <tr>
+                                                <td colSpan={6} className="text-center text-gray-500 py-4">
+                                                    No properties found
+                                                </td>
+                                            </tr>
+                                        ) :
+                                            <DisplayPropertyRows properties={filteredProperites} />
+                                        }
                                     </tbody>
                                 </table>
                             </div>
                         </div>
                     </div>
-
-
-
                 </div>
             </div>
         </section>
