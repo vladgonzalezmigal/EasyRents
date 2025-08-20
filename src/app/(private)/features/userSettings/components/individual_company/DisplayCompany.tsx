@@ -8,6 +8,7 @@ import DisplayPropertyRows from "./DisplayPropertyRows";
 import MinimizeIcon from "@/app/(private)/components/svgs/MinimizeIcon";
 import MaximizeIcon from "@/app/(private)/components/svgs/MaximizeIcon";
 import MailIcon from "@/app/(private)/components/svgs/MailIcon";
+import TrashIcon from "@/app/(private)/components/svgs/TrashIcon";
 import { useStore } from "@/store";
 
 interface CompanyTemplateProps {
@@ -23,7 +24,7 @@ export default function CompanyTemplate(
     const properties = useMemo(() => {
         const properties = propertyState.data?.get(activeCompany.id) || [];
         return [...properties].reverse(); // Create a copy and reverse it
-      }, [propertyState.data, activeCompany.id]);
+    }, [propertyState.data, activeCompany.id]);
 
     const [filteredProperites, setFilteredProperties] = useState<Property[]>([]);
     const [isMaximized, setIsMaximized] = useState<boolean>(true);
@@ -43,14 +44,39 @@ export default function CompanyTemplate(
 
     const handleSearch = (query: string) => {
         const filtered = properties.filter(p =>
-            (searchByAddr ? p.address : p.tenant_name).toLowerCase().includes(query.toLowerCase())
+            (searchByAddr ? p.address : p.address).toLowerCase().includes(query.toLowerCase())
         );
         setFilteredProperties(filtered);
     };
 
+    // Crud operations
+    const [deleteMode, setDeleteMode] = useState<boolean>(false);
+    const [rowsDelete, setRowsDelete] = useState<Set<number>>(new Set());
+    const addToDelete = (id : number) => {
+        if (rowsDelete.has(id)){
+            setRowsDelete((prevSet) => {
+                const newSet = new Set(prevSet);
+                newSet.delete(id);
+                return newSet;
+            });
+        } else {
+            setRowsDelete((prevSet) => new Set(prevSet).add(id));
+        }
+    };
+
+    // const handleDeleteClick = async (employeeId: number) => {
+    //     try {
+    //         await deleteCurrentEmployee(employeeId);
+    //         // Remove the deleted employee from the local state
+    //         setFilteredEmployees(prev => prev.filter(emp => emp.id !== employeeId));
+    //     } catch (error) {
+    //         console.error('Error deleting employee:', error);
+    //     }
+    // };
+
     return (
         <section
-            className="max-w-[900px] "
+            className="max-w-[900px]" id={activeCompany.company_name.replaceAll(" ", "")}
         >
             {/* Section Header */}
             <div className="flex items-center gap-4 bg-[#B6E8E4] border-2 border-[#B6E8E4] rounded-t-md py-4 w-[900px] pl-2">
@@ -71,15 +97,35 @@ export default function CompanyTemplate(
                             {/* Begin Table Container  */}
                             <div className={` ${isMaximized ? "min-h-[360px] overflow-y-auto" : " min-h-[360px] max-h-[360px]  overflow-y-auto "}`}>
                                 {/* Begin Table Header */}
-                                <div className="flex items-center justify-center border-b border-b-[#E4F0F6] py-4 relative">
+                                <div className="flex items-center justify-between border-b border-b-[#E4F0F6] py-4 relative px-8">
+                                    {/* Edit, Delete */}
+                                    <div>
+                                        <button
+                                            onClick={() => {
+                                                if (rowsDelete.size) {
+                                                    // handleDeleteClick(employee.id);
+                                                    setRowsDelete(new Set())
+                                                    // setDeleteMode(null);
+                                                } else {
+
+                                                    setDeleteMode(((prev) => !prev));
+                                                }
+                                            }}
+                                            className={`p-2 rounded-full transition-colors ${deleteMode
+                                                    ? `text-red-700 hover:text-red-800 ${rowsDelete.size ? 'bg-red-100' : 'bg-purple-200'}`
+                                                    : 'text-red-500 hover:text-red-600 hover:bg-red-50'
+                                                }`}
+                                        >
+                                            <TrashIcon className="w-5 h-5" />
+                                        </button>
+                                    </div>
                                     {/* Search Bar and Swap Button */}
                                     <div className="flex items-center gap-2">
                                         <SearchBar onSearch={handleSearch} placeholder={searchByAddr ? 'El Agave Azul...' : 'Joaquin Rodri...'} />
                                         <button
                                             onClick={handleSwapSearchMode}
-                                            className={`border-2 text-[#0C3C74] border-[#8ABBFD] h-[40px] w-[80px] bg-[#DFF4F3] rounded-3xl transition-colors duration-200 flex items-center justify-center gap-1 ${
-                                                'cursor-pointer hover:bg-[#B6E8E4]'
-                                            }`}
+                                            className={`border-2 text-[#0C3C74] border-[#8ABBFD] h-[40px] w-[80px] bg-[#DFF4F3] rounded-3xl transition-colors duration-200 flex items-center justify-center gap-1 ${'cursor-pointer hover:bg-[#B6E8E4]'
+                                                }`}
                                         >
                                             <span>{searchByAddr ? 'name' : 'address'}</span>
                                         </button>
@@ -87,7 +133,7 @@ export default function CompanyTemplate(
                                     {/* Maximize/Minimize Button */}
                                     <button
                                         onClick={toggleMaximize}
-                                        className="absolute right-4 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-100 rounded-full transition-colors"
+                                        className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                                     >
                                         {isMaximized ? (
                                             <MinimizeIcon className="w-5 h-5 text-[#80848A]" />
@@ -103,21 +149,10 @@ export default function CompanyTemplate(
                                             <th scope="col" className="w-[250px] min-w-[250px] max-w-[250px] mx-auto overflow-hidden px-6 py-3 text-left text-xs text-[#80848A] text-[16px] tracking-wider">
                                                 Address
                                             </th>
-                                            <th scope="col" className="w-[100px] min-w-[100px] max-w-[100px] px-4 py-3 text-left text-xs text-[#80848A] text-[16px] tracking-wider">
-                                                Tenant Name
+                                            <th scope="col" className="w-[250px] min-w-[250px] max-w-[250px] mx-auto overflow-hidden px-6 py-3 text-left text-xs text-[#80848A] text-[16px] tracking-wider">
+                                                # of Tenants
                                             </th>
-                                            <th scope="col" className="w-[100px] min-w-[100px] max-w-[100px] px-4 py-3 text-left text-xs text-[#80848A] text-[16px] tracking-wider">
-                                                Tenant Phone
-                                            </th>
-                                            <th scope="col" className="w-[100px] min-w-[100px] max-w-[100px] px-4 py-3 text-left text-xs text-[#80848A] text-[16px] tracking-wider">
-                                                Tenant Email
-                                            </th>
-                                            <th scope="col" className="w-[100px] min-w-[100px] max-w-[100px] px-4 py-3 text-left text-xs text-[#80848A] text-[14px] tracking-wider">
-                                                Rent Amount ($)
-                                            </th>
-                                            <th scope="col" className="w-[100px] min-w-[100px] max-w-[100px] px-4 py-3 text-left text-xs text-[#80848A] text-[14px] tracking-wider">
-                                                Rent Due Date
-                                            </th>
+                                            
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white divide-y divide-[#E4F0F6] divide-y-[2px] border-b border-[#E4F0F6]">
@@ -128,7 +163,7 @@ export default function CompanyTemplate(
                                                 </td>
                                             </tr>
                                         ) :
-                                            <DisplayPropertyRows properties={filteredProperites} />
+                                            <DisplayPropertyRows properties={filteredProperites} delete_mode={deleteMode} rowsToDelete={rowsDelete} addToDelete={addToDelete}/>
                                         }
                                     </tbody>
                                 </table>
@@ -138,6 +173,5 @@ export default function CompanyTemplate(
                 </div>
             </div>
         </section>
-
     );
 }

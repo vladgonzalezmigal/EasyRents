@@ -1,20 +1,28 @@
 import { PropertyMap } from "@/app/(private)/features/userSettings/types/propertyTypes";
 import { PropertyService } from "@/app/(private)/features/userSettings/utils/propertyUtils";
 import { CompanySlice } from "./companySlice";
+import { TenantSlice } from "./tenantSlice";
 
 export interface PropertySlice {
     propertyState: {data: PropertyMap, error: string | null};
     isLoadingProperties: boolean;
     isCudLoadingProperties: boolean;
     fetchProperties: () => Promise<void>;
-    createProperty: (company_id: number, address: string, tenant_name: string, rent_amount: number, rent_due_date: number, tenant_email?: string, tenant_phone?: string) => Promise<void>;
+    createProperty: (company_id: number, address: string, tenants?: Array<{
+        first_name: string;
+        last_name: string;
+        rent_amount: string;
+        rent_due_date: string;
+        phone_number: string;
+        email: string;
+    }>) => Promise<void>;
     // updateCurrentEmployees: (currentEmployee: CurrentEmployee) => Promise<void>;
     // deleteCurrentEmployee: (employeeId: number) => Promise<void>;
 }
 
 export const createPropertySlice = (
     set: (partial: Partial<PropertySlice> | ((state: PropertySlice) => Partial<PropertySlice>)) => void,
-    get: () => CompanySlice
+    get: () => CompanySlice & TenantSlice
 ): PropertySlice => ({
     // initial state
     propertyState: { data : new Map(), error: null },
@@ -43,21 +51,36 @@ export const createPropertySlice = (
         }
     },
 
-    createProperty: async (company_id: number, address: string, tenant_name: string, rent_amount: number, rent_due_date: number, tenant_email?: string, tenant_phone?: string) => {
+    createProperty: async (company_id: number, address: string, tenants?: Array<{
+        first_name: string;
+        last_name: string;
+        rent_amount: string;
+        rent_due_date: string;
+        phone_number: string;
+        email: string;
+    }>) => {
         try {
             set({ isCudLoadingProperties: true });
-            const response = await PropertyService.createProperty(company_id, address, tenant_name, tenant_email ?? '', tenant_phone ?? '',
-                rent_amount, rent_due_date);
+            const response = await PropertyService.createProperty(company_id, address);
             
             if (response.error === null && response.data !== null) {
                 set((state) => {
                     const properties = new Map(state.propertyState.data);
                     const newProperty = response.data?.[0];
-                    console.log("New Property is", newProperty)
                     if (!newProperty) return state;
                     const prevData = properties.get(company_id) || [];
                     properties.set(company_id, [...prevData, newProperty]);
-                    console.log("properties are" , properties.get(company_id))
+                    
+                    // Call createTenants if tenants are provided
+                    if (tenants && tenants.length > 0) {
+                        const tenantsWithPropertyId = tenants.map(tenant => ({
+                            ...tenant,
+                            property_id: newProperty.id
+                        }));
+                        
+                        get().createTenants(tenantsWithPropertyId);
+                    }
+                    
                     return {
                         propertyState: {
                             data: properties,

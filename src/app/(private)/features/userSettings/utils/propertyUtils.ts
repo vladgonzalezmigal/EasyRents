@@ -1,5 +1,5 @@
 import { handleApiResponse } from "./settingsAPIUtils";
-import { Property , PropertyMap, PropertyResponse } from '../types/propertyTypes';
+import { Property, PropertyResponse } from '../types/propertyTypes';
 import { createClient } from "@/utils/supabase/client";
 
 export class PropertyService {
@@ -15,12 +15,12 @@ export class PropertyService {
         // Query the 'stores' table for id and name columns
         const { data: apiData, error } = await supabase
             .from(PropertyService.TABLE_NAME)
-            .select('id, company_id, address, tenant_name, tenant_email, tenant_phone, rent_amount, rent_due_date')
+            .select('id, company_id, address')
 
         return handleApiResponse<Property[], PropertyResponse>(apiData, error, 'properties');
     }
 
-    static async createProperty(company_id: number, address: string, tenant_name: string, tenant_email: string, tenant_phone: string, rent_amount: number, rent_due_date: number): Promise<PropertyResponse> {
+    static async createProperty(company_id: number, address: string): Promise<PropertyResponse> {
         const supabase = createClient();
         const { data: { user }, } = await supabase.auth.getUser();
 
@@ -28,12 +28,12 @@ export class PropertyService {
             return { data: null, error: 'User id not found' };
         }
 
-        const propertyData = { company_id : company_id, address : address, tenant_name : tenant_name, tenant_email : tenant_email, tenant_phone : tenant_phone, rent_amount : rent_amount, rent_due_date : rent_due_date };
+        const propertyData = { company_id: company_id, address: address };
         const { data: apiData, error } = await supabase
             .from(PropertyService.TABLE_NAME)
             .insert({ ...propertyData, user_id: user.id })
-            .select('id, company_id, address, tenant_name, tenant_email, tenant_phone, rent_amount, rent_due_date');
+            .select('id, company_id, address');
 
         return handleApiResponse<Property[], PropertyResponse>(apiData, error, 'properties');
-        }
+    }
 }

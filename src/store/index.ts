@@ -4,13 +4,13 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { createCompanySlice, CompanySlice } from "./companySlice";
 import { StateCreator } from "zustand";
-import { createVendorSlice, VendorSlice } from "./vendorSlice";
-import { createEmailSlice, EmailSlice } from "./emailSlice";
+// import { createEmailSlice, EmailSlice } from "./emailSlice";
 import { createPropertySlice, PropertySlice } from "./propertySlice";
+import { createTenantSlice, TenantSlice } from "./tenantSlice";
 import { createGlobalLoadingSlice, GlobalLoadingSlice } from "./globalLoadingSlice";
 import { createAccountSlice, AccountSlice } from "./accountSlice";
 
-export type StoreState = CompanySlice & GlobalLoadingSlice & AccountSlice & PropertySlice;
+export type StoreState = CompanySlice & GlobalLoadingSlice & AccountSlice & PropertySlice & TenantSlice;
 // & VendorSlice & EmailSlice & CurrentEmployeeSlice & GlobalLoadingSlice ;
 
 // Wrap each slice-creator so that TypeScript knows they extend StoreState:
@@ -25,6 +25,9 @@ const createCompanySliceWithStore: StateCreator<StoreState, [], [], CompanySlice
 
 const createPropertySliceWithStore: StateCreator<StoreState, [], [], PropertySlice> = (set, get) =>
     createPropertySlice(set, get);
+
+const createTenantSliceWithStore: StateCreator<StoreState, [], [], TenantSlice> = (set,) =>
+    createTenantSlice(set, );
 
 const createGlobalLoadingSliceWithStore: StateCreator<StoreState, [], [], GlobalLoadingSlice> = (set,) =>
     createGlobalLoadingSlice(set, );
@@ -44,6 +47,7 @@ export const useStore = create<StoreState>()(
             // ...createVendorSliceWithStore(set, get, store),
             // ...createEmailSliceWithStore(set, get, store),
             ...createPropertySliceWithStore(set, get, store),
+            ...createTenantSliceWithStore(set,get, store), 
             ...createGlobalLoadingSliceWithStore(set, get, store),
             ...createAccountSliceWithStore(set, get, store),
         }),
