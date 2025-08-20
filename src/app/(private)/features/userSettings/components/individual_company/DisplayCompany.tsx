@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Company } from "../../types/CompanyTypes";
-import { filterByIncludes } from "../../../utils/searchUtils";
+// import { filterByIncludes } from "../../../utils/searchUtils";
 import SearchBar from "../SearchBar";
 import CreateProperty from "./CreateProperty";
 import { Property } from "../../types/propertyTypes";
@@ -20,31 +20,37 @@ export default function CompanyTemplate(
     }: CompanyTemplateProps
 ) {
     const { propertyState } = useStore()
-    const propertyResponse = propertyState.data?.get(activeCompany.id);
-    const properties =  Array.isArray(propertyResponse)
-            ? propertyResponse
-            : propertyResponse?.data ?? []
-    const [filteredProperites, setFilteredProperties] = useState<Property[]>(properties);
+    const properties = useMemo(() => {
+        const properties = propertyState.data?.get(activeCompany.id) || [];
+        return [...properties].reverse(); // Create a copy and reverse it
+      }, [propertyState.data, activeCompany.id]);
+
+    const [filteredProperites, setFilteredProperties] = useState<Property[]>([]);
     const [isMaximized, setIsMaximized] = useState<boolean>(true);
     const [searchByAddr, setsearchByAddr] = useState<boolean>(true);
+
+    // Update filtered properties whenever properties change
+    useEffect(() => {
+        setFilteredProperties(properties);
+    }, [properties]);
 
     const handleSwapSearchMode = () => {
         setsearchByAddr((prev) => !prev);
         setFilteredProperties(properties); // Reset filtered properties when swapping search mode
     };
+
     const toggleMaximize = () => setIsMaximized(prev => !prev);
 
     const handleSearch = (query: string) => {
-            const filteredQueries = filterByIncludes(properties.map(p => searchByAddr ? p.address : p.tenant_name), query);
-            const matchedProperties = filteredQueries.map(query => 
-                properties.find(property => (searchByAddr ? property.address : property.tenant_name) === query)
-            ).filter((property): property is Property => property !== undefined);
-            setFilteredProperties(matchedProperties);
+        const filtered = properties.filter(p =>
+            (searchByAddr ? p.address : p.tenant_name).toLowerCase().includes(query.toLowerCase())
+        );
+        setFilteredProperties(filtered);
     };
 
     return (
         <section
-            className=" max-w-[900px] "
+            className="max-w-[900px] "
         >
             {/* Section Header */}
             <div className="flex items-center gap-4 bg-[#B6E8E4] border-2 border-[#B6E8E4] rounded-t-md py-4 w-[900px] pl-2">
@@ -63,7 +69,7 @@ export default function CompanyTemplate(
                     <div className="bg-white border border-[#E4F0F6] rounded-lg shadow-sm pb-4">
                         <div className="">
                             {/* Begin Table Container  */}
-                            <div className={` ${isMaximized ? "min-h-[360px] max-h-[360px] overflow-y-auto" : "  "}`}>
+                            <div className={` ${isMaximized ? "min-h-[360px] overflow-y-auto" : " min-h-[360px] max-h-[360px]  overflow-y-auto "}`}>
                                 {/* Begin Table Header */}
                                 <div className="flex items-center justify-center border-b border-b-[#E4F0F6] py-4 relative">
                                     {/* Search Bar and Swap Button */}
@@ -71,7 +77,7 @@ export default function CompanyTemplate(
                                         <SearchBar onSearch={handleSearch} placeholder={searchByAddr ? 'El Agave Azul...' : 'Joaquin Rodri...'} />
                                         <button
                                             onClick={handleSwapSearchMode}
-                                            className={`border-2 text-[#0C3C74] border-[#8ABBFD] h-[40px] px-4 bg-[#DFF4F3] rounded-3xl transition-colors duration-200 flex items-center justify-center gap-1 ${
+                                            className={`border-2 text-[#0C3C74] border-[#8ABBFD] h-[40px] w-[80px] bg-[#DFF4F3] rounded-3xl transition-colors duration-200 flex items-center justify-center gap-1 ${
                                                 'cursor-pointer hover:bg-[#B6E8E4]'
                                             }`}
                                         >
@@ -94,22 +100,22 @@ export default function CompanyTemplate(
                                 <table className="min-w-full divide-y divide-gray-200">
                                     <thead className={`${isMaximized ? '' : 'sticky top-0'} z-10 text-[16px] bg-white after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-full after:h-[1.5px] after:bg-[#E4F0F6]`}>
                                         <tr>
-                                            <th scope="col" className="w-[400px] min-w-[300px] max-w-[400px] mx-auto overflow-hidden px-6 py-3 text-left text-xs text-[#80848A] text-[16px] tracking-wider">
+                                            <th scope="col" className="w-[250px] min-w-[250px] max-w-[250px] mx-auto overflow-hidden px-6 py-3 text-left text-xs text-[#80848A] text-[16px] tracking-wider">
                                                 Address
                                             </th>
-                                            <th scope="col" className="w-[100px] min-w-[100px] max-w-[100px] px-10 py-3 text-left text-xs text-[#80848A] text-[16px] tracking-wider">
+                                            <th scope="col" className="w-[100px] min-w-[100px] max-w-[100px] px-4 py-3 text-left text-xs text-[#80848A] text-[16px] tracking-wider">
                                                 Tenant Name
                                             </th>
-                                            <th scope="col" className="w-[100px] min-w-[100px] max-w-[100px] px-10 py-3 text-left text-xs text-[#80848A] text-[16px] tracking-wider">
+                                            <th scope="col" className="w-[100px] min-w-[100px] max-w-[100px] px-4 py-3 text-left text-xs text-[#80848A] text-[16px] tracking-wider">
                                                 Tenant Phone
                                             </th>
-                                            <th scope="col" className="w-[100px] min-w-[100px] max-w-[100px] px-10 py-3 text-left text-xs text-[#80848A] text-[16px] tracking-wider">
+                                            <th scope="col" className="w-[100px] min-w-[100px] max-w-[100px] px-4 py-3 text-left text-xs text-[#80848A] text-[16px] tracking-wider">
                                                 Tenant Email
                                             </th>
-                                            <th scope="col" className="w-[100px] min-w-[100px] max-w-[100px] px-10 py-3 text-left text-xs text-[#80848A] text-[16px] tracking-wider">
+                                            <th scope="col" className="w-[100px] min-w-[100px] max-w-[100px] px-4 py-3 text-left text-xs text-[#80848A] text-[14px] tracking-wider">
                                                 Rent Amount ($)
                                             </th>
-                                            <th scope="col" className="w-[50px] min-w-[100px] max-w-[50px] px-10 py-3 text-left text-xs text-[#80848A] text-[16px] tracking-wider">
+                                            <th scope="col" className="w-[100px] min-w-[100px] max-w-[100px] px-4 py-3 text-left text-xs text-[#80848A] text-[14px] tracking-wider">
                                                 Rent Due Date
                                             </th>
                                         </tr>

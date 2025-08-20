@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import CreateBtn from '../CreateBtn';
 import { useStore } from '@/store';
-import PlusIcon from '@/app/(private)/components/svgs/PlusIcon';
+import capitalizeStr from '../../../utils/formatStrings';
 
 
 interface CreatePropertyProps {
@@ -26,9 +26,10 @@ export default function CreateProperty({ company_id: company_id }: CreatePropert
 
     const handleSubmit = (e : React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const address = `${address1} ${address2} ,${city}, ${stateVal}, ${zip}`.trim();
+        // TODO: fix small comma bug when 
+        const address = `${capitalizeStr(address1)} ${capitalizeStr(address2)}, ${capitalizeStr(city)}, ${stateVal.toUpperCase()}, ${zip}`.trim();
         if (address1 && city && stateVal && zip && tenantName  && rentAmount && rentDueDate) {
-            createProperty(Number(company_id), address, tenantName, Number(rentAmount), Number(rentDueDate), tenantEmail, tenantPhone,).then(() => {
+            createProperty(Number(company_id), address, capitalizeStr(tenantName), Number(rentAmount), Number(rentDueDate), tenantEmail, tenantPhone,).then(() => {
                 setAddress1(''); setAddress2(''); setCity(''); setStateVal(''); setZip('');
                 setTenantName(''); setTenantEmail(''); setTenantPhone(''); setRentAmount(''); setRentDueDate('');
             });

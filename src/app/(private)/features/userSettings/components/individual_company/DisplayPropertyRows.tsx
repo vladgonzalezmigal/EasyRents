@@ -10,7 +10,7 @@ const DisplayPropertyRows: React.FC<DisplayPropertyRowsProps> = ({ properties })
     if (!properties || properties.length === 0) {
         return (
             <tr>
-                <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-500">
+                <td colSpan={6} className="px-6 py-4 text-center text-[18px] text-[#404040] font-semibold">
                     Nothing found for this search
                 </td>
             </tr>
@@ -20,23 +20,23 @@ const DisplayPropertyRows: React.FC<DisplayPropertyRowsProps> = ({ properties })
     return (
         <>
             {properties.map((property) => (
-                <tr key={property.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
+                <tr key={property.id} className="hover:bg-gray-50 text-gray-700">
+                    <td className="px-6 py-4 text-left font-medium ">
                         {property.address}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
+                    <td className="px-4 py-4 font-medium">
                         {property.tenant_name}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
+                    <td className="px-4 py-4  text-left font-medium">
                         {property.tenant_phone}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
+                    <td className="px-4 py-4  text-left font-medium">
                         {property.tenant_email}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
+                    <td className="px-4 py-4 text-left font-medium">
                         {property.rent_amount}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
+                    <td className="px-4 py-4 text-left font-medium">
                         {property.rent_due_date}
                     </td>
                 </tr>

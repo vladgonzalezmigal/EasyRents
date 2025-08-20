@@ -12,5 +12,5 @@ export interface Property {
 }
 export type PropertyResponse = DbResponse<Property[]>;
 
-export type PropertyMap = Map<number, PropertyResponse>
+export type PropertyMap = Map<number, Property[]>
 

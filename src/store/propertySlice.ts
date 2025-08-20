@@ -1,4 +1,4 @@
-import { Property, PropertyMap } from "@/app/(private)/features/userSettings/types/propertyTypes";
+import { PropertyMap } from "@/app/(private)/features/userSettings/types/propertyTypes";
 import { PropertyService } from "@/app/(private)/features/userSettings/utils/propertyUtils";
 import { CompanySlice } from "./companySlice";
 
@@ -24,9 +24,8 @@ export const createPropertySlice = (
     fetchProperties: async () => {
         try {
             set({ isLoadingProperties: true });
-            let test = get().companyState; 
-            const company_ids = test.data?.map(company => company.id) || [];
-            let property_data = new Map()
+            const company_ids = get().companyState.data?.map(company => company.id) || [];
+            const property_data = new Map()
             const currentPropertyData = await PropertyService.fetchProperties();
             for (const company_id of company_ids) {
                 property_data.set(company_id, currentPropertyData.data?.filter(prop => prop.company_id === company_id) || []);
@@ -52,12 +51,13 @@ export const createPropertySlice = (
             
             if (response.error === null && response.data !== null) {
                 set((state) => {
-                    let properties = state.propertyState.data || new Map();
+                    const properties = new Map(state.propertyState.data);
                     const newProperty = response.data?.[0];
+                    console.log("New Property is", newProperty)
                     if (!newProperty) return state;
-                    const prevData = properties.get(company_id)?.data || [];
-                    properties.set(company_id, { data: [...prevData, newProperty], error: null });
-                    
+                    const prevData = properties.get(company_id) || [];
+                    properties.set(company_id, [...prevData, newProperty]);
+                    console.log("properties are" , properties.get(company_id))
                     return {
                         propertyState: {
                             data: properties,
