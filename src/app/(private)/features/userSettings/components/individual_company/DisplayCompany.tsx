@@ -20,7 +20,7 @@ export default function CompanyTemplate(
         activeCompany: activeCompany,
     }: CompanyTemplateProps
 ) {
-    const { propertyState } = useStore()
+    const { propertyState, deleteProperty } = useStore()
     const properties = useMemo(() => {
         const properties = propertyState.data?.get(activeCompany.id) || [];
         return [...properties].reverse(); // Create a copy and reverse it
@@ -64,15 +64,10 @@ export default function CompanyTemplate(
         }
     };
 
-    // const handleDeleteClick = async (employeeId: number) => {
-    //     try {
-    //         await deleteCurrentEmployee(employeeId);
-    //         // Remove the deleted employee from the local state
-    //         setFilteredEmployees(prev => prev.filter(emp => emp.id !== employeeId));
-    //     } catch (error) {
-    //         console.error('Error deleting employee:', error);
-    //     }
-    // };
+    const handleDeleteClick = async () => {
+        deleteProperty(Array.from(rowsDelete))
+        setRowsDelete(new Set())
+    };
 
     return (
         <section
@@ -103,16 +98,14 @@ export default function CompanyTemplate(
                                         <button
                                             onClick={() => {
                                                 if (rowsDelete.size) {
-                                                    // handleDeleteClick(employee.id);
-                                                    setRowsDelete(new Set())
-                                                    // setDeleteMode(null);
+                                                    handleDeleteClick();
+                                                    setDeleteMode(false);
                                                 } else {
-
                                                     setDeleteMode(((prev) => !prev));
                                                 }
                                             }}
-                                            className={`p-2 rounded-full transition-colors ${deleteMode
-                                                ? `text-red-700 hover:text-red-800 ${rowsDelete.size ? 'bg-red-100' : 'bg-purple-200'}`
+                                            className={`cursor-pointer p-2 rounded-full transition-colors ${deleteMode
+                                                ? `text-red-700 hover:text-red-800 ${rowsDelete.size ? 'bg-red-100' : 'bg-red-50'}`
                                                 : 'text-red-500 hover:text-red-600 hover:bg-red-50'
                                                 }`}
                                         >

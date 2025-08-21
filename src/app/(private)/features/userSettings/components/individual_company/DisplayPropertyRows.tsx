@@ -2,12 +2,13 @@ import React, { useState } from "react";
 import { Property } from "../../types/propertyTypes";
 import { useStore } from "@/store";
 import ChevronIcon from "@/app/(private)/components/svgs/ChevronIcon";
+import DisplayTenantRows from './DisplayTenantRows';
 
 interface DisplayPropertyRowsProps {
     properties: Property[];
     delete_mode: boolean;
     rowsToDelete: Set<number>;
-    addToDelete: (id: number) => void; 
+    addToDelete: (id: number) => void;
 }
 
 const DisplayPropertyRows: React.FC<DisplayPropertyRowsProps> = ({ properties, delete_mode, rowsToDelete, addToDelete }) => {
@@ -41,11 +42,12 @@ const DisplayPropertyRows: React.FC<DisplayPropertyRowsProps> = ({ properties, d
             {properties.map((property) => {
                 const propertyTenants = tenantState.data?.get(property.id) || [];
                 const hasTenants = propertyTenants.length > 0;
-                const isExpanded = expandedProperties.has(property.id);
+                const isExpanded = !delete_mode && expandedProperties.has(property.id);
 
                 return (
                     <React.Fragment key={property.id}>
-                        <tr className={`text-gray-700 ${delete_mode ? `cursor-pointer ${rowsToDelete.has(property.id) ? 'bg-red-300' : ''}` : 'hover:bg-gray-50'}`}>
+                        <tr className={`text-gray-700 ${delete_mode ? `cursor-pointer ${rowsToDelete.has(property.id) ? 'bg-red-200' : ''}` : 'hover:bg-gray-50'}`}
+                        onClick={() => addToDelete(property.id)}>
                             {/* Carat Column */}
                             <td className="w-[50px] px-3 py-4 text-center">
                                 {hasTenants && (
@@ -69,62 +71,10 @@ const DisplayPropertyRows: React.FC<DisplayPropertyRowsProps> = ({ properties, d
                                 {propertyTenants.length}
                             </td>
                         </tr>
-                        
+
                         {/* Expandable Tenant Details */}
                         {isExpanded && hasTenants && (
-                            <tr>
-                                <td colSpan={3} className="p-0">
-                                    <div className="bg-[#F8F9FA] border-t border-[#E4F0F6]">
-                                        <div className="px-6 py-3">
-                                            <h4 className="text-lg font-bold text-[#404040] mb-3">Tenants</h4>
-                                            <div className="bg-white border border-[#E4F0F6] rounded-lg overflow-hidden">
-                                                <table className="min-w-full">
-                                                    <thead className="bg-[#F8F9FA] border-b border-[#E4F0F6]">
-                                                        <tr>
-                                                            <th className="px-4 py-3 text-left text-xs text-[#80848A] font-semibold tracking-wider">
-                                                                Name
-                                                            </th>
-                                                            <th className="px-4 py-3 text-left text-xs text-[#80848A] font-semibold tracking-wider">
-                                                                Email
-                                                            </th>
-                                                            <th className="px-4 py-3 text-left text-xs text-[#80848A] font-semibold tracking-wider">
-                                                                Phone
-                                                            </th>
-                                                            <th className="px-4 py-3 text-left text-xs text-[#80848A] font-semibold tracking-wider">
-                                                                Rent Amount
-                                                            </th>
-                                                            <th className="px-4 py-3 text-left text-xs text-[#80848A] font-semibold tracking-wider">
-                                                                Rent Due Date
-                                                            </th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody className="divide-y divide-[#E4F0F6]">
-                                                        {propertyTenants.map((tenant) => (
-                                                            <tr key={tenant.id} className="hover:bg-gray-50">
-                                                                <td className="px-4 py-3 text-sm text-gray-700">
-                                                                    {tenant.first_name} {tenant.last_name}
-                                                                </td>
-                                                                <td className="px-4 py-3 text-sm text-gray-700">
-                                                                    {tenant.email || '-'}
-                                                                </td>
-                                                                <td className="px-4 py-3 text-sm text-gray-700">
-                                                                    {tenant.phone_number || '-'}
-                                                                </td>
-                                                                <td className="px-4 py-3 text-sm text-gray-700">
-                                                                    ${tenant.rent_amount}
-                                                                </td>
-                                                                <td className="px-4 py-3 text-sm text-gray-700">
-                                                                    {tenant.rent_due_date}
-                                                                </td>
-                                                            </tr>
-                                                        ))}
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
+                            <DisplayTenantRows propertyTenants={propertyTenants} />
                         )}
                     </React.Fragment>
                 );

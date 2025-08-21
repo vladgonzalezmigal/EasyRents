@@ -36,4 +36,22 @@ export class PropertyService {
 
         return handleApiResponse<Property[], PropertyResponse>(apiData, error, 'properties');
     }
+
+    static async deleteProperty(propertyIds: number[]): Promise<PropertyResponse> {
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!user || !user.id) {
+            return { data: null, error: 'User id not found' };
+        }
+
+        // Soft delete: set active=false instead of deleting
+        const { data: apiData, error } = await supabase
+            .from(PropertyService.TABLE_NAME)
+            .update({ active: false })
+            .in('id', propertyIds)
+            .select('id, company_id, address');
+
+        return handleApiResponse<Property[], PropertyResponse>(apiData, error, 'properties');
+    }
 }

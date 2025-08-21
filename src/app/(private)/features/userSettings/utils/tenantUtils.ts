@@ -83,4 +83,21 @@ export class TenantService {
 
         return handleApiResponse<Tenant[], TenantResponse>(apiData, error, 'tenants');
     }
+
+    static async deleteTenants(propertyIds: number[]): Promise<TenantResponse> {
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!user || !user.id) {
+            return { data: null, error: 'User id not found' };
+        }
+
+        const { data: apiData, error } = await supabase
+            .from(TenantService.TABLE_NAME)
+            .delete()
+            .in('property_id', propertyIds)
+            .select('id, property_id, first_name, last_name, rent_amount, rent_due_date, phone_number, email');
+
+        return handleApiResponse<Tenant[], TenantResponse>(apiData, error, 'tenants');
+    }
 }

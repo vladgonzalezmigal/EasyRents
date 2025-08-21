@@ -16,8 +16,7 @@ export interface PropertySlice {
         phone_number: string;
         email: string;
     }>) => Promise<void>;
-    // updateCurrentEmployees: (currentEmployee: CurrentEmployee) => Promise<void>;
-    // deleteCurrentEmployee: (employeeId: number) => Promise<void>;
+    deleteProperty: (propertyIds: number[]) => Promise<void>;
 }
 
 export const createPropertySlice = (
@@ -115,6 +114,60 @@ export const createPropertySlice = (
         }
     },
 
+    deleteProperty: async (propertyIds: number[]) => {
+        try {
+            set({ isCudLoadingProperties: true });
+            const tenantState = get().tenantState?.data;
+            if (tenantState && Array.isArray(propertyIds)) {
+                const propertyIdsWithTenants = propertyIds.filter((id) => tenantState.has(id));
+                if (propertyIdsWithTenants.length > 0) {
+                    await get().deleteTenants(propertyIdsWithTenants);
+                }
+            }
+            const response = await PropertyService.deleteProperty(propertyIds);
+            
+            if (response.error === null && response.data !== null) {
+                set((state) => {
+                    const properties = new Map(state.propertyState.data);
+                    
+                    // Remove all deleted properties from all companies
+                    for (const [companyId, companyProperties] of properties.entries()) {
+                        const filteredProperties = companyProperties.filter(prop => !propertyIds.includes(prop.id));
+                        properties.set(companyId, filteredProperties);
+                    }
+                    
+                    return {
+                        propertyState: {
+                            data: properties,
+                            error: null
+                        },
+                        isCudLoadingProperties: false
+                    };
+                });
+            } else {
+                set((state) => ({
+                    isCudLoadingProperties: false,
+                    propertyState: {
+                        data: state.propertyState.data,
+                        error: response.error
+                    }
+                }));
+            }
+        } catch (err) {
+            const errorMessage = err instanceof Error
+                ? err.message
+                : "Error deleting property data.";
+            
+            set((state) => ({
+                isCudLoadingProperties: false,
+                propertyState: {
+                    data: state.propertyState.data,
+                    error: errorMessage
+                }
+            }));
+        }
+    },
+
     // updateCurrentEmployees: async (currentEmployee: CurrentEmployee) => {
     //     try {   
     //         set({ isCudLoadingProperties: true });
@@ -161,49 +214,4 @@ export const createPropertySlice = (
     //         }));
     //     }
     // },
-
-    // deleteCurrentEmployee: async (employeeId: number) => {
-    //     try {
-    //         set({ isCudLoadingProperties: true });
-    //         const response = await currentEmployeeService.deleteCurrentEmployee(employeeId);
-            
-    //         if (response.error === null) {
-    //             // Remove the deleted employee from the state
-    //             set((state) => {
-    //                 const currentEmployees = state.propertyState.currentEmployees || [];
-    //                 const filteredEmployees = currentEmployees.filter(e => e.id !== employeeId);
-                    
-    //                 return {
-    //                     propertyState: {
-    //                         currentEmployees: filteredEmployees,
-    //                         error: null
-    //                     },
-    //                     isCudLoadingProperties: false
-    //                 };
-    //             });
-    //         } else {
-    //             // If there was an error, just update the error message
-    //             set((state) => ({
-    //                 isCudLoadingProperties: false,
-    //                 propertyState: {
-    //                     currentEmployees: state.propertyState.currentEmployees,
-    //                     error: response.error
-    //                 }
-    //             }));
-    //         }
-    //     } catch (err) {
-    //         const errorMessage = err instanceof Error
-    //             ? err.message
-    //             : "Error deleting employee data.";
-            
-    //         // Keep existing employees but update the error message
-    //         set((state) => ({
-    //             isCudLoadingProperties: false,
-    //             propertyState: {
-    //                 currentEmployees: state.propertyState.currentEmployees,
-    //                 error: errorMessage
-    //             }
-    //         }));
-    //     }
-    // }
 })

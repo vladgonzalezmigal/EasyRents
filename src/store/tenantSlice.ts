@@ -16,6 +16,7 @@ export interface TenantSlice {
         phone_number: string;
         email: string;
     }>) => Promise<void>;
+    deleteTenants: (propertyIds: number[]) => Promise<void>;
 }
 
 export const createTenantSlice = (
@@ -150,6 +151,54 @@ export const createTenantSlice = (
             const errorMessage = err instanceof Error
                 ? err.message
                 : "Error creating tenants data.";
+            
+            set((state) => ({
+                isCudLoadingTenants: false,
+                tenantState: {
+                    data: state.tenantState.data,
+                    error: errorMessage
+                }
+            }));
+        }
+    },
+
+    deleteTenants: async (propertyIds: number[]) => {
+        try {
+            set({ isCudLoadingTenants: true });
+            const response = await TenantService.deleteTenants(propertyIds);
+            
+            if (response.error === null && response.data !== null) {
+                set((state) => {
+                    const tenantMap = new Map(state.tenantState.data);
+                    
+                    // Remove all tenants associated with the deleted properties
+                    for (const [propertyId, tenants] of tenantMap.entries()) {
+                        if (propertyIds.includes(propertyId)) {
+                            tenantMap.delete(propertyId);
+                        }
+                    }
+                    
+                    return {
+                        tenantState: {
+                            data: tenantMap,
+                            error: null
+                        },
+                        isCudLoadingTenants: false
+                    };
+                });
+            } else {
+                set((state) => ({
+                    isCudLoadingTenants: false,
+                    tenantState: {
+                        data: state.tenantState.data,
+                        error: response.error
+                    }
+                }));
+            }
+        } catch (err) {
+            const errorMessage = err instanceof Error
+                ? err.message
+                : "Error deleting tenant data.";
             
             set((state) => ({
                 isCudLoadingTenants: false,
