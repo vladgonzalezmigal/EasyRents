@@ -52,8 +52,8 @@ export default function CompanyTemplate(
     // Crud operations
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
     const [rowsDelete, setRowsDelete] = useState<Set<number>>(new Set());
-    const addToDelete = (id : number) => {
-        if (rowsDelete.has(id)){
+    const addToDelete = (id: number) => {
+        if (rowsDelete.has(id)) {
             setRowsDelete((prevSet) => {
                 const newSet = new Set(prevSet);
                 newSet.delete(id);
@@ -112,8 +112,8 @@ export default function CompanyTemplate(
                                                 }
                                             }}
                                             className={`p-2 rounded-full transition-colors ${deleteMode
-                                                    ? `text-red-700 hover:text-red-800 ${rowsDelete.size ? 'bg-red-100' : 'bg-purple-200'}`
-                                                    : 'text-red-500 hover:text-red-600 hover:bg-red-50'
+                                                ? `text-red-700 hover:text-red-800 ${rowsDelete.size ? 'bg-red-100' : 'bg-purple-200'}`
+                                                : 'text-red-500 hover:text-red-600 hover:bg-red-50'
                                                 }`}
                                         >
                                             <TrashIcon className="w-5 h-5" />
@@ -146,13 +146,16 @@ export default function CompanyTemplate(
                                 <table className="min-w-full divide-y divide-gray-200">
                                     <thead className={`${isMaximized ? '' : 'sticky top-0'} z-10 text-[16px] bg-white after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-full after:h-[1.5px] after:bg-[#E4F0F6]`}>
                                         <tr>
+                                            <th scope="col" className="w-[50px] min-w-[50px] max-w-[50px] mx-auto overflow-hidden px-6 py-3 text-left text-xs text-[#80848A] text-[16px] tracking-wider">
+                                                {/* Space for the chevron */}
+                                             </th>
                                             <th scope="col" className="w-[250px] min-w-[250px] max-w-[250px] mx-auto overflow-hidden px-6 py-3 text-left text-xs text-[#80848A] text-[16px] tracking-wider">
                                                 Address
                                             </th>
                                             <th scope="col" className="w-[250px] min-w-[250px] max-w-[250px] mx-auto overflow-hidden px-6 py-3 text-left text-xs text-[#80848A] text-[16px] tracking-wider">
                                                 # of Tenants
                                             </th>
-                                            
+
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white divide-y divide-[#E4F0F6] divide-y-[2px] border-b border-[#E4F0F6]">
@@ -163,7 +166,7 @@ export default function CompanyTemplate(
                                                 </td>
                                             </tr>
                                         ) :
-                                            <DisplayPropertyRows properties={filteredProperites} delete_mode={deleteMode} rowsToDelete={rowsDelete} addToDelete={addToDelete}/>
+                                            <DisplayPropertyRows properties={filteredProperites} delete_mode={deleteMode} rowsToDelete={rowsDelete} addToDelete={addToDelete} />
                                         }
                                     </tbody>
                                 </table>
