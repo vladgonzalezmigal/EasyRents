@@ -8,11 +8,14 @@ interface DisplayPropertyRowsProps {
     properties: Property[];
     delete_mode: boolean;
     rowsToDelete: Set<number>;
-    addToDelete: (id: number) => void;
+    addToDelete: (id: number) => void; 
+    edit_mode: boolean;
+    editedAddresses: Map<number, string>;
+    onEditAddressChange: (propertyId: number, address: string) => void;
 }
 
-const DisplayPropertyRows: React.FC<DisplayPropertyRowsProps> = ({ properties, delete_mode, rowsToDelete, addToDelete }) => {
-    const { tenantState } = useStore();
+const DisplayPropertyRows: React.FC<DisplayPropertyRowsProps> = ({ properties, delete_mode, rowsToDelete, addToDelete, edit_mode, editedAddresses, onEditAddressChange }) => {
+    const { tenantState } = useStore()
     const [expandedProperties, setExpandedProperties] = useState<Set<number>>(new Set());
 
     const togglePropertyExpansion = (propertyId: number) => {
@@ -42,12 +45,12 @@ const DisplayPropertyRows: React.FC<DisplayPropertyRowsProps> = ({ properties, d
             {properties.map((property) => {
                 const propertyTenants = tenantState.data?.get(property.id) || [];
                 const hasTenants = propertyTenants.length > 0;
-                const isExpanded = !delete_mode && expandedProperties.has(property.id);
+                const isExpanded = !delete_mode && !edit_mode && expandedProperties.has(property.id);
 
                 return (
                     <React.Fragment key={property.id}>
                         <tr className={`text-gray-700 ${delete_mode ? `cursor-pointer ${rowsToDelete.has(property.id) ? 'bg-red-200' : ''}` : 'hover:bg-gray-50'}`}
-                        onClick={() => addToDelete(property.id)}>
+                        onClick={() => { if (delete_mode) addToDelete(property.id); }}>
                             {/* Carat Column */}
                             <td className="w-[50px] px-3 py-4 text-center">
                                 {hasTenants && (
@@ -64,14 +67,22 @@ const DisplayPropertyRows: React.FC<DisplayPropertyRowsProps> = ({ properties, d
                             </td>
                             {/* Address Column */}
                             <td className="px-6 py-4 text-left font-medium ">
-                                {property.address}
+                                {edit_mode ? (
+                                    <input
+                                        type="text"
+                                        value={editedAddresses.get(property.id) ?? property.address}
+                                        onChange={(e) => onEditAddressChange(property.id, e.target.value)}
+                                        className="w-full h-[36px] border border-[#E4F0F6] rounded-md px-2 focus:outline-none focus:ring-1 focus:ring-[#2A7D7B]"
+                                    />
+                                ) : (
+                                    property.address
+                                )}
                             </td>
                             {/* Tenant Count Column */}
                             <td className="px-6 py-4 font-medium text-left">
                                 {propertyTenants.length}
                             </td>
                         </tr>
-
                         {/* Expandable Tenant Details */}
                         {isExpanded && hasTenants && (
                             <DisplayTenantRows propertyTenants={propertyTenants} />

@@ -54,4 +54,22 @@ export class PropertyService {
 
         return handleApiResponse<Property[], PropertyResponse>(apiData, error, 'properties');
     }
+
+    static async updateProperties(properties: Array<{ id: number; company_id: number; address: string; }>): Promise<PropertyResponse> {
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!user || !user.id) {
+            return { data: null, error: 'User id not found' };
+        }
+
+        // Upsert by id so each property can have distinct values
+        const upsertData = properties.map(p => ({ ...p, user_id: user.id }));
+        const { data: apiData, error } = await supabase
+            .from(PropertyService.TABLE_NAME)
+            .upsert(upsertData, { onConflict: 'id' })
+            .select('id, company_id, address');
+
+        return handleApiResponse<Property[], PropertyResponse>(apiData, error, 'properties');
+    }
 }

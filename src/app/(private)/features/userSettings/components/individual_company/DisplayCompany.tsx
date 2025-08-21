@@ -10,6 +10,8 @@ import MaximizeIcon from "@/app/(private)/components/svgs/MaximizeIcon";
 import MailIcon from "@/app/(private)/components/svgs/MailIcon";
 import TrashIcon from "@/app/(private)/components/svgs/TrashIcon";
 import { useStore } from "@/store";
+import EditIcon from "@/app/(private)/components/svgs/EditIcon";
+import SaveIcon from "@/app/(private)/components/svgs/SaveIcon";
 
 interface CompanyTemplateProps {
     activeCompany: Company;
@@ -20,7 +22,7 @@ export default function CompanyTemplate(
         activeCompany: activeCompany,
     }: CompanyTemplateProps
 ) {
-    const { propertyState, deleteProperty } = useStore()
+    const { propertyState, deleteProperty, updateProperties, isCudLoadingProperties } = useStore()
     const properties = useMemo(() => {
         const properties = propertyState.data?.get(activeCompany.id) || [];
         return [...properties].reverse(); // Create a copy and reverse it
@@ -51,7 +53,19 @@ export default function CompanyTemplate(
 
     // Crud operations
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
+    const [editMode, setEditMode] = useState<boolean>(false);
     const [rowsDelete, setRowsDelete] = useState<Set<number>>(new Set());
+
+    // Edit buffer: property id -> new address
+    const [editedAddresses, setEditedAddresses] = useState<Map<number, string>>(new Map());
+    const handleAddressEdit = (propertyId: number, address: string) => {
+        setEditedAddresses(prev => {
+            const next = new Map(prev);
+            next.set(propertyId, address);
+            return next;
+        });
+    };
+
     const addToDelete = (id: number) => {
         if (rowsDelete.has(id)) {
             setRowsDelete((prevSet) => {
@@ -67,6 +81,24 @@ export default function CompanyTemplate(
     const handleDeleteClick = async () => {
         deleteProperty(Array.from(rowsDelete))
         setRowsDelete(new Set())
+    };
+
+    const handleEditToggleOrSave = async () => {
+        if (deleteMode) { return }
+        // If edits exist, save them
+        if (editMode && editedAddresses.size > 0) {
+            const payload = Array.from(editedAddresses.entries()).map(([id, address]) => ({
+                id,
+                company_id: activeCompany.id,
+                address
+            }));
+            await updateProperties(payload);
+            setEditedAddresses(new Map());
+            setEditMode(false);
+            return;
+        }
+        // Otherwise toggle edit mode
+        setEditMode((prev) => !prev);
     };
 
     return (
@@ -94,22 +126,40 @@ export default function CompanyTemplate(
                                 {/* Begin Table Header */}
                                 <div className="flex items-center justify-between border-b border-b-[#E4F0F6] py-4 relative px-8">
                                     {/* Edit, Delete */}
-                                    <div>
+                                    <div className="flex items-center gap-2">
                                         <button
+                                            disabled={isCudLoadingProperties || editMode}
                                             onClick={() => {
                                                 if (rowsDelete.size) {
                                                     handleDeleteClick();
                                                     setDeleteMode(false);
                                                 } else {
-                                                    setDeleteMode(((prev) => !prev));
+                                                    // enabling delete mode disables edit mode
+                                                    setEditMode(false);
+                                                    setEditedAddresses(new Map());
+                                                    setDeleteMode((prev) => !prev);
                                                 }
                                             }}
-                                            className={`cursor-pointer p-2 rounded-full transition-colors ${deleteMode
+                                            className={`disabled:opacity-50 cursor-pointer disabled:cursor-default p-2 rounded-full transition-colors ${deleteMode
                                                 ? `text-red-700 hover:text-red-800 ${rowsDelete.size ? 'bg-red-100' : 'bg-red-50'}`
                                                 : 'text-red-500 hover:text-red-600 hover:bg-red-50'
                                                 }`}
                                         >
                                             <TrashIcon className="w-5 h-5" />
+                                        </button>
+                                        <button
+                                            onClick={handleEditToggleOrSave}
+                                            disabled={isCudLoadingProperties || deleteMode}
+                                            className={`disabled:opacity-50 disabled:cursor-default cursor-pointer p-2 rounded-full transition-colors ${editMode
+                                                ? 'text-[#0C3C74] hover:text-[#2A7D7B] bg-blue-50'
+                                                : 'text-[#0C3C74] hover:text-[#2A7D7B] hover:bg-gray-100'
+                                                }`}
+                                        >
+                                            {(editMode && editedAddresses.size > 0) ? (
+                                                <SaveIcon className="w-5 h-5" />
+                                            ) : (
+                                                <EditIcon className="w-5 h-5" />
+                                            )}
                                         </button>
                                     </div>
                                     {/* Search Bar and Swap Button */}
@@ -159,7 +209,15 @@ export default function CompanyTemplate(
                                                 </td>
                                             </tr>
                                         ) :
-                                            <DisplayPropertyRows properties={filteredProperites} delete_mode={deleteMode} rowsToDelete={rowsDelete} addToDelete={addToDelete} />
+                                            <DisplayPropertyRows
+                                                properties={filteredProperites}
+                                                delete_mode={deleteMode}
+                                                rowsToDelete={rowsDelete}
+                                                addToDelete={addToDelete}
+                                                edit_mode={editMode}
+                                                editedAddresses={editedAddresses}
+                                                onEditAddressChange={handleAddressEdit}
+                                            />
                                         }
                                     </tbody>
                                 </table>

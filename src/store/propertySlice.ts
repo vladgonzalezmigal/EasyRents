@@ -16,6 +16,7 @@ export interface PropertySlice {
         phone_number: string;
         email: string;
     }>) => Promise<void>;
+    updateProperties: (properties: Array<{ id: number; company_id: number; address: string }>) => Promise<void>;
     deleteProperty: (propertyIds: number[]) => Promise<void>;
 }
 
@@ -114,6 +115,45 @@ export const createPropertySlice = (
         }
     },
 
+    updateProperties: async (updates: Array<{ id: number; company_id: number; address: string }>) => {
+        try {
+            set({ isCudLoadingProperties: true });
+            const response = await PropertyService.updateProperties(updates);
+            if (response.error === null && response.data !== null) {
+                set((state) => {
+                    const properties = new Map(state.propertyState.data);
+                    for (const updated of response.data || []) {
+                        const companyId = updated.company_id;
+                        const list = properties.get(companyId) || [];
+                        const idx = list.findIndex(p => p.id === updated.id);
+                        if (idx >= 0) {
+                            const newList = [...list];
+                            newList[idx] = updated;
+                            properties.set(companyId, newList);
+                        } else {
+                            properties.set(companyId, [...list, updated]);
+                        }
+                    }
+                    return {
+                        propertyState: { data: properties, error: null },
+                        isCudLoadingProperties: false
+                    };
+                });
+            } else {
+                set((state) => ({
+                    isCudLoadingProperties: false,
+                    propertyState: { data: state.propertyState.data, error: response.error }
+                }));
+            }
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'Error updating property data.';
+            set((state) => ({
+                isCudLoadingProperties: false,
+                propertyState: { data: state.propertyState.data, error: errorMessage }
+            }));
+        }
+    },
+
     deleteProperty: async (propertyIds: number[]) => {
         try {
             set({ isCudLoadingProperties: true });
@@ -167,51 +207,4 @@ export const createPropertySlice = (
             }));
         }
     },
-
-    // updateCurrentEmployees: async (currentEmployee: CurrentEmployee) => {
-    //     try {   
-    //         set({ isCudLoadingProperties: true });
-    //         const currentEmployeeData = await currentEmployeeService.updateCurrentEmployee(currentEmployee)
-            
-    //         if (currentEmployeeData.error === null) {
-    //             // Update only the specific current employee in the existing state
-    //             set((state) => {
-    //                 const currentEmployees = state.propertyState.currentEmployees || [];
-    //                 const updatedCurrentEmployees = currentEmployees.map(e => 
-    //                     e.id === currentEmployee.id ? currentEmployee : e
-    //                 );
-                    
-    //                 return {
-    //                     propertyState: {
-    //                         currentEmployees: updatedCurrentEmployees,
-    //                         error: null
-    //                     },
-    //                     isCudLoadingProperties: false
-    //                 };
-    //             });
-    //         } else {
-    //             // If there was an error, just update the error message
-    //             set((state) => ({
-    //                 isCudLoadingProperties: false,
-    //                 propertyState: {
-    //                     currentEmployees: state.propertyState.currentEmployees,
-    //                     error: currentEmployeeData.error
-    //                 }
-    //             }));
-    //         }
-    //     } catch (err) {
-    //         const errorMessage = err instanceof Error
-    //             ? err.message
-    //             : "Error updating employee data.";
-            
-    //         // Keep existing employees but update the error message
-    //         set((state) => ({
-    //             isCudLoadingProperties: false,
-    //             propertyState: {
-    //                 currentEmployees: state.propertyState.currentEmployees,
-    //                 error: errorMessage
-    //             }
-    //         }));
-    //     }
-    // },
 })
