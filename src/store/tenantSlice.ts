@@ -18,6 +18,7 @@ export interface TenantSlice {
     }>) => Promise<void>;
     deleteAllTenants: (propertyIds: number[]) => Promise<void>;
     deleteTenants: (propertyId: number, tenantIds: number[]) => Promise<void>;
+    updateTenants: (updates: Array<{ id: number; property_id: number; first_name: string; last_name: string; rent_amount: number; rent_due_date: number; phone_number: string; email: string; }>) => Promise<void>;
 }
 
 export const createTenantSlice = (
@@ -241,6 +242,47 @@ export const createTenantSlice = (
             }
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Error deleting selected tenants.';
+            set((state) => ({
+                isCudLoadingTenants: false,
+                tenantState: { data: state.tenantState.data, error: errorMessage }
+            }));
+        }
+    },
+
+    // bulk update tenants
+    updateTenants: async (updates: Array<{ id: number; property_id: number; first_name: string; last_name: string; rent_amount: number; rent_due_date: number; phone_number?: string; email?: string; }>) => {
+        console.log("Updating tenants:", updates);
+        try {
+            set({ isCudLoadingTenants: true });
+            const response = await TenantService.updateTenants(updates);
+            if (response.error === null && response.data !== null) {
+                set((state) => {
+                    const tenantMap = new Map(state.tenantState.data);
+                    for (const updated of response.data || []) {
+                        const propId = updated.property_id;
+                        const list = tenantMap.get(propId) || [];
+                        const idx = list.findIndex(t => t.id === updated.id);
+                        if (idx >= 0) {
+                            const newList = [...list];
+                            newList[idx] = updated;
+                            tenantMap.set(propId, newList);
+                        } else {
+                            tenantMap.set(propId, [...list, updated]);
+                        }
+                    }
+                    return {
+                        tenantState: { data: tenantMap, error: null },
+                        isCudLoadingTenants: false
+                    };
+                });
+            } else {
+                set((state) => ({
+                    isCudLoadingTenants: false,
+                    tenantState: { data: state.tenantState.data, error: response.error }
+                }));
+            }
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'Error updating tenants.';
             set((state) => ({
                 isCudLoadingTenants: false,
                 tenantState: { data: state.tenantState.data, error: errorMessage }

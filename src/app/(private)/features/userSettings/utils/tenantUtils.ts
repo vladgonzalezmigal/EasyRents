@@ -84,6 +84,33 @@ export class TenantService {
         return handleApiResponse<Tenant[], TenantResponse>(apiData, error, 'tenants');
     }
 
+    // Bulk update (upsert) tenant rows by id
+    static async updateTenants(updates: Array<{
+        id: number;
+        property_id: number;
+        first_name: string;
+        last_name: string;
+        rent_amount: number;
+        rent_due_date: number;
+        phone_number?: string;
+        email?: string;
+    }>): Promise<TenantResponse> {
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!user || !user.id) {
+            return { data: null, error: 'User id not found' };
+        }
+
+        const upsertData = updates.map(u => ({ ...u, user_id: user.id }));
+        const { data: apiData, error } = await supabase
+            .from(TenantService.TABLE_NAME)
+            .upsert(upsertData, { onConflict: 'id' })
+            .select('id, property_id, first_name, last_name, rent_amount, rent_due_date, phone_number, email');
+
+        return handleApiResponse<Tenant[], TenantResponse>(apiData, error, 'tenants');
+    }
+
     static async deleteAllTenants(propertyIds: number[]): Promise<TenantResponse> {
         const supabase = createClient();
         const { data: { user } } = await supabase.auth.getUser();

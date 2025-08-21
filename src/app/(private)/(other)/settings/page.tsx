@@ -34,7 +34,7 @@ export default function SettingsPage() {
             </a>
           ))}
           {
-            companies.map(
+            companies.filter(c => c.active).map(
               (company) => (
                 <a
                   key={company.id}
