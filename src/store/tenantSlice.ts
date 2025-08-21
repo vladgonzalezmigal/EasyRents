@@ -16,7 +16,8 @@ export interface TenantSlice {
         phone_number: string;
         email: string;
     }>) => Promise<void>;
-    deleteTenants: (propertyIds: number[]) => Promise<void>;
+    deleteAllTenants: (propertyIds: number[]) => Promise<void>;
+    deleteTenants: (propertyId: number, tenantIds: number[]) => Promise<void>;
 }
 
 export const createTenantSlice = (
@@ -161,18 +162,18 @@ export const createTenantSlice = (
             }));
         }
     },
-
-    deleteTenants: async (propertyIds: number[]) => {
+    // delete all tenants for a given property
+    deleteAllTenants: async (propertyIds: number[]) => {
         try {
             set({ isCudLoadingTenants: true });
-            const response = await TenantService.deleteTenants(propertyIds);
+            const response = await TenantService.deleteAllTenants(propertyIds);
             
             if (response.error === null && response.data !== null) {
                 set((state) => {
                     const tenantMap = new Map(state.tenantState.data);
                     
                     // Remove all tenants associated with the deleted properties
-                    for (const [propertyId, tenants] of tenantMap.entries()) {
+                    for (const [propertyId,] of tenantMap.entries()) {
                         if (propertyIds.includes(propertyId)) {
                             tenantMap.delete(propertyId);
                         }
@@ -206,6 +207,43 @@ export const createTenantSlice = (
                     data: state.tenantState.data,
                     error: errorMessage
                 }
+            }));
+        }
+    },
+
+    // delete specific tenants by id for a single property
+    deleteTenants: async (propertyId: number, tenantIds: number[]) => {
+        try {
+            set({ isCudLoadingTenants: true });
+            const response = await TenantService.deleteTenants(propertyId, tenantIds);
+            
+            if (response.error === null) {
+                set((state) => {
+                    const tenantMap = new Map(state.tenantState.data);
+                    const existing = tenantMap.get(propertyId) || [];
+                    const remaining = existing.filter(t => !tenantIds.includes(t.id));
+                    if (remaining.length > 0) {
+                        tenantMap.set(propertyId, remaining);
+                    } else {
+                        tenantMap.delete(propertyId);
+                    }
+
+                    return {
+                        tenantState: { data: tenantMap, error: null },
+                        isCudLoadingTenants: false
+                    };
+                });
+            } else {
+                set((state) => ({
+                    isCudLoadingTenants: false,
+                    tenantState: { data: state.tenantState.data, error: response.error }
+                }));
+            }
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'Error deleting selected tenants.';
+            set((state) => ({
+                isCudLoadingTenants: false,
+                tenantState: { data: state.tenantState.data, error: errorMessage }
             }));
         }
     },

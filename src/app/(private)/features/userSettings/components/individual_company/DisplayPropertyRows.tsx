@@ -62,7 +62,7 @@ const DisplayPropertyRows: React.FC<DisplayPropertyRowsProps> = ({ properties, d
                         <tr className={`text-gray-700 ${delete_mode ? `cursor-pointer ${rowsToDelete.has(property.id) ? 'bg-red-200' : ''}` : 'hover:bg-gray-50'}`}
                         onClick={() => { if (delete_mode) addToDelete(property.id); }}>
                             {/* Carat Column */}
-                            <td className="w-[50px] px-3 py-4 text-center">
+                            <td className="w-[25px] px-1 py-4 text-center">
                                 {hasTenants && (
                                     <button
                                         onClick={(e) => {
@@ -88,14 +88,19 @@ const DisplayPropertyRows: React.FC<DisplayPropertyRowsProps> = ({ properties, d
                                     property.address
                                 )}
                             </td>
+                            {/* Rent Amount Column */}
+                            <td className="px-6 py-4 font-medium text-left">
+                                ${propertyTenants.reduce((sum, tenant) => sum + Number(tenant.rent_amount), 0).toLocaleString('en-US')}
+                            </td>
                             {/* Tenant Count Column */}
                             <td className="px-6 py-4 font-medium text-left">
                                 {propertyTenants.length}
                             </td>
+                            
                         </tr>
                         {/* Expandable Tenant Details */}
                         {isExpanded && hasTenants && (
-                            <DisplayTenantRows propertyTenants={propertyTenants} />
+                            <DisplayTenantRows property_id={property.id} propertyTenants={propertyTenants} />
                         )}
                     </React.Fragment>
                 );

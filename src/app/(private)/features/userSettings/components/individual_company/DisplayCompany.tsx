@@ -7,7 +7,7 @@ import { Property } from "../../types/propertyTypes";
 import DisplayPropertyRows from "./DisplayPropertyRows";
 import MinimizeIcon from "@/app/(private)/components/svgs/MinimizeIcon";
 import MaximizeIcon from "@/app/(private)/components/svgs/MaximizeIcon";
-import MailIcon from "@/app/(private)/components/svgs/MailIcon";
+import HouseIcon from "@/app/(private)/components/svgs/HouseIcon";
 import TrashIcon from "@/app/(private)/components/svgs/TrashIcon";
 import { useStore } from "@/store";
 import EditIcon from "@/app/(private)/components/svgs/EditIcon";
@@ -152,7 +152,7 @@ export default function CompanyTemplate(
             {/* Section Header */}
             <div className="flex items-center gap-4 bg-[#B6E8E4] border-2 border-[#B6E8E4] rounded-t-md py-4 w-[900px] pl-2">
                 <div className="w-12 h-12 bg-[#DFF4F3] rounded-full flex items-center justify-center">
-                    <MailIcon className="text-[#2A7D7B] w-6 h-6" />
+                    <HouseIcon className="text-[#2A7D7B] w-6 h-6" />
                 </div>
                 <h2 className="text-2xl font-semibold text-[#4A4A4A]">{activeCompany.company_name}</h2>
             </div>
@@ -232,13 +232,16 @@ export default function CompanyTemplate(
                                 <table className="min-w-full divide-y divide-gray-200">
                                     <thead className={`${isMaximized ? '' : 'sticky top-0'} z-10 text-[16px] bg-white after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-full after:h-[1.5px] after:bg-[#E4F0F6]`}>
                                         <tr>
-                                            <th scope="col" className="w-[50px] min-w-[50px] max-w-[50px] mx-auto overflow-hidden px-6 py-3 text-left text-xs text-[#80848A] text-[16px] tracking-wider">
+                                            <th scope="col" className="w-[25px] min-w-[25px] max-w-[25px] mx-auto overflow-hidden px-6 py-3 text-left text-xs text-[#80848A] text-[16px] tracking-wider">
                                                 {/* Space for the chevron */}
                                              </th>
                                             <th scope="col" className="w-[250px] min-w-[250px] max-w-[250px] mx-auto overflow-hidden px-6 py-3 text-left text-xs text-[#80848A] text-[16px] tracking-wider">
                                                 Address
                                             </th>
-                                            <th scope="col" className="w-[250px] min-w-[250px] max-w-[250px] mx-auto overflow-hidden px-6 py-3 text-left text-xs text-[#80848A] text-[16px] tracking-wider">
+                                            <th scope="col" className="w-[150px] min-w-[150px] max-w-[150px] mx-auto overflow-hidden px-6 py-3 text-left text-xs text-[#80848A] text-[16px] tracking-wider">
+                                                Total Rent
+                                            </th>
+                                            <th scope="col" className="w-[100px] min-w-[100px] max-w-[100px] mx-auto overflow-hidden px-6 py-3 text-left text-xs text-[#80848A] text-[16px] tracking-wider">
                                                 # of Tenants
                                             </th>
 

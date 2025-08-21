@@ -161,7 +161,7 @@ export const createPropertySlice = (
             if (tenantState && Array.isArray(propertyIds)) {
                 const propertyIdsWithTenants = propertyIds.filter((id) => tenantState.has(id));
                 if (propertyIdsWithTenants.length > 0) {
-                    await get().deleteTenants(propertyIdsWithTenants);
+                    await get().deleteAllTenants(propertyIdsWithTenants);
                 }
             }
             const response = await PropertyService.deleteProperty(propertyIds);
