@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Property } from "../../types/propertyTypes";
 import { useStore } from "@/store";
 import ChevronIcon from "@/app/(private)/components/svgs/ChevronIcon";
@@ -12,11 +12,21 @@ interface DisplayPropertyRowsProps {
     edit_mode: boolean;
     editedAddresses: Map<number, string>;
     onEditAddressChange: (propertyId: number, address: string) => void;
+    matchingPropertyIds: Set<number>;
 }
 
-const DisplayPropertyRows: React.FC<DisplayPropertyRowsProps> = ({ properties, delete_mode, rowsToDelete, addToDelete, edit_mode, editedAddresses, onEditAddressChange }) => {
+const DisplayPropertyRows: React.FC<DisplayPropertyRowsProps> = ({ properties, delete_mode, rowsToDelete, addToDelete, edit_mode, editedAddresses, onEditAddressChange, matchingPropertyIds }) => {
     const { tenantState } = useStore()
     const [expandedProperties, setExpandedProperties] = useState<Set<number>>(new Set());
+
+    // Auto-expand properties that contain matching tenants
+    useEffect(() => {
+        if (matchingPropertyIds.size > 0) {
+            setExpandedProperties(matchingPropertyIds);
+        } else {
+            setExpandedProperties(new Set())
+        }
+    }, [matchingPropertyIds]);
 
     const togglePropertyExpansion = (propertyId: number) => {
         setExpandedProperties(prev => {

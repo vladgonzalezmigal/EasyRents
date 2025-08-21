@@ -22,33 +22,77 @@ export default function CompanyTemplate(
         activeCompany: activeCompany,
     }: CompanyTemplateProps
 ) {
-    const { propertyState, deleteProperty, updateProperties, isCudLoadingProperties } = useStore()
+    const { propertyState, deleteProperty, updateProperties, isCudLoadingProperties, tenantState } = useStore()
     const properties = useMemo(() => {
         const properties = propertyState.data?.get(activeCompany.id) || [];
         return [...properties].reverse(); // Create a copy and reverse it
     }, [propertyState.data, activeCompany.id]);
 
+    // Create inverse map: property_id -> tenant names for searching
+    const propertyTenantNames = useMemo(() => {
+        const namesMap = new Map<number, string[]>();
+        if (tenantState.data) {
+            for (const [propertyId, tenants] of tenantState.data.entries()) {
+                const names = tenants.map(tenant => 
+                    `${tenant.first_name} ${tenant.last_name}`.toLowerCase()
+                );
+                namesMap.set(propertyId, names);
+            }
+        }
+        return namesMap;
+    }, [tenantState.data]);
+
     const [filteredProperites, setFilteredProperties] = useState<Property[]>([]);
     const [isMaximized, setIsMaximized] = useState<boolean>(true);
     const [searchByAddr, setsearchByAddr] = useState<boolean>(true);
+    const [matchingPropertyIds, setMatchingPropertyIds] = useState<Set<number>>(new Set());
 
     // Update filtered properties whenever properties change
     useEffect(() => {
         setFilteredProperties(properties);
+        setMatchingPropertyIds(new Set());
     }, [properties]);
 
     const handleSwapSearchMode = () => {
         setsearchByAddr((prev) => !prev);
         setFilteredProperties(properties); // Reset filtered properties when swapping search mode
+        setMatchingPropertyIds(new Set());
     };
 
     const toggleMaximize = () => setIsMaximized(prev => !prev);
 
     const handleSearch = (query: string) => {
-        const filtered = properties.filter(p =>
-            (searchByAddr ? p.address : p.address).toLowerCase().includes(query.toLowerCase())
-        );
+        if (!query.trim()) {
+            setFilteredProperties(properties);
+            setMatchingPropertyIds(new Set());
+            return;
+        }
+
+        const queryLower = query.toLowerCase();
+        const matchingIds = new Set<number>();
+        
+        const filtered = properties.filter(p => {
+            let matches = false;
+            
+            if (searchByAddr) {
+                // Search by address
+                matches = p.address.toLowerCase().includes(queryLower);
+            } else {
+                // Search by tenant names
+                const tenantNames = propertyTenantNames.get(p.id) || [];
+                matches = tenantNames.some(name => name.includes(queryLower));
+                
+                // If tenant matches, add property to matching IDs for auto-expansion
+                if (matches) {
+                    matchingIds.add(p.id);
+                }
+            }
+            
+            return matches;
+        });
+        
         setFilteredProperties(filtered);
+        setMatchingPropertyIds(matchingIds);
     };
 
     // Crud operations
@@ -134,7 +178,6 @@ export default function CompanyTemplate(
                                                     handleDeleteClick();
                                                     setDeleteMode(false);
                                                 } else {
-                                                    // enabling delete mode disables edit mode
                                                     setEditMode(false);
                                                     setEditedAddresses(new Map());
                                                     setDeleteMode((prev) => !prev);
@@ -204,7 +247,7 @@ export default function CompanyTemplate(
                                     <tbody className="bg-white divide-y divide-[#E4F0F6] divide-y-[2px] border-b border-[#E4F0F6]">
                                         {properties.length === 0 ? (
                                             <tr>
-                                                <td colSpan={6} className="text-center text-gray-500 py-4">
+                                                <td colSpan={3} className="text-center text-gray-500 py-4">
                                                     No properties found
                                                 </td>
                                             </tr>
@@ -217,6 +260,7 @@ export default function CompanyTemplate(
                                                 edit_mode={editMode}
                                                 editedAddresses={editedAddresses}
                                                 onEditAddressChange={handleAddressEdit}
+                                                matchingPropertyIds={matchingPropertyIds}
                                             />
                                         }
                                     </tbody>
