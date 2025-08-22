@@ -12,7 +12,7 @@ interface LayoutProps {
 
 const ProtectedLayout = ({ children }: LayoutProps) => {
   const { fetchCompany: fetchCompany, companyState: companyState, fetchProperties : fetchProperties,  propertyState: propertyState, tenantState : tenantState,
-    fetchTenants: fetchTenants, setGlobalLoading, 
+    fetchTenants: fetchTenants, setGlobalLoading, fetchEmail, isLoadingEmail, emailState,
    isGlobalLoading, isLoadingCompany: isLoadingStore, isLoadingProperties, isLoadingTenants } = useStore();
 
   // (1) Health check effect
@@ -28,8 +28,8 @@ const ProtectedLayout = ({ children }: LayoutProps) => {
   }, []);
 
    // (2) load user settings 
-   const loadingSettings : boolean = isLoadingStore || isLoadingProperties || isLoadingTenants
-  //  || isLoadingVendors;
+   const loadingSettings : boolean = isLoadingStore || isLoadingProperties || isLoadingTenants || isLoadingEmail
+
 
   // Settings fetch effect
   useEffect(() => {
@@ -38,18 +38,22 @@ const ProtectedLayout = ({ children }: LayoutProps) => {
       try {
         await fetchCompany(); // companies need to be fetched first to map properties
         await fetchProperties();
-        await fetchTenants();
+        await Promise.all([
+          fetchTenants(),
+          fetchEmail()
+        ]);
       } catch (e) {
         console.error("Error loading settings:", e);
       }
     };
 
-    const missingSettings = (companyState.data === null || propertyState.data === null || tenantState.data === null);
+    const missingSettings = (companyState.data === null || propertyState.data === null || tenantState.data === null) 
+    || (emailState.emails === null);
 
     if (missingSettings) { // only fetch settings if user is authenticated and settings are missing
        fetchSettings();
     }
-  }, [fetchCompany, companyState, fetchProperties, propertyState, fetchTenants, tenantState]);
+  }, [fetchCompany, companyState, fetchProperties, propertyState, fetchTenants, tenantState, fetchEmail, emailState]);
   // (2) monitor path changes
   const pathname = usePathname();
   useEffect(() => {

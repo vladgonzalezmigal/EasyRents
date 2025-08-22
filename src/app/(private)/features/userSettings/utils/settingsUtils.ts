@@ -12,18 +12,12 @@ export const sections = [
       icon: BuildingIcon,
       content: StoreSection
     },
-    // {
-    //   id: 'company',
-    //   title: 'Company',
-    //   icon: MailIcon,
-    //   content: CompanySection
-    // },
-    // {
-    //   id: 'email',
-    //   title: 'Email',
-    //   icon: MailIcon,
-    //   content: EmailSection
-    // },
+    {
+      id: 'email',
+      title: 'Email',
+      icon: MailIcon,
+      content: EmailSection
+    },
     {
       id: 'account',
       title: 'Account',
