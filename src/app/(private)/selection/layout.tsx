@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef } from "react";
-import Navbar from "../components/navigation/Navbar";
+import Navbar from "../components/navigation/SideBar";
 import { usePathname } from "next/navigation";
 import { drawDottedBackground } from "../utils/styling";
 import { getBackConfig } from "../utils/nav";

@@ -6,33 +6,24 @@ import SignOutBtn from './SignOutBtn';
 import HomeButton from "./HomeButton";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import SalesIcon from "../svgs/SalesIcon";
-import ExpensesIcon from "../svgs/ExpensesIcon";
-import PayrollIcon from "../svgs/PayrollIcon";
-import StoreLinks from "./StoreLinks";
 import { Company } from "../../features/userSettings/types/CompanyTypes";
 import { useStore } from "@/store";
 import ChevronNav from "./ChevronNav";
-import SettingsSubLinks from "./SettingsSubLinks";
 import MailIcon from "../svgs/MailIcon";
 import GearIcon from "../svgs/GearIcon";
 import CalculatorIcon from "../svgs/CalculatorIcon";
+import BuildingIcon from "../svgs/BuildingIcon";
 
 interface NavbarProps {
     backURL?: string;
 }
 
-type SettingsType = 'expenses' | 'payroll';
-
-
 export default function Navbar({ backURL }: NavbarProps) {
     const pathname = usePathname();
     const activePage: string | undefined = getActiveForm(pathname);
-    const { companyState: storeState, setGlobalLoading } = useStore();
-    const storeSubpages : Company[] | null  = storeState.stores?.filter(store => store.active) || null;
-    // if null need to ask user to refresh page
-    const formPages: string[] = ["sales", "expenses", "payroll"];
-    formPages[0] = formPages[0] + (storeSubpages? `/${storeSubpages[0].id}` : '');
+    const { companyState: companyState, setGlobalLoading } = useStore();
+
+    const companies : Company[] | null  = companyState.data?.filter(company => company.active) || [];
     const otherPages: string[] = ["mail","settings", "analytics"];
 
     const getOtherPageLink = (page: string) => {
@@ -60,43 +51,36 @@ export default function Navbar({ backURL }: NavbarProps) {
                 </div>
                 <div className="flex flex-col space-y-6">
                     <div>
-                        <p className="font-semibold text-[#6B7280] text-[14px] tracking-wide">Forms</p>
+                        <p className="font-semibold text-[#6B7280] text-[14px] tracking-wide">Companies</p>
                     </div>
-                    {/* Links */}
+                    {/* Company Links */}
                     <div className="flex flex-col gap-y-2.5 w-full">
-                        {formPages.map((page) => (
-                            <div key={page} className="w-full flex flex-col">
+                        {companies.map((page) => (
+                            <div key={page.id} className="w-full flex flex-col">
                                 <div className="w-full">
                                     <Link
-                                        key={page}
+                                        key={page.id}
                                         onNavigate={() => {
                                             // Only executes during SPA navigation
                                             setGlobalLoading(true);
                                           }
 
                                         }
-                                        href={getPagesLink(pathname, (page))}
-                                        className={`w-full flex justify-between h-[52px] hover:bg-[#B6E8E4] text-gray-500 hover:text-[#2A7D7B] rounded-lg pl-3 flex items-center transition-colors duration-200 ${page.includes(activePage) ? 'bg-[#DFF4F3] shadow-sm' : ''}`}
+                                        href={getPagesLink(pathname, (page.id.toString()))}
+                                        className={`w-full flex justify-between h-[52px] hover:bg-[#B6E8E4] text-gray-500 hover:text-[#2A7D7B] rounded-lg pl-3 flex items-center transition-colors duration-200 ${page.company_name.includes(activePage) ? 'bg-[#DFF4F3] shadow-sm' : ''}`}
                                     >
                                         <div className="flex"> 
                                         {/* Icon */}
-                                        <div className={`w-6 h-6 mr-2 flex items-center justify-center ${page.includes('sales') ? 'pb-1' : ''}`}>
-                                            {page === formPages[0] && <SalesIcon className={page.includes(activePage) ? 'text-[#2A7D7B]' : ' '} />}
-                                            {page === "expenses" && <ExpensesIcon className={page.includes(activePage) ? 'text-[#2A7D7B]' : ''} />}
-                                            {page === "payroll" && <PayrollIcon className={page.includes(activePage) ? 'text-[#2A7D7B]' : ''} />}
+                                        <div className={`w-6 h-6 mr-2 flex items-center justify-center`}>
+                                            {<BuildingIcon className={page.company_name.includes(activePage) ? 'text-[#2A7D7B]' : ' '} />}
                                         </div>
-                                        <p className={`text-[16px] capitalize ${page.includes(activePage) ? 'text-[#2A7D7B] font-semibold' : ''}`}>{(page === formPages[0] ? "sales" : page)}</p>
+                                        <p className={`text-[16px] capitalize ${page.company_name.includes(activePage) ? 'text-[#2A7D7B] font-semibold' : ''}`}>{(page.company_name)}</p>
                                         </div>
-                                        <div className={page.includes(activePage) ? 'text-[#2A7D7B]' : ''}>
-                                            <ChevronNav isActive={page.includes(activePage)} />
+                                        <div className={`pb-0.5 ${page.company_name.includes(activePage) ? 'text-[#2A7D7B]' : ''}`}>
+                                            <ChevronNav isActive={page.company_name.includes(activePage)} />
                                         </div>
                                        
                                     </Link>
-                                    {/* Sublinks */}
-                                    <div className={`overflow-hidden transition-all duration-300 ease-in-out ${(page.includes(activePage)) ? 'max-h-96 opacity-100 bg-[#F2FBFA] rounded-b-xl' : 'max-h-0 opacity-0'}`}>
-                                        {page === formPages[0] && <StoreLinks />}
-                                        {page !== formPages[0] && <SettingsSubLinks type={page as SettingsType} />}
-                                    </div>
                                 </div>
                             </div>
                         ))}
