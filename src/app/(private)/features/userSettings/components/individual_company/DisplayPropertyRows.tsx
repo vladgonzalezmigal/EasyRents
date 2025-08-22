@@ -13,9 +13,12 @@ interface DisplayPropertyRowsProps {
     editedAddresses: Map<number, string>;
     onEditAddressChange: (propertyId: number, address: string) => void;
     matchingPropertyIds: Set<number>;
+    onPropertyRowClick?: (property: Property) => void;
 }
 
-const DisplayPropertyRows: React.FC<DisplayPropertyRowsProps> = ({ properties, delete_mode, rowsToDelete, addToDelete, edit_mode, editedAddresses, onEditAddressChange, matchingPropertyIds }) => {
+const DisplayPropertyRows: React.FC<DisplayPropertyRowsProps> = ({ properties, delete_mode, rowsToDelete, addToDelete, edit_mode, editedAddresses, onEditAddressChange, matchingPropertyIds, 
+    onPropertyRowClick
+ }) => {
     const { tenantState } = useStore()
     const [expandedProperties, setExpandedProperties] = useState<Set<number>>(new Set());
 
@@ -59,8 +62,14 @@ const DisplayPropertyRows: React.FC<DisplayPropertyRowsProps> = ({ properties, d
 
                 return (
                     <React.Fragment key={property.id}>
-                        <tr className={`text-gray-700 ${delete_mode ? `cursor-pointer ${rowsToDelete.has(property.id) ? 'bg-red-200' : ''}` : 'hover:bg-gray-50'}`}
-                        onClick={() => { if (delete_mode) addToDelete(property.id); }}>
+                        <tr className={`text-gray-700 ${(delete_mode) ? `cursor-pointer ${rowsToDelete.has(property.id) ? 'bg-red-200' : ''}` : 'hover:bg-gray-50'}`}
+                        onClick={() => {
+                            if (delete_mode) {
+                                addToDelete(property.id);
+                            } else if (!edit_mode && onPropertyRowClick) {
+                                onPropertyRowClick(property);
+                            }
+                        }}>
                             {/* Carat Column */}
                             <td className="w-[25px] px-1 py-4 text-center">
                                 {hasTenants && (

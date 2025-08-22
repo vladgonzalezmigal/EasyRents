@@ -58,8 +58,8 @@ export class TenantService {
         property_id: number;
         first_name: string;
         last_name: string;
-        rent_amount: string;
-        rent_due_date: string;
+        rent_amount: number;
+        rent_due_date: number;
         phone_number: string;
         email: string;
     }>): Promise<TenantResponse> {

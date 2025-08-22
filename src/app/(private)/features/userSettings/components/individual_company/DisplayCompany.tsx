@@ -12,6 +12,8 @@ import TrashIcon from "@/app/(private)/components/svgs/TrashIcon";
 import { useStore } from "@/store";
 import EditIcon from "@/app/(private)/components/svgs/EditIcon";
 import SaveIcon from "@/app/(private)/components/svgs/SaveIcon";
+import PayrollIcon from "@/app/(private)/components/svgs/PayrollIcon";
+import CreateTenantsPopUp from "./CreateTenantsPopUp";
 
 interface CompanyTemplateProps {
     activeCompany: Company;
@@ -98,7 +100,9 @@ export default function CompanyTemplate(
     // Crud operations
     const [deleteMode, setDeleteMode] = useState<boolean>(false);
     const [editMode, setEditMode] = useState<boolean>(false);
+    const [createMode, setCreateMode] = useState<boolean>(false);
     const [rowsDelete, setRowsDelete] = useState<Set<number>>(new Set());
+    const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
 
     // Edit buffer: property id -> new address
     const [editedAddresses, setEditedAddresses] = useState<Map<number, string>>(new Map());
@@ -145,6 +149,18 @@ export default function CompanyTemplate(
         setEditMode((prev) => !prev);
     };
 
+    // Handle property row click for create mode
+    const handlePropertyRowClick = (property: Property) => {
+        if (createMode) {
+            setSelectedProperty(property);
+        }
+    };
+
+    const handleCloseCreatePopup = () => {
+        setCreateMode(false);
+        setSelectedProperty(null);
+    };
+
     return (
         <section
             className="max-w-[900px]" id={activeCompany.company_name.replaceAll(" ", "")}
@@ -169,41 +185,58 @@ export default function CompanyTemplate(
                             <div className={` ${isMaximized ? "min-h-[360px] overflow-y-auto" : " min-h-[360px] max-h-[360px]  overflow-y-auto "}`}>
                                 {/* Begin Table Header */}
                                 <div className="flex items-center justify-between border-b border-b-[#E4F0F6] py-4 relative px-8">
-                                    {/* Edit, Delete */}
+                                    {/* Edit, Delete, Create */}
                                     <div className="flex items-center gap-2">
-                                        <button
-                                            disabled={isCudLoadingProperties || editMode}
-                                            onClick={() => {
-                                                if (rowsDelete.size) {
-                                                    handleDeleteClick();
-                                                    setDeleteMode(false);
-                                                } else {
-                                                    setEditMode(false);
-                                                    setEditedAddresses(new Map());
-                                                    setDeleteMode((prev) => !prev);
-                                                }
-                                            }}
-                                            className={`disabled:opacity-50 cursor-pointer disabled:cursor-default p-2 rounded-full transition-colors ${deleteMode
-                                                ? `text-red-700 hover:text-red-800 ${rowsDelete.size ? 'bg-red-100' : 'bg-red-50'}`
-                                                : 'text-red-500 hover:text-red-600 hover:bg-red-50'
-                                                }`}
-                                        >
-                                            <TrashIcon className="w-5 h-5" />
-                                        </button>
-                                        <button
-                                            onClick={handleEditToggleOrSave}
-                                            disabled={isCudLoadingProperties || deleteMode}
-                                            className={`disabled:opacity-50 disabled:cursor-default cursor-pointer p-2 rounded-full transition-colors ${editMode
-                                                ? 'text-[#0C3C74] hover:text-[#2A7D7B] bg-blue-50'
-                                                : 'text-[#0C3C74] hover:text-[#2A7D7B] hover:bg-gray-100'
-                                                }`}
-                                        >
-                                            {(editMode && editedAddresses.size > 0) ? (
-                                                <SaveIcon className="w-5 h-5" />
-                                            ) : (
-                                                <EditIcon className="w-5 h-5" />
-                                            )}
-                                        </button>
+                                        <div className="flex flex-col items-center"> 
+                                            <button
+                                                disabled={isCudLoadingProperties || editMode}
+                                                onClick={() => {
+                                                    if (rowsDelete.size) {
+                                                        handleDeleteClick();
+                                                        setDeleteMode(false);
+                                                    } else {
+                                                        setEditMode(false);
+                                                        setEditedAddresses(new Map());
+                                                        setDeleteMode((prev) => !prev);
+                                                    }
+                                                }}
+                                                className={`disabled:opacity-50 cursor-pointer disabled:cursor-default p-2 rounded-full transition-colors ${deleteMode
+                                                    ? `text-red-700 hover:text-red-800 ${rowsDelete.size ? 'bg-red-100' : 'bg-red-50'}`
+                                                    : 'text-red-500 hover:text-red-600 hover:bg-red-50'
+                                                    }`}
+                                            >
+                                                <TrashIcon className="w-5 h-5" />
+                                            </button>
+                                            <p className="text-xs">delete</p>
+                                        </div>
+                                        <div className="flex flex-col items-center"> 
+                                            <button
+                                                onClick={handleEditToggleOrSave}
+                                                disabled={isCudLoadingProperties || deleteMode}
+                                                className={`disabled:opacity-50 disabled:cursor-default cursor-pointer p-2 rounded-full transition-colors ${editMode
+                                                    ? 'text-[#0C3C74] hover:text-[#2A7D7B] bg-blue-50'
+                                                    : 'text-[#0C3C74] hover:text-[#2A7D7B] hover:bg-gray-100'
+                                                    }`}
+                                            >
+                                                {(editMode && editedAddresses.size > 0) ? (
+                                                    <SaveIcon className="w-5 h-5" />
+                                                ) : (
+                                                    <EditIcon className="w-5 h-5" />
+                                                )}
+                                            </button>
+                                            <p className="text-xs pr-0.5">edit</p>
+                                        </div>
+                                        <div className="flex flex-col items-center"> 
+                                            <button
+                                                onClick={() => setCreateMode((prev) => !prev)}
+                                                disabled={deleteMode || editMode}
+                                                className={`disabled:opacity-50 disabled:cursor-default cursor-pointer p-2 rounded-full transition-colors text-[#2A7D7B] hover:text-[#0C3C74] hover:bg-[#DFF4F3]
+                                                    ${createMode ? 'bg-[#DFF4F3]' : ''}`}
+                                            >
+                                                <PayrollIcon className="w-5 h-5" />
+                                            </button>
+                                            <p className="text-xs pr-0.5">create</p>
+                                        </div>
                                     </div>
                                     {/* Search Bar and Swap Button */}
                                     <div className="flex items-center gap-2">
@@ -264,6 +297,7 @@ export default function CompanyTemplate(
                                                 editedAddresses={editedAddresses}
                                                 onEditAddressChange={handleAddressEdit}
                                                 matchingPropertyIds={matchingPropertyIds}
+                                                onPropertyRowClick={handlePropertyRowClick}
                                             />
                                         }
                                     </tbody>
@@ -273,6 +307,13 @@ export default function CompanyTemplate(
                     </div>
                 </div>
             </div>
+        {/* Create Tenants PopUp */}
+        {createMode && selectedProperty !== null && (
+            <CreateTenantsPopUp
+                property={selectedProperty}
+                onClose={handleCloseCreatePopup}
+            />
+        )}
         </section>
     );
 }

@@ -25,11 +25,11 @@ export default function CreateProperty({ company_id: company_id, }: CreateProper
         last_name: string;
         email: string;
         phone_number: string;
-        rent_amount: string;
-        rent_due_date: string;
+        rent_amount: number;
+        rent_due_date: number;
     }>>([]);
 
-    const handleTenantChange = (index: number, field: string, value: string) => {
+    const handleTenantChange = (index: number, field: string, value: string | number) => {
         setTenants(prev => {
             const newTenants = [...prev];
             if (!newTenants[index]) {
@@ -38,10 +38,15 @@ export default function CreateProperty({ company_id: company_id, }: CreateProper
                     last_name: '',
                     email: '',
                     phone_number: '',
-                    rent_amount: '',
-                    rent_due_date: ''
+                    rent_amount: 0,
+                    rent_due_date: 1
                 };
             }
+            if (field === 'rent_amount') {
+                value = isNaN(Number(value)) ? 0 : Number(value) < 0 ? 0 : Number(value);
+            } else if (field === 'rent_due_date') {
+                value = isNaN(Number(value)) ? 1 : Number(value) < 1 ? 1 : Number(value);
+            } 
             newTenants[index] = { ...newTenants[index], [field]: value };
             return newTenants;
         });
@@ -52,16 +57,13 @@ export default function CreateProperty({ company_id: company_id, }: CreateProper
             return
         }
         e.preventDefault();
-        // TODO: fix small comma bug with address
-        const address = `${capitalizeStr(address1)} ${capitalizeStr(address2)}, ${capitalizeStr(city)}, ${stateVal.toUpperCase()}, ${zip}`.trim();
+        const address = (address2 != '') ? `${capitalizeStr(address1)} ${capitalizeStr(address2)}` : capitalizeStr(address1);
+        const complete_address = `${address}, ${capitalizeStr(city)}, ${stateVal.toUpperCase()}, ${zip}`.trim();
         if (address1 && city && stateVal && zip ) {
-            createProperty(Number(company_id), address, tenants).then(() => {
+            createProperty(Number(company_id), complete_address, tenants).then(() => {
                 setAddress1(''); setAddress2(''); setCity(''); setStateVal(''); setZip('');
                 setTenantCount(0);
                 setTenants([]);
-                // let new_properties = propertyState.data?.get(Number(company_id)) || [];
-                // new_properties = [...properties].reverse();
-                // console.log("after len ", new_properties.length)
             });            
         }
     };
@@ -99,26 +101,10 @@ export default function CreateProperty({ company_id: company_id, }: CreateProper
                         <input type="text" id="zip" required value={zip} onChange={e => setZip(e.target.value)} placeholder="94805" className="w-[100px] h-[40px] border border-2 rounded-md px-2 focus:outline-none focus:ring-1 focus:ring-[#2A7D7B] border-[#8ABBFD]" />
                     </div>
                 </div>
-                {/* Tenant & Rent Inputs */}
-                <div className="flex gap-4 pt-2 pb-4 items-center">
-                    <div className="flex items-center gap-3 ml-2">
-                        <label htmlFor="tenantCount" className="text-[18px] text-[#404040] font-bold whitespace-nowrap"># of Tenants</label>
-                        <select 
-                            id="tenantCount" 
-                            value={tenantCount} 
-                            onChange={e => setTenantCount(Number(e.target.value))}
-                            className="w-[120px] h-[40px] border border-2 rounded-md px-2 focus:outline-none focus:ring-1 focus:ring-[#2A7D7B] border-[#8ABBFD] bg-white"
-                        >
-                            {Array.from({ length: 101 }, (_, i) => (
-                                <option key={i} value={i}>{i}</option>
-                            ))}
-                        </select>
-                    </div>
-                </div>
-                
-                {/* Dynamic Tenant Rows */}
+                {/* Dynamic Tenant Rows & Tenant Count Selector */}
                 <CreateTenant 
                     tenantCount={tenantCount}
+                    setTenantCount={setTenantCount}
                     tenants={tenants}
                     handleTenantChange={handleTenantChange}
                 />

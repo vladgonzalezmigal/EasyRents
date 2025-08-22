@@ -2,26 +2,41 @@
 
 interface CreateTenantProps {
     tenantCount: number;
+    setTenantCount: (count: number) => void;
     tenants: Array<{
         first_name: string;
         last_name: string;
         email: string;
         phone_number: string;
-        rent_amount: string;
-        rent_due_date: string;
+        rent_amount: number;
+        rent_due_date: number;
     }>;
     handleTenantChange: (index: number, field: string, value: string) => void;
 }
 
 export default function CreateTenant({
     tenantCount,
+    setTenantCount,
     tenants,
     handleTenantChange
 }: CreateTenantProps) {
-    if (tenantCount === 0) return null;
-
     return (
         <div>
+            <div className="flex gap-4 pt-2 pb-4 items-center">
+                <div className="flex items-center gap-3 ml-2">
+                    <label htmlFor="tenantCount" className="text-[18px] text-[#404040] font-bold whitespace-nowrap"># of Tenants</label>
+                    <select 
+                        id="tenantCount" 
+                        value={tenantCount} 
+                        onChange={e => setTenantCount(Number(e.target.value))}
+                        className="w-[120px] h-[40px] border border-2 rounded-md px-2 focus:outline-none focus:ring-1 focus:ring-[#2A7D7B] border-[#8ABBFD] bg-white"
+                    >
+                        {Array.from({ length: 101 }, (_, i) => (
+                            <option key={i} value={i}>{i}</option>
+                        ))}
+                    </select>
+                </div>
+            </div>
             {tenantCount > 0 && Array.from({ length: tenantCount }, (_, index) => (
                 <div key={index} className="mb-6">
                     <div className="text-lg font-semibold text-[#2A7D7B] mb-3 ml-2">Tenant #{index + 1}</div>
@@ -90,6 +105,7 @@ export default function CreateTenant({
                             <label htmlFor={`rent_due_date${index}`} className="text-[16px] text-[#80848A] font-semibold text-left mb-1 ml-1">Rent Due Date (day)</label>
                             <input
                                 type="number"
+                                max={31}
                                 id={`rent_due_date${index}`}
                                 required
                                 value={tenants[index]?.rent_due_date || ''}

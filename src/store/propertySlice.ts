@@ -11,8 +11,8 @@ export interface PropertySlice {
     createProperty: (company_id: number, address: string, tenants?: Array<{
         first_name: string;
         last_name: string;
-        rent_amount: string;
-        rent_due_date: string;
+        rent_amount: number;
+        rent_due_date: number;
         phone_number: string;
         email: string;
     }>) => Promise<void>;
@@ -54,8 +54,8 @@ export const createPropertySlice = (
     createProperty: async (company_id: number, address: string, tenants?: Array<{
         first_name: string;
         last_name: string;
-        rent_amount: string;
-        rent_due_date: string;
+        rent_amount: number;
+        rent_due_date: number;
         phone_number: string;
         email: string;
     }>) => {
