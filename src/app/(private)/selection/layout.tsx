@@ -7,14 +7,19 @@ import { drawDottedBackground } from "../utils/styling";
 import { getBackConfig } from "../utils/nav";
 import TopBar from "../components/navigation/topbar/TopBar";
 import { getActiveForm } from "../utils/nav";
+import { useStore } from "@/store";
 
 interface PrivateLayoutProps {
   children: React.ReactNode;
 }
 
 export default function PrivateLayout({ children }: PrivateLayoutProps) {
+
+  const { companyState } = useStore();
   const pathname = usePathname();
-  const activePage: string | undefined = getActiveForm(pathname);
+  const id = pathname.split('/')[3] 
+  const company_name = companyState.data?.find(company => company.id.toString() === id)?.company_name || "Company";
+  const activePage: string | undefined = getActiveForm(pathname, company_name != "Company" ? company_name : undefined);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { backURL } = getBackConfig(pathname);
 

@@ -2,6 +2,8 @@ const today = new Date();
 const currentYear = today.getFullYear().toString();
 const currentMonth: number = (today.getMonth())
 const root = "/selection";
+const pages: string[] = ["rents"];
+const otherPages: string[] = ["mail", "settings", "analytics"];
 
 
 /**
@@ -10,17 +12,13 @@ const root = "/selection";
  * @param pathname - The current URL path
  * @returns The active page (sales, payroll, expenses) or undefined if not found
  */
-export const getActiveForm = (pathname: string): string => {
-  const pages: Pages[] = ["sales", "payroll", "expenses"];
-  
-  // Check if any of the page names appear in the pathname
+export const getActiveForm = (pathname: string, company_name?: string): string => {  
   for (const page of pages) {
     if (pathname.includes(page)) {
-      return page;
+      return page + (company_name ? `: ${company_name}` : '');
     }
   }
 
-  const otherPages: string[] = ["mail", "settings", "analytics"];
   for (const page of otherPages) {
     if (pathname.includes(page)) {
       return page;
@@ -30,34 +28,6 @@ export const getActiveForm = (pathname: string): string => {
   // Return undefined if no page is found in the pathname
   return 'selection';
 };
-
-/**
- * Extracts the active store ID from the current path
- * 
- * @param storeIDs - Array of store IDs to check against
- * @param pathname - The current URL path
- * @returns The active store ID or 'error' if not found
- */
-export const getActiveSubpage = (storeIDs: string[], pathname: string): string => {
-  const pathParts = pathname.split('/');
-  
-  // Check if pathParts[3] matches any storeID
-  if (pathParts.length > 3) {
-    const potentialStoreID = pathParts[3];
-    if (storeIDs.includes(potentialStoreID)) {
-      return potentialStoreID;
-    }
-  }
-  
-  // Return error if no store ID is found in the pathname
-  return 'error';
-};
-
-
-/**
- * Type representing the available pages in the application
- */
-export type Pages = "sales" | "payroll" | "expenses";
 
 /**
  * Function to generate page links based on current path and target page
@@ -102,14 +72,13 @@ interface BackConfig {
  */
 
 export const getBackConfig = (path: string): BackConfig => {
-    // Determine the back URL based on path pattern
     let backURL: string | undefined;
     let layers = path.split('/')
     if (layers.length === 4) { // calendar level 
       return { backURL: root  };
-    } else if (layers.length === 5) { // rents level
+    } else if (layers.length === 6) { // rents level
       backURL = root + '/rents/' + layers[3];
     }
     
-    return { backURL: root };
+    return { backURL: backURL || root };
 }; 

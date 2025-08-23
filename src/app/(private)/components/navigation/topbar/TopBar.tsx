@@ -2,13 +2,11 @@
 
 import { useEffect } from 'react';
 import HouseUserIcon from '../../svgs/HouseUserIcon';
-import SalesIcon from '../../svgs/SalesIcon';
-import ExpensesIcon from '../../svgs/ExpensesIcon';
-import PayrollIcon from '../../svgs/PayrollIcon';
 import MailIcon from '../../svgs/MailIcon';
 import GearIcon from '../../svgs/GearIcon';
 import CalculatorIcon from '../../svgs/CalculatorIcon';
 import { useStore } from '@/store';
+import HouseIcon from '../../svgs/HouseIcon';
 
 interface TopBarProps {
     activePage: string;
@@ -24,15 +22,12 @@ export default function TopBar({ activePage }: TopBarProps) {
     }, [fetchUserEmail, userEmail]);
 
     const getIcon = () => {
-        switch (activePage) {
+        const filteredPage = activePage.toLowerCase().startsWith("rents:") ? "rents" : activePage;
+        switch (filteredPage) {
             case 'selection':
                 return <HouseUserIcon className="w-6 h-6 text-[#2A7D7B]" />;
-            case 'sales':
-                return <SalesIcon className="w-6 h-6 text-[#2A7D7B]" />;
-            case 'expenses':
-                return <ExpensesIcon className="w-6 h-6 text-[#2A7D7B]" />;
-            case 'payroll':
-                return <PayrollIcon className="w-6 h-6 text-[#2A7D7B]" />;
+            case 'rents':
+                return <HouseIcon className="w-6 h-6 text-[#2A7D7B]" />;
             case 'mail':
                 return <MailIcon className="w-6 h-6 text-[#2A7D7B]" />;
             case 'settings':

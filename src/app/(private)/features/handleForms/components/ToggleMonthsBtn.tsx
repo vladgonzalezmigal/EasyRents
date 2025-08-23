@@ -5,12 +5,11 @@ import { usePathname, useRouter } from 'next/navigation';
 import { months } from '@/app/(private)/utils/dateUtils';
 
 interface ToggleMonthsBtnProps {
-    type: 'sales' | 'payroll' | 'expenses';
     currentMonth: number;
     currentYear: number;
 }
 
-export default function ToggleMonthsBtn({ type, currentMonth, currentYear }: ToggleMonthsBtnProps) {
+export default function ToggleMonthsBtn({  currentMonth, currentYear }: ToggleMonthsBtnProps) {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
@@ -18,13 +17,7 @@ export default function ToggleMonthsBtn({ type, currentMonth, currentYear }: Tog
     const handleNavigate = (monthIndex: number) => {
         const month = monthIndex + 1; // Convert to 1-based month
         const pathSegments = pathname.split('/');
-        
-        // Replace the month segment
-        if (type === 'payroll') {
-            pathSegments[pathSegments.length - 2] = month.toString();
-        } else {
-            pathSegments[pathSegments.length - 1] = month.toString();
-        }
+        pathSegments[pathSegments.length - 1] = month.toString();
         
         router.push(pathSegments.join('/'));
         setIsOpen(false);
