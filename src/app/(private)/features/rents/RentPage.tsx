@@ -10,8 +10,9 @@ import { AccountingData } from './rentTypes';
 
 export default function RentPage() {
 
-    const { year, month } = useParams();
+    const {year, month } = useParams();
     const [accountingData, setAccountingData] = useState<AccountingData>(new Map());
+    console.log("keys num", accountingData.size)
     // const firstDay = new Date(Number(year), Number(month) - 1, 1);
     // const lastDay = new Date(Number(year), Number(month), 0);
 
@@ -29,7 +30,6 @@ export default function RentPage() {
     //     fetchRentData();
 
     // }, [startDate, endDate]);
-    console.log("loading rents table ")
     return (
         <div className="w-full h-full flex flex-col items-center justify-center">
             {false ? (
@@ -55,40 +55,8 @@ export default function RentPage() {
 
                     {/* Table Component */}
                      <div className="w-full flex items-center justify-center"> 
-                        <RentTable accounting_data={accountingData} />
+                        <RentTable accounting_data={accountingData} setAccountingData={setAccountingData} />
                     </div>
-                    {/* {payrollData.length === 0 ? (
-                        <div className="w-full mb-8">
-                            <CurEmployeeRows
-                                newPayrolls={newPayrolls}
-                                setNewPayrolls={setNewPayrolls}
-                                endDate={endDate}
-                                onSubmitCreate={(e) => handleSubmitCreate(e, newPayrolls)}
-                                cudLoading={cudLoading}
-                            />
-                        </div>
-                    ) : (
-                        <div className="w-full">
-                            <PayrollTable
-                                data={payrollData}
-                                onCreate={newPayrollInputChange}
-                                onSubmitCreate={(e) => handleSubmitCreate(e, newPayrolls)}
-                                cudLoading={cudLoading}
-                                cudError={cudError}
-                                deleteConfig={deleteConfig}
-                                handleDelete={handleDelete}
-                                deleteMode={deleteMode}
-                                onEdit={handleEdit}
-                                editConfig={{
-                                    mode: editMode,
-                                    editedRows: editedRows,
-                                    validationErrors: validationErrors,
-                                    validationFunction: editPayrollRowValidation,
-                                    onRowEdit: newRowToEditInputChange,
-                                }}
-                            />
-                        </div>
-                    )} */}
                 </div>
             )}
         </div>

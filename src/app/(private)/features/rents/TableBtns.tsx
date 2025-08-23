@@ -2,8 +2,8 @@
 
 import TrashIcon from "@/app/(private)/components/svgs/TrashIcon";
 import EditIcon from "@/app/(private)/components/svgs/EditIcon";
-import PlusIcon from "@/app/(private)/components/svgs/PlusIcon";
 import { Payroll } from "@/app/(private)/types/formTypes";
+import PayrollIcon from "../../components/svgs/PayrollIcon";
 
 interface EditConfig {
     mode: boolean;
@@ -17,7 +17,7 @@ interface PayrollBtnsProps {
     // editConfig: EditConfig
     // onEdit: () => void;
     // cudLoading: boolean;
-    // // onCreateToggle: () => void;
+    onSync: () => void;
     // handleDelete?: () => void;
     // canDelete: boolean;
 }
@@ -29,7 +29,7 @@ export default function TableBtns({
     // editConfig,
     // onEdit,
     // cudLoading,
-    // // onCreateToggle,
+    onSync,
     // handleDelete,
     // canDelete
 }: PayrollBtnsProps) {
@@ -87,18 +87,20 @@ export default function TableBtns({
                 </div>
 
                 {/* Create Button */}
-                {/* <div className="flex flex-col items-center gap-y-2">
+                <div className="flex flex-col items-center gap-y-2">
                     <button
-                        onClick={onCreateToggle}
-                        disabled={cudLoading }
-                        className={`cursor-pointer rounded-full w-16 h-16 border-2 border-[#8ABBFD] bg-[#DFF4F3] flex items-center justify-center ${cudLoading ? 'opacity-50' : ''}`}
+                        onClick={onSync}
+                        disabled={false }
+                        className={`cursor-pointer rounded-full w-16 h-16 border-2 border-[#8ABBFD] bg-[#DFF4F3] flex items-center justify-center
+                             ${false ? 'opacity-50' : ''}`
+                            }
                     >
                         <span className="text-white">
-                            <PlusIcon className="text-[#8ABBFD] w-10 h-10" />
+                            <PayrollIcon className="text-[#8ABBFD] w-10 h-10" />
                         </span>
                     </button>
-                    <p className={`action-btn-text ${cudLoading ? 'opacity-50' : ''}`}>Create</p>
-                </div> */}
+                    <p className={`action-btn-text ${false ? 'opacity-50' : ''}`}>Sync</p>
+                </div>
             </div>
         </div>
         </div>

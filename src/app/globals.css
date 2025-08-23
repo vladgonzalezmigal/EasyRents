@@ -163,17 +163,15 @@ body {
 .table-input-shadow {
   box-shadow: 0 4px 4px 1px rgba(0, 0, 0, 0.3);
 }
+
 .table-row-style {
   border: 1px solid #DFDFDF;
   box-shadow: 0 4px 4px 1px rgba(0, 0, 0, 0.15);
   background-color: white;
-  width: 772px;
-  position: relative;
+  /* width: 772px; */
+  /* position: relative; */
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding-left: 2.5rem;
-  padding-right: 2.5rem;
   border-radius: 1rem;
 }
 
@@ -183,11 +181,11 @@ body {
   background-color: white;
   width: 772px;
   position: relative;
-  /* display: flex;
+  display: flex;
   align-items: center;
-  justify-content: space-between; */
-  /* display: flex;
-  align-items: center; */
+  justify-content: space-between;
+  display: flex;
+  align-items: center;
   border-radius: 1rem;
 }
 

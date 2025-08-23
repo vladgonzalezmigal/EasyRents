@@ -17,4 +17,4 @@ export type Payable = {
     detail: string; 
 };
 
-export type AccountingData = Map<number, {receivables: Receivable[], payables: Payable[]}>; // Map of property_id to array of Payables
+export type AccountingData = Map<number, {property_name : string, receivables: Receivable[], payables: Payable[]}>; // Map of property_id to array of Payables
