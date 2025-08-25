@@ -1,122 +1,69 @@
 'use client';
 
-import TrashIcon from "@/app/(private)/components/svgs/TrashIcon";
-import EditIcon from "@/app/(private)/components/svgs/EditIcon";
-import { Payroll } from "@/app/(private)/types/formTypes";
 import PayrollIcon from "../../components/svgs/PayrollIcon";
 import SaveIcon from "../../components/svgs/SaveIcon";
-
-interface EditConfig {
-    mode: boolean;
-    editedRows: Payroll[];
-    validationErrors: Record<number, Set<number>>;
-    onRowEdit: (id: number, field: keyof Payroll, value: string | number, colNumber: number) => void;
-}
+import MaximizeIcon from "../../components/svgs/MaximizeIcon";
+import MinimizeIcon from "../../components/svgs/MinimizeIcon";
 
 interface PayrollBtnsProps {
-    // deleteMode: boolean;
-    // editConfig: EditConfig
-    // onEdit: () => void;
-    // cudLoading: boolean;
-    hasEdits: boolean; 
+    hasEdits: boolean;
     onSync: () => void;
-    // handleDelete?: () => void;
-    // canDelete: boolean;
+    enlarged: Boolean; 
+    setEnlarged: React.Dispatch<React.SetStateAction<boolean>>; 
 }
 
-
-
 export default function TableBtns({
-    // deleteMode,
-    // editConfig,
-    // onEdit,
-    // cudLoading,
-    hasEdits, 
+    hasEdits,
     onSync,
-    // handleDelete,
-    // canDelete
+    enlarged,
+    setEnlarged
 }: PayrollBtnsProps) {
-    // Determine which action is active
-    // const isDeleteActive = deleteMode;
-    // const isEditActive = editConfig.mode;
-    // const clearEdits = (Object.keys(editConfig.validationErrors).length > 0);
 
     return (
         <div className="w-[800px]">
-
-        <div className="w-full relative h-[148px] bg-[#F2FBFA] border border-t-0 border-[#ECECEE] header-shadow rounded-bottom z-0 mt-[-20px]">
-            <div className="flex flex-row gap-x-4 items-center justify-center absolute bottom-4 left-1/2 transform -translate-x-1/2">
-                {/* Delete Button */}
-                <div className="flex flex-col items-center gap-y-2">
-                    <button
-                        // onClick={handleDelete}
-                        // disabled={cudLoading || isEditActive}
-                        // className={`cursor-pointer rounded-full w-16 h-16 border-2 border-[#A72020] flex items-center justify-center ${
-                        //     cudLoading ? 'bg-gray-400' :
-                        //     deleteMode ? 'bg-[#FA7B7D]' : 'bg-[#F8D2D2]'
-                        // } ${isEditActive ? 'opacity-50' : ''}`}
-                    >
-                        {/* {cudLoading ? (
-                            <span className="text-white">...</span>
-                        ) : (
+            <div className="w-full relative h-[148px] bg-[#F2FBFA] border border-t-0 border-[#ECECEE] header-shadow rounded-bottom z-0 mt-[-20px]">
+                <div className="flex flex-row gap-x-4 items-center justify-center absolute bottom-4 left-1/2 transform -translate-x-1/2">
+                    {/* Sync Button */}
+                    <div className="flex flex-col items-center gap-y-2">
+                        <button
+                            onClick={onSync}
+                            disabled={false}
+                            className="cursor-pointer rounded-full w-16 h-16 border-2 border-[#8ABBFD] bg-[#DFF4F3] flex items-center justify-center"
+                        >
                             <span className="text-white">
-                                <TrashIcon className={deleteMode ? (canDelete ? "text-[#A72020]" : "text-white") : "text-[#A72020]"} />
+                                <PayrollIcon className="text-[#8ABBFD] w-10 h-10" />
                             </span>
-                        )} */}
-                    </button>
-                    {/* <p className={`action-btn-text ${isEditActive ? 'opacity-50' : ''}`}>Delete</p> */}
+                        </button>
+                        <p className="action-btn-text">Sync</p>
+                    </div>
+                    {/* Save Button */}
+                    <div className="flex flex-col items-center gap-y-2">
+                        <button
+                            disabled={!hasEdits}
+                            className={`rounded-full w-16 h-16 border-2 border-orange-500 ${!hasEdits ? 'opacity-50' : 'bg-orange-100 cursor-pointer shadow-[0_0_12px_2px_rgba(255,140,0,0.25)]'} flex items-center justify-center`}
+                        >
+                            <span className="text-orange-500">
+                                <SaveIcon />
+                            </span>
+                        </button>
+                        <p className="action-btn-text">Save</p>
+                    </div>
                 </div>
-
-                {/* Edit Button */}
-                <div className="flex flex-col items-center gap-y-2">
+                <div className="absolute bottom-4 right-4 flex flex-col items-center gap-y-2">
+                    {/* Maximize/Minimize Button */}
                     <button
-                        // onClick={onEdit}
-                        // disabled={cudLoading || isDeleteActive}
-                        // className={`cursor-pointer rounded-full w-16 h-16 border-2 border-[#0C3C74] flex items-center justify-center ${
-                        //     cudLoading ? 'bg-gray-400' :
-                        //     isEditActive ? (clearEdits ? 'bg-blue-200' : 'bg-blue-500') : 'bg-blue-200'
-                        // } ${isDeleteActive ? 'opacity-50' : ''}`}
+                        onClick={() => setEnlarged(prev => !prev)}
+                        className="cursor-pointer rounded-full w-16 h-16 border-2 border-[#8ABBFD] bg-[#DFF4F3] flex items-center justify-center hover:bg-gray-100 transition-colors"
                     >
-                        {/* {cudLoading ? (
-                            <span className="text-white">...</span>
+                        {enlarged ? (
+                            <MinimizeIcon className="w-10 h-10 text-[#80848A]" />
                         ) : (
-                            <span className="text-white">
-                                <EditIcon className={isEditActive ? (clearEdits ? "text-[#0C3C74]" : "text-white") : "text-[#0C3C74]"} />
-                               
-                            </span>
-                        )} */}
+                            <MaximizeIcon className="w-10 h-10 text-[#80848A]" />
+                        )}
                     </button>
-                    {/* <p className={`action-btn-text ${isDeleteActive ? 'opacity-50' : ''}`}>Edit</p> */}
-                </div>
-
-                {/* Sync Button */}
-                <div className="flex flex-col items-center gap-y-2">
-                    <button
-                        onClick={onSync}
-                        disabled={false }
-                        className={`cursor-pointer rounded-full w-16 h-16 border-2 border-[#8ABBFD] bg-[#DFF4F3] flex items-center justify-center`}
-                    >
-                        <span className="text-white">
-                            <PayrollIcon className="text-[#8ABBFD] w-10 h-10" />
-                        </span>
-                    </button>
-                    <p className="action-btn-text">Sync</p>
-                </div>
-                {/* Save Button */}
-                <div className="flex flex-col items-center gap-y-2">
-                    <button
-                        // onClick={onSave}
-                        disabled={!hasEdits}
-                        className={`rounded-full w-16 h-16 border-2 border-orange-500 ${!hasEdits ? 'opacity-50' : 'bg-orange-100 cursor-pointer shadow-[0_0_12px_2px_rgba(255,140,0,0.25)]'} flex items-center justify-center`}
-                    >
-                        <span className="text-orange-500">
-                            <SaveIcon />
-                        </span>
-                    </button>
-                    <p className="action-btn-text">Save</p>
+                    <p className="action-btn-text">{enlarged ? 'Minimize' : 'Maximize'}</p>
                 </div>
             </div>
-        </div>
         </div>
     );
 }

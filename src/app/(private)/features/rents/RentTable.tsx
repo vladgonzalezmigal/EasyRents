@@ -17,6 +17,7 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
     const { company_id, year, month } = useParams();
     const { propertyState, tenantState } = useStore()
     const [hasEdits, setHasEdits] = useState<boolean>(false)
+    const [enlarged, setEnlarged] = useState<boolean>(true)
 
     const onSync = () => {
 
@@ -97,7 +98,7 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
                             </tr>
                         </thead>
                         {/* Main Content */}
-                        <tbody className={`${hasEdits ? 'border-4 border-orange-400 shadow-[0_0_32px_8px_rgba(255,140,0,0.25)] backdrop-blur-sm' : 'border-[#ECECEE]'} w-[800px] flex flex-col gap-y-3 min-h-[304px] ${accounting_data.size === 0 ? 'h-[304px]' : ''} relative z-10 border  table-input-shadow border-y-2 border-t-0 bg-[#FDFDFD] rounded-bottom relative z-0 py-4`}>
+                        <tbody className={`${hasEdits ? 'border-4 border-orange-400 shadow-[0_0_32px_8px_rgba(255,140,0,0.25)] backdrop-blur-sm' : 'border-[#ECECEE]'} w-[800px] flex flex-col gap-y-3 min-h-[304px] ${accounting_data.size === 0 ? 'h-[304px]' : ''} ${enlarged ? '' : 'max-h-[304px] overflow-y-auto'} relative z-10 border  table-input-shadow border-y-2 border-t-0 bg-[#FDFDFD] rounded-bottom relative z-0 py-4`}>
                             {
                                 accounting_data.size === 0 ? noDataDisplay : <PropertyRows accounting_data={accounting_data} setAccountingData={setAccountingData} />
                             }
@@ -106,7 +107,7 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
                 </div>
                 {/* Action Button */}
                 <div className="w-full">
-                    <TableBtns onSync={ onSync } hasEdits={hasEdits} />
+                    <TableBtns onSync={ onSync } hasEdits={hasEdits} enlarged={enlarged} setEnlarged={setEnlarged} />
                 </div>
             </div>
         </div>

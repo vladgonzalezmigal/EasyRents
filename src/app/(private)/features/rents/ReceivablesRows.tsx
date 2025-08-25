@@ -10,7 +10,6 @@ interface DisplayTenantRowsProps {
 export const DisplayRecievableRows: React.FC<DisplayTenantRowsProps> = ({ property_id, accountingData, setAccountingData }) => {
     // Local editable receivable inputs 
     const rows = accountingData.get(property_id)?.receivables.map(r => ({ ...r, paid_on_time: false })) || [];
-    console.log("rows are ", rows )
     const [activeInput, setActiveInput] = useState<{ row: number; field: string } | null>(null);
 
     // Handle input change
@@ -36,6 +35,10 @@ export const DisplayRecievableRows: React.FC<DisplayTenantRowsProps> = ({ proper
             if (propertyData && checked) {
                 const nextReceivables = [...propertyData.receivables]
                 nextReceivables[idx].amount_paid = nextReceivables[idx].amount_due;
+                nextReceivables[idx].paid_by = nextReceivables[idx].due_date;
+            } else if (propertyData && !checked) {
+                const nextReceivables = [...propertyData.receivables]
+                nextReceivables[idx].amount_paid = 0;
                 nextReceivables[idx].paid_by = nextReceivables[idx].due_date;
             }
             return newMap;
@@ -70,7 +73,7 @@ export const DisplayRecievableRows: React.FC<DisplayTenantRowsProps> = ({ proper
                                             <td className="text-sm text-gray-700 flex items-center justify-center h-[44px]">
                                                 <input
                                                     type="checkbox"
-                                                    checked={!!receivable.paid_on_time}
+                                                    checked={(receivable.amount_paid >= receivable.amount_due)}
                                                     onChange={e => handlePaidOnTime(idx, e.target.checked)}
                                                     className="accent-green-500 w-5 h-5 border-2 border-green-400 rounded focus:ring-green-400"
                                                 />
@@ -100,7 +103,7 @@ export const DisplayRecievableRows: React.FC<DisplayTenantRowsProps> = ({ proper
                                             {/* Due Date */}
                                             <td className="px-4 py-3 text-sm text-gray-700">
                                                 <input
-                                                    type="text"
+                                                    type="date"
                                                     value={receivable.due_date}
                                                     onChange={e => handleInputChange(idx, 'due_date', e.target.value)}
                                                     onFocus={() => setActiveInput({ row: idx, field: 'due_date' })}
@@ -122,7 +125,7 @@ export const DisplayRecievableRows: React.FC<DisplayTenantRowsProps> = ({ proper
                                             {/* Paid By */}
                                             <td className="px-4 py-3 text-sm text-gray-700">
                                                 <input
-                                                    type="text"
+                                                    type="date"
                                                     value={receivable.paid_by}
                                                     onChange={e => handleInputChange(idx, 'paid_by', e.target.value)}
                                                     onFocus={() => setActiveInput({ row: idx, field: 'paid_by' })}
