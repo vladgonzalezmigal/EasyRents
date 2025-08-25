@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import ChevronIcon from "@/app/(private)/components/svgs/ChevronIcon";
-import { AccountingData, Payable } from "./rentTypes";
+import { AccountingData, Payable, Receivable } from "./rentTypes";
+import { DisplayRecievableRows } from "./ReceivablesRows";
 
 interface PropertyRowsProps {
     accounting_data: AccountingData;
+    setAccountingData: React.Dispatch<React.SetStateAction<AccountingData>>;
 }
 
-export default function PropertyRows({ accounting_data }: PropertyRowsProps) {
-    console.log("property rows called")
+export default function PropertyRows({ accounting_data, setAccountingData}: PropertyRowsProps) {
     const [expanded, setExpanded] = useState<Set<number>>(new Set());
 
     const toggleExpand = (propertyId: number) => {
@@ -34,22 +35,6 @@ export default function PropertyRows({ accounting_data }: PropertyRowsProps) {
                 const isExpanded = expanded.has(propertyId);
                 return (
                     <React.Fragment key={propertyId}>
-                        {/* <tr>
-                            <td className="w-[25px] min-w-[25px] max-w-[25px] px-1 py-4 text-center">
-                                {receivables.length > 0 && (
-                                    <button
-                                        onClick={e => {
-                                            e.stopPropagation();
-                                            toggleExpand(propertyId);
-                                        }}
-                                        className={`w-full h-full flex items-center justify-center transition-transform duration-200 ${isExpanded ? '-rotate-90' : '-rotate-180'}`}
-                                    >
-                                        <ChevronIcon className="w-6 h-6 text-gray-600" />
-                                    </button>
-                                )}
-                            </td>
-                        </tr> */}
-
                         <tr className="relative table-row-style gap-x-4 hover:bg-gray-200 table-row-text mx-auto">
                             {/* Carat Column */}
                             <td
@@ -79,32 +64,7 @@ export default function PropertyRows({ accounting_data }: PropertyRowsProps) {
                         </tr>
                         {/* Expandable Payables Details */}
                         {isExpanded && receivables.length > 0 && (
-                            <tr>
-                                <td colSpan={5} className="bg-[#F8F9FA] px-8 py-4">
-                                    <table className="min-w-full">
-                                        <thead>
-                                            <tr>
-                                                <th className="px-4 py-2 text-xs text-[#80848A] font-semibold">Amount Paid</th>
-                                                <th className="px-4 py-2 text-xs text-[#80848A] font-semibold">Amount Due</th>
-                                                <th className="px-4 py-2 text-xs text-[#80848A] font-semibold">Due Date</th>
-                                                <th className="px-4 py-2 text-xs text-[#80848A] font-semibold">Paid By</th>
-                                                <th className="px-4 py-2 text-xs text-[#80848A] font-semibold">Tenant Name</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {receivables.map((r, idx) => (
-                                                <tr key={idx} className="border-b border-[#E4F0F6]">
-                                                    <td className="px-4 py-2">${r.amount_paid}</td>
-                                                    <td className="px-4 py-2">${r.amount_due}</td>
-                                                    <td className="px-4 py-2">{r.due_date}</td>
-                                                    <td className="px-4 py-2">{r.paid_by}</td>
-                                                    <td className="px-4 py-2">{r.tenant_name}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </td>
-                            </tr>
+                            <DisplayRecievableRows property_id={propertyId} accountingData={accounting_data} setAccountingData={setAccountingData} />
                         )}
                     </React.Fragment>
                 );

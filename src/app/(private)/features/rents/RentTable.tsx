@@ -1,20 +1,22 @@
 import { useStore } from "@/store";
 import { AccountingData, Payable, Receivable } from "./rentTypes";
 import TableBtns from "./TableBtns";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { getDaysInMonth } from "../../utils/dateUtils";
 import PropertyRows from "./PropertyRows";
 
 interface RentTableProps {
     accounting_data: AccountingData
-    setAccountingData: React.Dispatch<React.SetStateAction<AccountingData>>;
+    setAccountingData: React.Dispatch<React.SetStateAction<AccountingData>>
+    last_save: AccountingData;
 }
 
 
-export default function RentTable({ accounting_data, setAccountingData }: RentTableProps) {
+export default function RentTable({ accounting_data, setAccountingData, last_save }: RentTableProps) {
     const { company_id, year, month } = useParams();
     const { propertyState, tenantState } = useStore()
+    const [hasEdits, setHasEdits] = useState<boolean>(false)
 
     const onSync = () => {
 
@@ -47,6 +49,11 @@ export default function RentTable({ accounting_data, setAccountingData }: RentTa
             setAccountingData(newAccountingData);
         }
     }
+    const maps_equal = (m1: AccountingData, m2: AccountingData) => m1.size === m2.size && Array.from(m1.keys()).every((key) => m1.get(key) === m2.get(key))
+    useEffect(() => {
+        const edited = !maps_equal(last_save, accounting_data);
+        setHasEdits(edited);
+    }, [accounting_data, last_save]);
 
 
     const noDataDisplay = (
@@ -58,7 +65,7 @@ export default function RentTable({ accounting_data, setAccountingData }: RentTa
     )
 
     return (
-        <div className="w-[800px]">
+        <div className={`w-[800px]`}>
             <div className="w-full flex flex-col items-center">
                 <div className="h-[20px]">
                     {/* {cudError &&
@@ -67,7 +74,7 @@ export default function RentTable({ accounting_data, setAccountingData }: RentTa
                         </div>} */}
                 </div>
                 {/* Main Table */}
-                <div className="w-[800px]">
+                <div className={`w-[800px] ${hasEdits ? '' : ''}`}> 
                     {/* Header */}
                     <table className="w-full">
                         <thead className="px-4 bg-[#F5F5F5] z-30 border border-b-0 border-t-2 border-x-2 border-[#ECECEE] h-[60px] rounded-top header-shadow flex items-center relative z-10">
@@ -90,18 +97,16 @@ export default function RentTable({ accounting_data, setAccountingData }: RentTa
                             </tr>
                         </thead>
                         {/* Main Content */}
-                        <tbody className={`flex flex-col gap-y-3 min-h-[304px] ${accounting_data.size === 0 ? 'h-[304px]' : ''} relative z-10 border border-[#ECECEE] table-input-shadow border-y-2 border-t-0 bg-[#FDFDFD] rounded-bottom relative z-0 py-4`}>
+                        <tbody className={`${hasEdits ? 'border-4 border-orange-400 shadow-[0_0_32px_8px_rgba(255,140,0,0.25)] backdrop-blur-sm' : 'border-[#ECECEE]'} w-[800px] flex flex-col gap-y-3 min-h-[304px] ${accounting_data.size === 0 ? 'h-[304px]' : ''} relative z-10 border  table-input-shadow border-y-2 border-t-0 bg-[#FDFDFD] rounded-bottom relative z-0 py-4`}>
                             {
-                                accounting_data.size === 0 ? noDataDisplay : <PropertyRows accounting_data={accounting_data} />
+                                accounting_data.size === 0 ? noDataDisplay : <PropertyRows accounting_data={accounting_data} setAccountingData={setAccountingData} />
                             }
                         </tbody>
                     </table>
                 </div>
                 {/* Action Button */}
                 <div className="w-full">
-                    <TableBtns onSync={
-                        onSync
-                    } />
+                    <TableBtns onSync={ onSync } hasEdits={hasEdits} />
                 </div>
             </div>
         </div>

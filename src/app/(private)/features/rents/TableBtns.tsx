@@ -4,6 +4,7 @@ import TrashIcon from "@/app/(private)/components/svgs/TrashIcon";
 import EditIcon from "@/app/(private)/components/svgs/EditIcon";
 import { Payroll } from "@/app/(private)/types/formTypes";
 import PayrollIcon from "../../components/svgs/PayrollIcon";
+import SaveIcon from "../../components/svgs/SaveIcon";
 
 interface EditConfig {
     mode: boolean;
@@ -17,6 +18,7 @@ interface PayrollBtnsProps {
     // editConfig: EditConfig
     // onEdit: () => void;
     // cudLoading: boolean;
+    hasEdits: boolean; 
     onSync: () => void;
     // handleDelete?: () => void;
     // canDelete: boolean;
@@ -29,6 +31,7 @@ export default function TableBtns({
     // editConfig,
     // onEdit,
     // cudLoading,
+    hasEdits, 
     onSync,
     // handleDelete,
     // canDelete
@@ -86,20 +89,31 @@ export default function TableBtns({
                     {/* <p className={`action-btn-text ${isDeleteActive ? 'opacity-50' : ''}`}>Edit</p> */}
                 </div>
 
-                {/* Create Button */}
+                {/* Sync Button */}
                 <div className="flex flex-col items-center gap-y-2">
                     <button
                         onClick={onSync}
                         disabled={false }
-                        className={`cursor-pointer rounded-full w-16 h-16 border-2 border-[#8ABBFD] bg-[#DFF4F3] flex items-center justify-center
-                             ${false ? 'opacity-50' : ''}`
-                            }
+                        className={`cursor-pointer rounded-full w-16 h-16 border-2 border-[#8ABBFD] bg-[#DFF4F3] flex items-center justify-center`}
                     >
                         <span className="text-white">
                             <PayrollIcon className="text-[#8ABBFD] w-10 h-10" />
                         </span>
                     </button>
-                    <p className={`action-btn-text ${false ? 'opacity-50' : ''}`}>Sync</p>
+                    <p className="action-btn-text">Sync</p>
+                </div>
+                {/* Save Button */}
+                <div className="flex flex-col items-center gap-y-2">
+                    <button
+                        // onClick={onSave}
+                        disabled={!hasEdits}
+                        className={`rounded-full w-16 h-16 border-2 border-orange-500 ${!hasEdits ? 'opacity-50' : 'bg-orange-100 cursor-pointer shadow-[0_0_12px_2px_rgba(255,140,0,0.25)]'} flex items-center justify-center`}
+                    >
+                        <span className="text-orange-500">
+                            <SaveIcon />
+                        </span>
+                    </button>
+                    <p className="action-btn-text">Save</p>
                 </div>
             </div>
         </div>

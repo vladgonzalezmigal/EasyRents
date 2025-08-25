@@ -1,51 +1,76 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import TableTitle from '../handleForms/components/TableTitle';
 import { Loading } from '@/app/components/Loading';
 import { useParams } from 'next/navigation';
-import { PayablesService } from './PayablesService';
+import { ReceivablesService } from './ReceivableService';
+import { getMonthDateRange } from '../../utils/dateUtils';
 import RentTable from './RentTable';
 import { AccountingData } from './rentTypes';
 
 export default function RentPage() {
 
-    const {year, month } = useParams();
+    const {company_id, year, month } = useParams();
     const [accountingData, setAccountingData] = useState<AccountingData>(new Map());
-    console.log("keys num", accountingData.size)
-    // const firstDay = new Date(Number(year), Number(month) - 1, 1);
-    // const lastDay = new Date(Number(year), Number(month), 0);
+    const [lastSave, setLastSave] = useState<AccountingData>(new Map())
+    const [fetchError, setFetchError] = useState<string | null>(null);
+    const [fetchLoading, setFetchLoading] = useState<boolean>(true);
+    const {startDate, endDate}= getMonthDateRange(String(year), String(month));
 
-    // useEffect(() => {
-    //     const fetchRentData = async () => {
-    //         const readRes = await PayablesService.fetchPayables({ month, endDate });
-    //         // if (typeof readRes !== 'string' && !readRes.data) {
-    //         //     setFetchError(readRes.error);
-    //         //     return;
-    //         // } else if (typeof readRes !== 'string' && readRes.data) {
-    //         //     setPayrollData(readRes.data as Payroll[]);
-    //         // }
-    //         // setFetchLoading(false);
-    //     }
-    //     fetchRentData();
+    useEffect(() => {
+        const fetchRentData = async () => {
+            let newAccountingData: AccountingData = new Map();
+            const result = await ReceivablesService.fetchReceivables({ startDate, endDate});
+            if (!result) {
+                setFetchError('Failed to fetch receivables.');
+                setFetchLoading(false);
+                return;
+            }
+            const { data, error } = result;
+            if (error) {
+                setFetchError(error);
+                setFetchLoading(false);
+                return;
+            }
+            // Group receivables by property_id
+            if (data) {
+                const grouped = new Map<number, { property_name: string; receivables: any[]; payables: any[] }>();
+                data.forEach(r => {
+                    if (!grouped.has(r.property_id)) {
+                        grouped.set(r.property_id, {
+                            property_name: r.property_id.toString(), // You may want to fetch property name separately
+                            receivables: [],
+                            payables: [],
+                        });
+                    }
+                    grouped.get(r.property_id)!.receivables.push(r);
+                });
+                newAccountingData = grouped;
+            }
+            setLastSave(newAccountingData)
+            setAccountingData(newAccountingData);
+            setFetchLoading(false);
+        }
+        fetchRentData();
+    }, [startDate, endDate, company_id]);
 
-    // }, [startDate, endDate]);
     return (
         <div className="w-full h-full flex flex-col items-center justify-center">
-            {false ? (
+            {fetchLoading ? (
                 <div className="w-full h-full flex items-center justify-center">
                     <Loading />
                 </div>
             ) : (
                 <div className="w-full h-full flex flex-col items-center justify-center gap-y-1 ">
                     {/* Title */}
-                    <div className="w-full text-center flex flex-col items-center">
+                    <div className="w-full text-center flex flex-col items-center pt-4">
                         <TableTitle
                             month={month as string}
                             year={year as string}
                         />
                         <div className="flex flex-col items-center justify-center">
-                            <p className="font-semibold text-[#585858]">  </p>
+                            <p className="font-semibold text-[#585858]"> </p>
                             {/* <CudError cudError={cudError} /> */}
                         </div>
                     </div>
@@ -54,8 +79,8 @@ export default function RentPage() {
                     </div> */}
 
                     {/* Table Component */}
-                     <div className="w-full flex items-center justify-center"> 
-                        <RentTable accounting_data={accountingData} setAccountingData={setAccountingData} />
+                     <div className={`w-full flex items-center justify-center pb-4`}> 
+                        <RentTable accounting_data={accountingData} setAccountingData={setAccountingData} last_save={lastSave} />
                     </div>
                 </div>
             )}
