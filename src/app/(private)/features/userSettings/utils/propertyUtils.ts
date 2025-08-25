@@ -15,7 +15,7 @@ export class PropertyService {
         // Query the 'stores' table for id and name columns
         const { data: apiData, error } = await supabase
             .from(PropertyService.TABLE_NAME)
-            .select('id, company_id, address')
+            .select('id, company_id, address, active')
 
         return handleApiResponse<Property[], PropertyResponse>(apiData, error, 'properties');
     }
@@ -32,7 +32,7 @@ export class PropertyService {
         const { data: apiData, error } = await supabase
             .from(PropertyService.TABLE_NAME)
             .insert({ ...propertyData, user_id: user.id })
-            .select('id, company_id, address');
+            .select('id, company_id, address, active');
 
         return handleApiResponse<Property[], PropertyResponse>(apiData, error, 'properties');
     }
@@ -50,7 +50,7 @@ export class PropertyService {
             .from(PropertyService.TABLE_NAME)
             .update({ active: false })
             .in('id', propertyIds)
-            .select('id, company_id, address');
+            .select('id, company_id, address, active');
 
         return handleApiResponse<Property[], PropertyResponse>(apiData, error, 'properties');
     }
@@ -68,7 +68,7 @@ export class PropertyService {
         const { data: apiData, error } = await supabase
             .from(PropertyService.TABLE_NAME)
             .upsert(upsertData, { onConflict: 'id' })
-            .select('id, company_id, address');
+            .select('id, company_id, address, active');
 
         return handleApiResponse<Property[], PropertyResponse>(apiData, error, 'properties');
     }

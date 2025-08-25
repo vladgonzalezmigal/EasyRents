@@ -7,10 +7,12 @@ import { useParams } from 'next/navigation';
 import { ReceivablesService } from './ReceivableService';
 import { getMonthDateRange } from '../../utils/dateUtils';
 import RentTable from './RentTable';
-import { AccountingData } from './rentTypes';
+import { AccountingData, Payable, Receivable } from './rentTypes';
+import { useStore } from '@/store';
 
 export default function RentPage() {
 
+    const {propertyState} = useStore()
     const {company_id, year, month } = useParams();
     const [accountingData, setAccountingData] = useState<AccountingData>(new Map());
     const [lastSave, setLastSave] = useState<AccountingData>(new Map())
@@ -21,7 +23,9 @@ export default function RentPage() {
     useEffect(() => {
         const fetchRentData = async () => {
             let newAccountingData: AccountingData = new Map();
-            const result = await ReceivablesService.fetchReceivables({ startDate, endDate});
+            const property_ids : Number[] = propertyState.data.get(Number(company_id))?.filter(c => c.active).map(p => p.id) || []
+            console.log("preopty_ids", property_ids)
+            const result = await ReceivablesService.fetchReceivables({ startDate, endDate, property_ids});
             if (!result) {
                 setFetchError('Failed to fetch receivables.');
                 setFetchLoading(false);
@@ -34,12 +38,12 @@ export default function RentPage() {
                 return;
             }
             // Group receivables by property_id
-            if (data) {
-                const grouped = new Map<number, { property_name: string; receivables: any[]; payables: any[] }>();
+            if (data) { 
+                const grouped = new Map<number, { property_name: string; receivables: Receivable[]; payables: Payable[] }>();
                 data.forEach(r => {
                     if (!grouped.has(r.property_id)) {
                         grouped.set(r.property_id, {
-                            property_name: r.property_id.toString(), // You may want to fetch property name separately
+                            property_name: propertyState.data?.get(Number(company_id))?.find(p => p.id === r.property_id)?.address || "not found",
                             receivables: [],
                             payables: [],
                         });

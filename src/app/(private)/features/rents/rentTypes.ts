@@ -4,7 +4,7 @@ export type Receivable = {
     amount_paid: number; 
     amount_due: number;
     due_date: string; 
-    paid_by: string; 
+    paid_by: string | null; 
     tenant_name: string; 
 };
 

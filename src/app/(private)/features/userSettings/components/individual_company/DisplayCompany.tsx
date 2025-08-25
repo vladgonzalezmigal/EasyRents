@@ -26,7 +26,7 @@ export default function CompanyTemplate(
 ) {
     const { propertyState, deleteProperty, updateProperties, isCudLoadingProperties, tenantState } = useStore()
     const properties = useMemo(() => {
-        const properties = propertyState.data?.get(activeCompany.id) || [];
+        const properties = propertyState.data?.get(activeCompany.id)?.filter(p => p.active) || [];
         return [...properties].reverse(); // Create a copy and reverse it
     }, [propertyState.data, activeCompany.id]);
 

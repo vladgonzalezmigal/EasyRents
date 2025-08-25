@@ -3,8 +3,9 @@ import { AccountingData, Payable, Receivable } from "./rentTypes";
 import TableBtns from "./TableBtns";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { getDaysInMonth } from "../../utils/dateUtils";
+import { getDaysInMonth, formatDate } from "../../utils/dateUtils";
 import PropertyRows from "./PropertyRows";
+import { ReceivablesService } from "./ReceivableService";
 
 interface RentTableProps {
     accounting_data: AccountingData
@@ -23,20 +24,20 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
 
         if (propertyState.data?.get(Number(company_id)) && tenantState.data) {
             const newAccountingData: AccountingData = new Map();
-            propertyState.data.get(Number(company_id))?.forEach(property => {
+            propertyState.data.get(Number(company_id))?.filter(p => p.active).forEach(property => {
 
                 const receivables: Receivable[] = []
                 const payables: Payable[] = []
                 // add income data 
                 tenantState.data.get(property.id)?.forEach(tenant => {
-                    const rent_due_day = getDaysInMonth(Number(month) - 1, Number(year))
+                    const rent_due_day = Math.min(Number(tenant.rent_due_date), getDaysInMonth(Number(month), Number(year))).toString()
                     receivables.push({
                         property_id: property.id,
                         amount_paid: 0,
                         amount_due: Number(tenant.rent_amount),
-                        due_date: `${rent_due_day}-${month}-${year}`, // Placeholder due date
+                        due_date: `${formatDate(rent_due_day, String(month), String(year))}`, 
                         tenant_name: `${tenant.first_name} ${tenant.last_name}`,
-                        paid_by: ``,
+                        paid_by: null,
                     } as Receivable)
                 })
 
@@ -55,6 +56,15 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
         const edited = !maps_equal(last_save, accounting_data);
         setHasEdits(edited);
     }, [accounting_data, last_save]);
+
+    const onSave = async () => {
+        if (!hasEdits) { return }
+        accounting_data.forEach(async property => {
+            const new_receivables = property.receivables.filter(r => (r.id) === undefined)
+            await ReceivablesService.createReceivables(new_receivables)
+            // ReceivablesService.postReceivables(property.receivables)
+        })
+    }
 
 
     const noDataDisplay = (
@@ -75,7 +85,7 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
                         </div>} */}
                 </div>
                 {/* Main Table */}
-                <div className={`w-[800px] ${hasEdits ? '' : ''}`}> 
+                <div className={`w-[800px]`}> 
                     {/* Header */}
                     <table className="w-full">
                         <thead className="px-4 bg-[#F5F5F5] z-30 border border-b-0 border-t-2 border-x-2 border-[#ECECEE] h-[60px] rounded-top header-shadow flex items-center relative z-10">
@@ -107,7 +117,7 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
                 </div>
                 {/* Action Button */}
                 <div className="w-full">
-                    <TableBtns onSync={ onSync } hasEdits={hasEdits} enlarged={enlarged} setEnlarged={setEnlarged} />
+                    <TableBtns onSync={ onSync } onSave={onSave} hasEdits={hasEdits} enlarged={enlarged} setEnlarged={setEnlarged} />
                 </div>
             </div>
         </div>

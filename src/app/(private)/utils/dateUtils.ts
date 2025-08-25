@@ -1,16 +1,18 @@
+import { parse, isBefore, isEqual } from 'date-fns';
+
 export const months = [
-    "January", "February", "March", "April",
-    "May", "June", "July", "August",
-    "September", "October", "November", "December"
+  "January", "February", "March", "April",
+  "May", "June", "July", "August",
+  "September", "October", "November", "December"
 ];
 
 // Array of days in each month (non-leap year)
 export const daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
 export const trimmedMonthName = (monthIndex: number): string => {
-    const monthName = months[monthIndex];
-    const firstThreeChars = monthName.slice(0, 3);
-    return firstThreeChars.charAt(0).toUpperCase() + firstThreeChars.slice(1).toLowerCase();
+  const monthName = months[monthIndex];
+  const firstThreeChars = monthName.slice(0, 3);
+  return firstThreeChars.charAt(0).toUpperCase() + firstThreeChars.slice(1).toLowerCase();
 }
 
 /**
@@ -24,13 +26,13 @@ export const getDaysInMonth = (monthIndex: number, year: number): number => {
   if (monthIndex < 0 || monthIndex > 11) {
     return 0;
   }
-  
+
   // February (index 1) in a leap year has 29 days
   if (monthIndex === 1 && year) {
     const isLeapYear = (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
     return isLeapYear ? 29 : 28;
   }
-  
+
   return daysInMonth[monthIndex];
 };
 
@@ -42,16 +44,16 @@ export const getDaysInMonth = (monthIndex: number, year: number): number => {
  * @returns The validated and formatted year value
  */
 
-export const validateYearInput = (value: string, ): boolean => {
-    // Only allow digits
-    if (!/^\d*$/.test(value)) return false;
-    
-    // Prevent leading zeros
-    if (value.startsWith('0')) return false;
+export const validateYearInput = (value: string,): boolean => {
+  // Only allow digits
+  if (!/^\d*$/.test(value)) return false;
 
-    if (value.length < 4) return false;
-    
-    return true;
+  // Prevent leading zeros
+  if (value.startsWith('0')) return false;
+
+  if (value.length < 4) return false;
+
+  return true;
 };
 
 /**
@@ -76,7 +78,7 @@ export function getMonthDateRange(yearStr: string, monthStr: string): { startDat
   const nextYear = month === 12 ? year + 1 : year;
   const endDate = `${nextYear}-${nextMonth.toString().padStart(2, '0')}-01`;
 
-  return { startDate, endDate};
+  return { startDate, endDate };
 }
 
 /**
@@ -106,3 +108,20 @@ export function getDateString(dateString: string): string {
   return '';
 }
 
+/**
+ * Checks if the first date is equal to or less than the second date
+ *
+ * @param {Date | string | number} date - The date to check. Can be a Date object, ISO string, or timestamp.
+ * @returns {boolean} Returns true if the date is in the past, false otherwise.
+ */
+export function onTime(dateStr1: string | null, dateStr2: string, customFormat: string = 'yyyy-MM-dd'): boolean {
+  try {
+    if (!dateStr1) { return false}
+    const parsed1 = parse(dateStr1, customFormat, new Date())
+    const parsed2 = parse(dateStr2, customFormat, new Date())
+    const result = isBefore(parsed1,parsed2) || isEqual(parsed1,parsed2)
+    return result
+  } catch {
+    return false // e.g. fails to parse
+  }
+}

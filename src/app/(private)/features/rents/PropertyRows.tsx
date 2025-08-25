@@ -28,6 +28,7 @@ export default function PropertyRows({ accounting_data, setAccountingData}: Prop
         <>
             {[...accounting_data.keys()].map(propertyId => {
                 const { property_name, payables, receivables } = accounting_data.get(propertyId)!;
+                console.log("property name", property_name )
                 // Calculate gross values
                 const totalRent = receivables.reduce((sum, r) => sum + Number(r.amount_due), 0);
                 const totalExpenses = payables.reduce((sum, p) => sum + Number(p.expense_amount), 0);

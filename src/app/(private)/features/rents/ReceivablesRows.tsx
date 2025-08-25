@@ -1,5 +1,6 @@
 import { AccountingData, Receivable } from "./rentTypes";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { onTime } from "../../utils/dateUtils";
 
 interface DisplayTenantRowsProps {
     property_id: number,
@@ -39,7 +40,6 @@ export const DisplayRecievableRows: React.FC<DisplayTenantRowsProps> = ({ proper
             } else if (propertyData && !checked) {
                 const nextReceivables = [...propertyData.receivables]
                 nextReceivables[idx].amount_paid = 0;
-                nextReceivables[idx].paid_by = nextReceivables[idx].due_date;
             }
             return newMap;
         });
@@ -73,7 +73,7 @@ export const DisplayRecievableRows: React.FC<DisplayTenantRowsProps> = ({ proper
                                             <td className="text-sm text-gray-700 flex items-center justify-center h-[44px]">
                                                 <input
                                                     type="checkbox"
-                                                    checked={(receivable.amount_paid >= receivable.amount_due)}
+                                                    checked={(receivable.amount_paid >= receivable.amount_due) && onTime(receivable.paid_by, receivable.due_date)}
                                                     onChange={e => handlePaidOnTime(idx, e.target.checked)}
                                                     className="accent-green-500 w-5 h-5 border-2 border-green-400 rounded focus:ring-green-400"
                                                 />
@@ -126,7 +126,7 @@ export const DisplayRecievableRows: React.FC<DisplayTenantRowsProps> = ({ proper
                                             <td className="px-4 py-3 text-sm text-gray-700">
                                                 <input
                                                     type="date"
-                                                    value={receivable.paid_by}
+                                                    value={!receivable.paid_by ? '' : receivable.paid_by}
                                                     onChange={e => handleInputChange(idx, 'paid_by', e.target.value)}
                                                     onFocus={() => setActiveInput({ row: idx, field: 'paid_by' })}
                                                     onBlur={() => setActiveInput(null)}

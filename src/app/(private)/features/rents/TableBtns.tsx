@@ -8,6 +8,7 @@ import MinimizeIcon from "../../components/svgs/MinimizeIcon";
 interface PayrollBtnsProps {
     hasEdits: boolean;
     onSync: () => void;
+    onSave: () => void; 
     enlarged: Boolean; 
     setEnlarged: React.Dispatch<React.SetStateAction<boolean>>; 
 }
@@ -15,6 +16,7 @@ interface PayrollBtnsProps {
 export default function TableBtns({
     hasEdits,
     onSync,
+    onSave, 
     enlarged,
     setEnlarged
 }: PayrollBtnsProps) {
@@ -39,6 +41,7 @@ export default function TableBtns({
                     {/* Save Button */}
                     <div className="flex flex-col items-center gap-y-2">
                         <button
+                            onClick={onSave}
                             disabled={!hasEdits}
                             className={`rounded-full w-16 h-16 border-2 border-orange-500 ${!hasEdits ? 'opacity-50' : 'bg-orange-100 cursor-pointer shadow-[0_0_12px_2px_rgba(255,140,0,0.25)]'} flex items-center justify-center`}
                         >
