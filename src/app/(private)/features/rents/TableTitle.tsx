@@ -1,17 +1,20 @@
 import React from 'react';
 import ToggleMonthsBtn from './ToggleMonthsBtn';
-import SearchBar from '../userSettings/components/SearchBar';
+import LargeSearchBar from './LargeSearchBar';
 
 interface TableTitleProps {
-  title?: string;
   month?: string;
   year?: string;
+  onSearch: (query: string) => void;
+
 }
 
-const TableTitle: React.FC<TableTitleProps> = ({ title, month, year }) => {
+const TableTitle: React.FC<TableTitleProps> = ({ month, year, onSearch }) => {
   return (
     <div className="flex flex-row items-center justify-between w-[800px] mb-4 ">
-      <SearchBar onSearch={()=>{}}  placeholder="Search..." />
+       <div className='pt-1'> 
+          <LargeSearchBar onSearch={onSearch} placeholder="Search..." />
+      </div>
       {month && year && (
         <ToggleMonthsBtn 
           currentMonth={parseInt(month) - 1}

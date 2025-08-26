@@ -9,6 +9,7 @@ import { getMonthDateRange } from '../../utils/dateUtils';
 import RentTable from './RentTable';
 import { AccountingData, Payable, Receivable, deepCopyMap } from './rentTypes';
 import { useStore } from '@/store';
+import { Property } from '../userSettings/types/propertyTypes';
 
 export default function RentPage() {
 
@@ -58,6 +59,23 @@ export default function RentPage() {
         fetchRentData();
     }, [startDate, endDate, company_id]);
 
+    const allProperties: Property[] = propertyState.data.get(Number(company_id))?.filter(c => c.active) || []
+
+    const [filteredProperties, setFilteredProperties] = useState<Property[]>(allProperties);
+
+    const handleSearch = (query: string) => {
+        if (!query.trim()) {
+            setFilteredProperties(allProperties);
+            return;
+        }
+        const queryLower = query.toLowerCase();
+        const filtered = allProperties.filter(p =>
+            p.address.toLowerCase().includes(queryLower)
+            // or match tenant names, etc.
+        );
+        setFilteredProperties(filtered);
+    };
+
     return (
         <div className="w-full h-full flex flex-col items-center justify-center">
             {fetchLoading ? (
@@ -69,6 +87,7 @@ export default function RentPage() {
                     {/* Title */}
                     <div className="w-full text-center flex flex-col items-center pt-4">
                         <TableTitle
+                            onSearch={handleSearch}
                             month={month as string}
                             year={year as string}
                         />
@@ -82,7 +101,7 @@ export default function RentPage() {
                     </div>
                     {/* Table Component */}
                     <div className={`w-full flex items-center justify-center pb-4`}>
-                        <RentTable accounting_data={accountingData} setAccountingData={setAccountingData} last_save={lastSave} setLastSave={setLastSave} />
+                        <RentTable accounting_data={accountingData} setAccountingData={setAccountingData} last_save={lastSave} setLastSave={setLastSave} filtered_property_ids={filteredProperties.map(p => p.id)} />
                     </div>
                 </div>
             )}

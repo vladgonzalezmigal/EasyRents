@@ -21,7 +21,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, placeholder }) => {
         type="text"
         value={input}
         onChange={handleChange}
-        placeholder={placeholder || "Jetro..."}
+        placeholder={placeholder || "san pablo..."}
         className="w-[148px] pl-8 pr-3 py-2 h-[36px] bg-[#F6F6F6] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E4F0F6]"
       />
       <div className="absolute left-2 top-1/2 -translate-y-1/2">

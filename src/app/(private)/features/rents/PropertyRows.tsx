@@ -6,11 +6,17 @@ import SumRow from "./SumRow";
 
 interface PropertyRowsProps {
     accounting_data: AccountingData;
+    filtered_property_ids: number[]
     setAccountingData: React.Dispatch<React.SetStateAction<AccountingData>>;
 }
 
-export default function PropertyRows({ accounting_data, setAccountingData }: PropertyRowsProps) {
-    const [expanded, setExpanded] = useState<Set<number>>(new Set());
+export default function PropertyRows({ accounting_data, setAccountingData, filtered_property_ids}: PropertyRowsProps) {
+    const [expanded, setExpanded] = useState<Set<number>>(new Set(
+        filtered_property_ids.filter(id => 
+            // tenant(s) haven't paid yet 
+            (accounting_data.get(id)?.receivables.reduce((sum, r) => sum + Number(r.amount_due), 0) || 0) != (accounting_data.get(id)?.receivables.reduce((sum, r) => sum + Number(r.amount_paid), 0) || 0)
+        )
+    ));
 
     const toggleExpand = (propertyId: number) => {
         setExpanded(prev => {
@@ -30,10 +36,10 @@ export default function PropertyRows({ accounting_data, setAccountingData }: Pro
     const totalExpenses = Array.from(accounting_data.values())
         .reduce((sum, { payables }) => sum + payables.reduce((rSum, r) => rSum + Number(r.expense_amount), 0), 0);
 
-    // Render each property row
+    // Render each filtered property row
     return (
         <>
-            {[...accounting_data.keys()].sort((a, b) => b - a).map(propertyId => {
+            {filtered_property_ids.sort((a, b) => b - a).map(propertyId => {
                 const { property_name, payables, receivables } = accounting_data.get(propertyId)!;
                 // Calculate gross values
                 const totalPropertyIncomeOwed = receivables.reduce((sum, r) => sum + Number(r.amount_due), 0);

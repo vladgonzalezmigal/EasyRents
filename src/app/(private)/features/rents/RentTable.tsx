@@ -12,10 +12,11 @@ interface RentTableProps {
     setAccountingData: React.Dispatch<React.SetStateAction<AccountingData>>
     last_save: AccountingData;
     setLastSave: React.Dispatch<React.SetStateAction<AccountingData>>
+    filtered_property_ids: number[]
 }
 
 
-export default function RentTable({ accounting_data, setAccountingData, last_save, setLastSave }: RentTableProps) {
+export default function RentTable({ accounting_data, setAccountingData, last_save, setLastSave, filtered_property_ids }: RentTableProps) {
     const { company_id, year, month } = useParams();
     const { propertyState, tenantState } = useStore()
     const [hasEdits, setHasEdits] = useState<boolean>(false)
@@ -104,8 +105,11 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
         setHasEdits(edited);
     }, [accounting_data, last_save]);
 
+    const [loading, setLoading] = useState<boolean>(false)
+ 
     const onSave = async () => {
         if (!hasEdits) { return }
+        setLoading(true)
         try {
             const promises: Promise<any>[] = [];
             accounting_data.forEach(property => {
@@ -150,7 +154,7 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
             }
             setLastSave(deepCopyMap(newAccountingData))
             setAccountingData(newAccountingData);
-            // setLastSave(deepCopyMap(accounting_data));
+            setLoading(false)
         }
     }
 
@@ -197,14 +201,14 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
                         {/* Main Content */}
                         <tbody className={`${hasEdits ? 'border-4 border-orange-400 shadow-[0_0_32px_8px_rgba(255,140,0,0.25)] backdrop-blur-sm' : 'border-[#ECECEE]'} w-[800px] flex flex-col gap-y-3 min-h-[304px] ${accounting_data.size === 0 ? 'h-[304px]' : ''} ${enlarged ? '' : 'max-h-[304px] overflow-y-auto'} relative z-10 border  table-input-shadow border-y-2 border-t-0 bg-[#FDFDFD] rounded-bottom relative z-0 py-4`}>
                             {
-                                accounting_data.size === 0 ? noDataDisplay : <PropertyRows accounting_data={accounting_data} setAccountingData={setAccountingData} />
+                                accounting_data.size === 0 ? noDataDisplay : <PropertyRows accounting_data={accounting_data} setAccountingData={setAccountingData} filtered_property_ids={filtered_property_ids} />
                             }
                         </tbody>
                     </table>
                 </div>
                 {/* Action Button */}
                 <div className="w-full">
-                    <TableBtns onSync={onSync} onSave={onSave} hasEdits={hasEdits} enlarged={enlarged} setEnlarged={setEnlarged} />
+                    <TableBtns onSync={onSync} onSave={onSave} hasEdits={hasEdits} enlarged={enlarged} setEnlarged={setEnlarged} loading={loading} />
                 </div>
             </div>
         </div>
