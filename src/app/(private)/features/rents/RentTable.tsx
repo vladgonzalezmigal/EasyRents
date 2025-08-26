@@ -3,7 +3,7 @@ import { AccountingData, deepCopyMap, Payable, Receivable } from "./rentTypes";
 import TableBtns from "./TableBtns";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { getDaysInMonth, formatDate } from "../../utils/dateUtils";
+import { getDaysInMonth, formatDate, getMonthDateRange } from "../../utils/dateUtils";
 import PropertyRows from "./PropertyRows";
 import { ReceivablesService } from "./ReceivableService";
 
@@ -20,6 +20,8 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
     const { propertyState, tenantState } = useStore()
     const [hasEdits, setHasEdits] = useState<boolean>(false)
     const [enlarged, setEnlarged] = useState<boolean>(true)
+    const { startDate, endDate } = getMonthDateRange(String(year), String(month));
+
 
     const onSync = () => {
 
@@ -32,10 +34,11 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
                 // add income data 
                 tenantState.data.get(property.id)?.forEach(tenant => {
                     // check if exists 
-                    const last_save_existing_receivables = last_save.get(property.id)?.receivables || [] 
+                    const last_save_existing_receivables = last_save.get(property.id)?.receivables || []
                     const existing_tenant = last_save_existing_receivables.find(r =>
                         r.tenant_name.toLowerCase().trim() === (tenant.first_name.toLowerCase().trim() + " " + tenant.last_name.toLowerCase().trim()))
                     if (existing_tenant) {
+                        console.log("pushing existing tenant", existing_tenant)
                         receivables.push(new Receivable(
                             existing_tenant.id,
                             existing_tenant.property_id,
@@ -46,6 +49,7 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
                             existing_tenant.tenant_name
                         ))
                     } else {
+                        // need to check that the name doesn't exist before adding 
                         const rent_due_day = Math.min((Number(tenant.rent_due_date)), getDaysInMonth(Number(month), Number(year))).toString()
                         const new_tenant = new Receivable(
                             undefined,
@@ -56,6 +60,8 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
                             null,
                             `${tenant.first_name.trim()} ${tenant.last_name.trim()}`,
                         )
+                        console.log("pushing new tenant", new_tenant)
+
                         receivables.push(new_tenant)
                     }
                 })
@@ -124,7 +130,27 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
         } catch (e) {
             console.error(e);
         } finally {
-            setLastSave(deepCopyMap(accounting_data));
+            let newAccountingData: AccountingData = new Map();
+
+            const property_ids: number[] = propertyState.data.get(Number(company_id))?.filter(c => c.active).map(p => p.id) || []
+            const result = await ReceivablesService.fetchReceivables({ startDate, endDate, property_ids });
+            if (result.data) {
+                const grouped = new Map<number, { property_name: string; receivables: Receivable[]; payables: Payable[] }>();
+                result.data.forEach(r => {
+                    if (!grouped.has(r.property_id)) {
+                        grouped.set(r.property_id, {
+                            property_name: propertyState.data?.get(Number(company_id))?.find(p => p.id === r.property_id)?.address || "not found",
+                            receivables: [],
+                            payables: [],
+                        });
+                    }
+                    grouped.get(r.property_id)!.receivables.push(r);
+                });
+                newAccountingData = grouped;
+            }
+            setLastSave(deepCopyMap(newAccountingData))
+            setAccountingData(newAccountingData);
+            // setLastSave(deepCopyMap(accounting_data));
         }
     }
 

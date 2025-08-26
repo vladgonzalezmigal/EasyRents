@@ -29,8 +29,8 @@ export default function TableBtns({
                     <div className="flex flex-col items-center gap-y-2">
                         <button
                             onClick={onSync}
-                            disabled={false}
-                            className="cursor-pointer rounded-full w-16 h-16 border-2 border-[#8ABBFD] bg-[#DFF4F3] flex items-center justify-center"
+                            disabled={hasEdits}
+                            className={`${hasEdits ? 'cursor-not-allowed' : 'cursor-pointer'} rounded-full w-16 h-16 border-2 border-[#8ABBFD] bg-[#DFF4F3] flex items-center justify-center`}
                         >
                             <span className="text-white">
                                 <PayrollIcon className="text-[#8ABBFD] w-10 h-10" />
