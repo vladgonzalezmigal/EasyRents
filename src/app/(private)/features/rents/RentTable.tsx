@@ -23,10 +23,6 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
 
     const onSync = () => {
 
-        // first pull tenants from 'DB' that don't exist in our current saved state 
-        // const existing_tenants = last_save.get()
-        // 2. create them in state
-        // 3. append them to saved state 
         if (propertyState.data?.get(Number(company_id)) && tenantState.data) {
             const newAccountingData: AccountingData = new Map();
             propertyState.data.get(Number(company_id))?.filter(p => p.active).forEach(property => {
@@ -36,19 +32,32 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
                 // add income data 
                 tenantState.data.get(property.id)?.forEach(tenant => {
                     // check if exists 
-                    const last_save_existing_receivables = last_save.get(property.id)?.receivables || []
+                    const last_save_existing_receivables = last_save.get(property.id)?.receivables || [] 
                     const existing_tenant = last_save_existing_receivables.find(r =>
                         r.tenant_name.toLowerCase().trim() === (tenant.first_name.toLowerCase().trim() + " " + tenant.last_name.toLowerCase().trim()))
-                    const rent_due_day = Math.min(Number(tenant.rent_due_date), getDaysInMonth(Number(month), Number(year))).toString()
-                    receivables.push(new Receivable(
-                        existing_tenant?.id ?? undefined,
-                        Number(property.id),
-                        Number(existing_tenant?.amount_paid ?? 0),
-                        Number(tenant.rent_amount),
-                        `${formatDate(rent_due_day, String(month), String(year))}`,
-                        existing_tenant?.paid_by ?? null,
-                        existing_tenant?.tenant_name.trim() ?? `${tenant.first_name.toLowerCase().trim()} ${tenant.last_name.toUpperCase().trim()}`,
-                    ))
+                    if (existing_tenant) {
+                        receivables.push(new Receivable(
+                            existing_tenant.id,
+                            existing_tenant.property_id,
+                            existing_tenant.amount_paid,
+                            existing_tenant.amount_due,
+                            existing_tenant.due_date,
+                            existing_tenant.paid_by,
+                            existing_tenant.tenant_name
+                        ))
+                    } else {
+                        const rent_due_day = Math.min((Number(tenant.rent_due_date)), getDaysInMonth(Number(month), Number(year))).toString()
+                        const new_tenant = new Receivable(
+                            undefined,
+                            Number(property.id),
+                            Number(0),
+                            Number(tenant.rent_amount),
+                            `${formatDate(rent_due_day, String(month), String(year))}`,
+                            null,
+                            `${tenant.first_name.trim()} ${tenant.last_name.trim()}`,
+                        )
+                        receivables.push(new_tenant)
+                    }
                 })
 
                 newAccountingData.set(property.id, {
@@ -61,7 +70,7 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
         }
     }
 
-    const arraysEqual = (a1: Receivable[], a2: Receivable[]) => a1.length === a2.length && a1.every((o, idx) => o.equals(a2[idx]));
+    const arraysEqual = (a1: Receivable[], a2: Receivable[]) => a1.every(item1 => a2.some(item2 => item1.equals(item2)));
 
     const maps_equal = (last_save: AccountingData, accounting_data: AccountingData): boolean => {
         if (last_save.size != accounting_data.size) {
@@ -71,12 +80,14 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
         for (const key of accounting_data.keys()) {
             const last_save_prop = last_save.get(key)
             if (last_save_prop) {
-                console.log('checking')
                 const receivables_equal = arraysEqual(accounting_data.get(key)?.receivables || [], last_save_prop.receivables)
                 if (!receivables_equal) {
                     maps_equal = false
                     break
                 }
+            } else {
+                maps_equal = false
+                break
             }
         }
         return maps_equal
@@ -147,7 +158,7 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
                                     <span className="text-[16px] text-[#80848A]">Address</span>
                                 </th>
                                 <th className="w-[150px] pl-2 text-left flex items-center ">
-                                    <span className="text-[16px] text-[#80848A]">Rent</span>
+                                    <span className="text-[16px] text-[#80848A]">Rent Collected</span>
                                 </th>
                                 <th className="w-[100px] pl-2 flex items-center text-left">
                                     <span className="text-[16px] text-[#80848A]">Expenses</span>

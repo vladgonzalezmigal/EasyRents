@@ -13,7 +13,7 @@ interface CreatePropertyProps {
 
 export default function CreateProperty({ company_id: company_id, }: CreatePropertyProps
 ) {
-    const { propertyState, createProperty, isCudLoadingProperties} = useStore();
+    const { propertyState, createProperty, isCudLoadingProperties } = useStore();
     const [address1, setAddress1] = useState('');
     const [address2, setAddress2] = useState('');
     const [city, setCity] = useState('');
@@ -42,29 +42,37 @@ export default function CreateProperty({ company_id: company_id, }: CreateProper
                     rent_due_date: 1
                 };
             }
+            if (field === 'first_name' || field === 'last_name') {
+                value = capitalizeStr(String(value))
+            }
             if (field === 'rent_amount') {
                 value = isNaN(Number(value)) ? 0 : Number(value) < 0 ? 0 : Number(value);
             } else if (field === 'rent_due_date') {
                 value = isNaN(Number(value)) ? 1 : Number(value) < 1 ? 1 : Number(value);
-            } 
+            }
             newTenants[index] = { ...newTenants[index], [field]: value };
             return newTenants;
         });
     };
 
-    const handleSubmit = async (e : React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         if (propertyState.error) {
             return
         }
         e.preventDefault();
         const address = (address2 != '') ? `${capitalizeStr(address1)} ${capitalizeStr(address2)}` : capitalizeStr(address1);
         const complete_address = `${address}, ${capitalizeStr(city)}, ${stateVal.toUpperCase()}, ${zip}`.trim();
-        if (address1 && city && stateVal && zip ) {
-            createProperty(Number(company_id), complete_address, tenants).then(() => {
+        const cleaned_tenants = tenants.map(tenant => ({
+            ...tenant,
+            first_name: tenant.first_name.trim(),
+            last_name: tenant.last_name.trim(),
+        }));
+        if (address1 && city && stateVal && zip) {
+            createProperty(Number(company_id), complete_address, cleaned_tenants).then(() => {
                 setAddress1(''); setAddress2(''); setCity(''); setStateVal(''); setZip('');
                 setTenantCount(0);
                 setTenants([]);
-            });            
+            });
         }
     };
 
@@ -102,13 +110,13 @@ export default function CreateProperty({ company_id: company_id, }: CreateProper
                     </div>
                 </div>
                 {/* Dynamic Tenant Rows & Tenant Count Selector */}
-                <CreateTenant 
+                <CreateTenant
                     tenantCount={tenantCount}
                     setTenantCount={setTenantCount}
                     tenants={tenants}
                     handleTenantChange={handleTenantChange}
                 />
-               
+
                 <div className='ml-2'>
                     <CreateBtn disabled={isCudLoadingProperties} />
                 </div>

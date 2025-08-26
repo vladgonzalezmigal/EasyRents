@@ -36,16 +36,17 @@ export const DisplayRecievableRows: React.FC<DisplayTenantRowsProps> = ({ proper
             const propertyData = newMap.get(property_id);
             
             if (propertyData && checked) {
+                console.log("checked case ")
                 const nextReceivables = [...propertyData.receivables]
                 nextReceivables[idx].amount_paid = nextReceivables[idx].amount_due;
                 nextReceivables[idx].paid_by = nextReceivables[idx].due_date;
                 newMap.set(property_id, { ...propertyData, receivables: nextReceivables });
 
             } else if (propertyData && !checked) {
+                console.log("not checked case ")
                 const nextReceivables = [...propertyData.receivables]
                 nextReceivables[idx].amount_paid = 0;
                 newMap.set(property_id, { ...propertyData, receivables: nextReceivables });
-
             }
             return newMap;
         });
@@ -66,10 +67,11 @@ export const DisplayRecievableRows: React.FC<DisplayTenantRowsProps> = ({ proper
                                     <tr>
                                         <th className="px-4 py-3 text-left text-xs text-[#80848A] font-semibold tracking-wider">On Time</th>
                                         <th className="px-4 py-3 text-left text-xs text-[#80848A] font-semibold tracking-wider">Tenant Name</th>
-                                        <th className="px-4 py-3 text-left text-xs text-[#80848A] font-semibold tracking-wider">Amount Due</th>
-                                        <th className="px-4 py-3 text-left text-xs text-[#80848A] font-semibold tracking-wider">Due Date</th>
                                         <th className="px-4 py-3 text-left text-xs text-[#80848A] font-semibold tracking-wider">Amount Paid</th>
                                         <th className="px-4 py-3 text-left text-xs text-[#80848A] font-semibold tracking-wider">Paid By</th>
+                                        <th className="px-4 py-3 text-left text-xs text-[#80848A] font-semibold tracking-wider">Amount Due</th>
+                                        <th className="px-4 py-3 text-left text-xs text-[#80848A] font-semibold tracking-wider">Due Date</th>
+                                        
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-[#E4F0F6] bg-white">
@@ -95,28 +97,6 @@ export const DisplayRecievableRows: React.FC<DisplayTenantRowsProps> = ({ proper
                                                     className={`w-[120px] px-2 ${activeInput?.row === idx && activeInput?.field === 'tenant_name' ? 'border-2 rounded' : 'border-none'}`}
                                                 />
                                             </td>
-                                            {/* Amount Due */}
-                                            <td className="px-4 py-3 text-sm text-gray-700">
-                                                <input
-                                                    type="number"
-                                                    value={receivable.amount_due}
-                                                    onChange={e => handleInputChange(idx, 'amount_due', Number(e.target.value))}
-                                                    onFocus={() => setActiveInput({ row: idx, field: 'amount_due' })}
-                                                    onBlur={() => setActiveInput(null)}
-                                                    className={`w-[80px] px-2 ${activeInput?.row === idx && activeInput?.field === 'amount_due' ? 'border-2 rounded' : 'border-none'}`}
-                                                />
-                                            </td>
-                                            {/* Due Date */}
-                                            <td className="px-4 py-3 text-sm text-gray-700">
-                                                <input
-                                                    type="date"
-                                                    value={receivable.due_date}
-                                                    onChange={e => handleInputChange(idx, 'due_date', e.target.value)}
-                                                    onFocus={() => setActiveInput({ row: idx, field: 'due_date' })}
-                                                    onBlur={() => setActiveInput(null)}
-                                                    className={`w-[100px] px-2 ${activeInput?.row === idx && activeInput?.field === 'due_date' ? 'border-2 rounded' : 'border-none'}`}
-                                                />
-                                            </td>
                                             {/* Amount Paid */}
                                             <td className="px-4 py-3 text-sm text-gray-700">
                                                 <input
@@ -137,6 +117,28 @@ export const DisplayRecievableRows: React.FC<DisplayTenantRowsProps> = ({ proper
                                                     onFocus={() => setActiveInput({ row: idx, field: 'paid_by' })}
                                                     onBlur={() => setActiveInput(null)}
                                                     className={`w-[100px] px-2 ${activeInput?.row === idx && activeInput?.field === 'paid_by' ? 'border-2 rounded' : 'border-none'}`}
+                                                />
+                                            </td>
+                                            {/* Amount Due */}
+                                            <td className="px-4 py-3 text-sm text-gray-700">
+                                                <input
+                                                    type="number"
+                                                    value={receivable.amount_due}
+                                                    onChange={e => handleInputChange(idx, 'amount_due', Number(e.target.value))}
+                                                    onFocus={() => setActiveInput({ row: idx, field: 'amount_due' })}
+                                                    onBlur={() => setActiveInput(null)}
+                                                    className={`w-[80px] px-2 ${activeInput?.row === idx && activeInput?.field === 'amount_due' ? 'border-2 rounded' : 'border-none'}`}
+                                                />
+                                            </td>
+                                            {/* Due Date */}
+                                            <td className="px-4 py-3 text-sm text-gray-700">
+                                                <input
+                                                    type="date"
+                                                    value={receivable.due_date}
+                                                    onChange={e => handleInputChange(idx, 'due_date', e.target.value)}
+                                                    onFocus={() => setActiveInput({ row: idx, field: 'due_date' })}
+                                                    onBlur={() => setActiveInput(null)}
+                                                    className={`w-[100px] px-2 ${activeInput?.row === idx && activeInput?.field === 'due_date' ? 'border-2 rounded' : 'border-none'}`}
                                                 />
                                             </td>
                                         </tr>

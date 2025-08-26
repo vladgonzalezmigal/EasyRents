@@ -4,6 +4,7 @@ import CreateTenant from "./CreateTenant";
 import CreateBtn from "../CreateBtn";
 import { useStore } from "@/store";
 import { Property } from "../../types/propertyTypes";
+import capitilizeStr from "../../../utils/formatStrings";
 
 interface CreateTenantsPopUpProps {
     property: Property;
@@ -34,6 +35,9 @@ export default function CreateTenantsPopUp({ property, onClose }: CreateTenantsP
                     rent_due_date: 1
                 };
             }
+            if (field === 'first_name' || field === 'last_name') {
+                value = capitilizeStr(String(value)) 
+            }
             if (field === 'rent_amount') {
                 value = isNaN(Number(value)) ? 0 : Number(value) < 0 ? 0 : Number(value);
             } else if (field === 'rent_due_date') {
@@ -48,6 +52,8 @@ export default function CreateTenantsPopUp({ property, onClose }: CreateTenantsP
         e.preventDefault();
         const tenantsWithPropertyId = tenants.map(tenant => ({
             ...tenant,
+            first_name: tenant.first_name.trim(),
+            last_name: tenant.last_name.trim(),
             property_id: property.id
         }));
         createTenants(tenantsWithPropertyId).then(() => setTenantCount(0)).then(() => setTenants([])).then(() => onClose());
