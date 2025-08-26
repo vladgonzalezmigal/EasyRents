@@ -1,6 +1,6 @@
 import React from 'react';
 import ToggleMonthsBtn from './ToggleMonthsBtn';
-import SearchBar from '../../userSettings/components/SearchBar';
+import SearchBar from '../userSettings/components/SearchBar';
 
 interface TableTitleProps {
   title?: string;

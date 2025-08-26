@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import TableTitle from '../handleForms/components/TableTitle';
+import TableTitle from './TableTitle';
 import { Loading } from '@/app/components/Loading';
 import { useParams } from 'next/navigation';
 import { ReceivablesService } from './ReceivableService';
