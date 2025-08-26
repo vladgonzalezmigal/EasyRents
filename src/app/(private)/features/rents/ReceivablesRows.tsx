@@ -20,7 +20,9 @@ export const DisplayRecievableRows: React.FC<DisplayTenantRowsProps> = ({ proper
             const propertyData = newMap.get(property_id);
             if (propertyData) {
                 const nextReceivables = [...propertyData.receivables];
-                nextReceivables[idx] = { ...nextReceivables[idx], [field]: value };
+                nextReceivables[idx] = { ...nextReceivables[idx], [field]: value, equals: nextReceivables[idx].equals, clone: nextReceivables[idx].clone, 
+                    cloneWithoutId: nextReceivables[idx].cloneWithoutId
+                 };
                 newMap.set(property_id, { ...propertyData, receivables: nextReceivables });
             }
             return newMap;
@@ -37,9 +39,13 @@ export const DisplayRecievableRows: React.FC<DisplayTenantRowsProps> = ({ proper
                 const nextReceivables = [...propertyData.receivables]
                 nextReceivables[idx].amount_paid = nextReceivables[idx].amount_due;
                 nextReceivables[idx].paid_by = nextReceivables[idx].due_date;
+                newMap.set(property_id, { ...propertyData, receivables: nextReceivables });
+
             } else if (propertyData && !checked) {
                 const nextReceivables = [...propertyData.receivables]
                 nextReceivables[idx].amount_paid = 0;
+                newMap.set(property_id, { ...propertyData, receivables: nextReceivables });
+
             }
             return newMap;
         });

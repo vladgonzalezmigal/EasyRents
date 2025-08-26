@@ -7,25 +7,24 @@ import { useParams } from 'next/navigation';
 import { ReceivablesService } from './ReceivableService';
 import { getMonthDateRange } from '../../utils/dateUtils';
 import RentTable from './RentTable';
-import { AccountingData, Payable, Receivable } from './rentTypes';
+import { AccountingData, Payable, Receivable, deepCopyMap } from './rentTypes';
 import { useStore } from '@/store';
 
 export default function RentPage() {
 
-    const {propertyState} = useStore()
-    const {company_id, year, month } = useParams();
+    const { propertyState } = useStore()
+    const { company_id, year, month } = useParams();
     const [accountingData, setAccountingData] = useState<AccountingData>(new Map());
     const [lastSave, setLastSave] = useState<AccountingData>(new Map())
     const [fetchError, setFetchError] = useState<string | null>(null);
     const [fetchLoading, setFetchLoading] = useState<boolean>(true);
-    const {startDate, endDate}= getMonthDateRange(String(year), String(month));
+    const { startDate, endDate } = getMonthDateRange(String(year), String(month));
 
     useEffect(() => {
         const fetchRentData = async () => {
             let newAccountingData: AccountingData = new Map();
-            const property_ids : Number[] = propertyState.data.get(Number(company_id))?.filter(c => c.active).map(p => p.id) || []
-            console.log("preopty_ids", property_ids)
-            const result = await ReceivablesService.fetchReceivables({ startDate, endDate, property_ids});
+            const property_ids: number[] = propertyState.data.get(Number(company_id))?.filter(c => c.active).map(p => p.id) || []
+            const result = await ReceivablesService.fetchReceivables({ startDate, endDate, property_ids });
             if (!result) {
                 setFetchError('Failed to fetch receivables.');
                 setFetchLoading(false);
@@ -38,7 +37,7 @@ export default function RentPage() {
                 return;
             }
             // Group receivables by property_id
-            if (data) { 
+            if (data) {
                 const grouped = new Map<number, { property_name: string; receivables: Receivable[]; payables: Payable[] }>();
                 data.forEach(r => {
                     if (!grouped.has(r.property_id)) {
@@ -52,7 +51,7 @@ export default function RentPage() {
                 });
                 newAccountingData = grouped;
             }
-            setLastSave(newAccountingData)
+            setLastSave(deepCopyMap(newAccountingData))
             setAccountingData(newAccountingData);
             setFetchLoading(false);
         }
@@ -78,13 +77,12 @@ export default function RentPage() {
                             {/* <CudError cudError={cudError} /> */}
                         </div>
                     </div>
-                    {/* <div>
+                    <div>
                         {fetchError && <div className="text-red-500">{fetchError}</div>}
-                    </div> */}
-
+                    </div>
                     {/* Table Component */}
-                     <div className={`w-full flex items-center justify-center pb-4`}> 
-                        <RentTable accounting_data={accountingData} setAccountingData={setAccountingData} last_save={lastSave} />
+                    <div className={`w-full flex items-center justify-center pb-4`}>
+                        <RentTable accounting_data={accountingData} setAccountingData={setAccountingData} last_save={lastSave} setLastSave={setLastSave} />
                     </div>
                 </div>
             )}
