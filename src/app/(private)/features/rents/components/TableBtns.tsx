@@ -1,9 +1,9 @@
 'use client';
 
-import PayrollIcon from "../../components/svgs/PayrollIcon";
-import SaveIcon from "../../components/svgs/SaveIcon";
-import MaximizeIcon from "../../components/svgs/MaximizeIcon";
-import MinimizeIcon from "../../components/svgs/MinimizeIcon";
+import PayrollIcon from "../../../components/svgs/PayrollIcon";
+import SaveIcon from "../../../components/svgs/SaveIcon";
+import MaximizeIcon from "../../../components/svgs/MaximizeIcon";
+import MinimizeIcon from "../../../components/svgs/MinimizeIcon";
 
 interface PayrollBtnsProps {
     hasEdits: boolean;

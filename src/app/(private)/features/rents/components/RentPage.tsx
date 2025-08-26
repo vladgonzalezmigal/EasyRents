@@ -4,12 +4,12 @@ import React, { useEffect, useState } from 'react';
 import TableTitle from './TableTitle';
 import { Loading } from '@/app/components/Loading';
 import { useParams } from 'next/navigation';
-import { ReceivablesService } from './ReceivableService';
-import { getMonthDateRange } from '../../utils/dateUtils';
+import { ReceivablesService } from '../services/ReceivableService';
+import { getMonthDateRange } from '../../../utils/dateUtils';
 import RentTable from './RentTable';
-import { AccountingData, Payable, Receivable, deepCopyMap } from './rentTypes';
+import { AccountingData, Payable, Receivable, deepCopyMap } from '../types/rentTypes';
 import { useStore } from '@/store';
-import { Property } from '../userSettings/types/propertyTypes';
+import { Property } from '../../userSettings/types/propertyTypes';
 
 export default function RentPage() {
 
@@ -71,7 +71,6 @@ export default function RentPage() {
         const queryLower = query.toLowerCase();
         const filtered = allProperties.filter(p =>
             p.address.toLowerCase().includes(queryLower)
-            // or match tenant names, etc.
         );
         setFilteredProperties(filtered);
     };

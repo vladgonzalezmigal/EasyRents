@@ -1,5 +1,5 @@
 import { createClient } from "@/utils/supabase/client";
-import { Receivable } from "./rentTypes";
+import { Receivable } from "../types/rentTypes";
 
 export class ReceivablesService {
     private static readonly TABLE_NAME = 'receivables';

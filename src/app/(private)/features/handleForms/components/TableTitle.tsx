@@ -1,6 +1,6 @@
 import React from 'react';
 import ToggleMonthsBtn from './ToggleMonthsBtn';
-import LargeSearchBar from '../../rents/LargeSearchBar';
+import LargeSearchBar from '../../rents/components/LargeSearchBar';
 
 interface TableTitleProps {
   title?: string;

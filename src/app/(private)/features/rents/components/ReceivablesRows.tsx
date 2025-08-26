@@ -1,6 +1,6 @@
-import { AccountingData, Receivable } from "./rentTypes";
+import { AccountingData, Receivable } from "../types/rentTypes";
 import { useState } from "react";
-import { onTime } from "../../utils/dateUtils";
+import { onTime } from "../../../utils/dateUtils";
 
 interface DisplayTenantRowsProps {
     property_id: number,

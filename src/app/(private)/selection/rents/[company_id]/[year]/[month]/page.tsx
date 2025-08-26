@@ -1,4 +1,4 @@
-import RentPage from "@/app/(private)/features/rents/RentPage";
+import RentPage from "@/app/(private)/features/rents/components/RentPage";
 
 export default function Page() {
     return (

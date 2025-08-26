@@ -1,11 +1,11 @@
 import { useStore } from "@/store";
-import { AccountingData, deepCopyMap, Payable, Receivable } from "./rentTypes";
+import { AccountingData, deepCopyMap, Payable, Receivable } from "../types/rentTypes";
 import TableBtns from "./TableBtns";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { getDaysInMonth, formatDate, getMonthDateRange } from "../../utils/dateUtils";
+import { getDaysInMonth, formatDate, getMonthDateRange } from "../../../utils/dateUtils";
 import PropertyRows from "./PropertyRows";
-import { ReceivablesService } from "./ReceivableService";
+import { ReceivablesService } from "../services/ReceivableService";
 
 interface RentTableProps {
     accounting_data: AccountingData

@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import ChevronIcon from "@/app/(private)/components/svgs/ChevronIcon";
-import { AccountingData, Payable, Receivable } from "./rentTypes";
+import { AccountingData, Payable, Receivable } from "../types/rentTypes";
 import { DisplayRecievableRows } from "./ReceivablesRows";
 import SumRow from "./SumRow";
+import { DisplayPayableRows } from "./Payables/PayablesRows";
 
 interface PropertyRowsProps {
     accounting_data: AccountingData;
@@ -14,7 +15,8 @@ export default function PropertyRows({ accounting_data, setAccountingData, filte
     const [expanded, setExpanded] = useState<Set<number>>(new Set(
         filtered_property_ids.filter(id => 
             // tenant(s) haven't paid yet 
-            (accounting_data.get(id)?.receivables.reduce((sum, r) => sum + Number(r.amount_due), 0) || 0) != (accounting_data.get(id)?.receivables.reduce((sum, r) => sum + Number(r.amount_paid), 0) || 0)
+            (accounting_data.get(id)?.receivables.reduce((sum, r) => sum + Number(r.amount_due), 0) || 0) != 
+            (accounting_data.get(id)?.receivables.reduce((sum, r) => sum + Number(r.amount_paid), 0) || 0)
         )
     ));
 
@@ -76,9 +78,13 @@ export default function PropertyRows({ accounting_data, setAccountingData, filte
                             {/* Gross Income */}
                             <td className="w-[150px] min-w-[150px] max-w-[150px] pl-4 py-4 font-medium text-left">${grossPropertyIncome.toLocaleString('en-US')}</td>
                         </tr>
-                        {/* Expandable Payables Details */}
+                        {/* Expandable Financial Details */}
                         {isExpanded && receivables.length > 0 && (
+                            <> 
                             <DisplayRecievableRows property_id={propertyId} accountingData={accounting_data} setAccountingData={setAccountingData} />
+                            <DisplayPayableRows property_id={propertyId} accountingData={accounting_data} setAccountingData={setAccountingData} />
+                            </>
+                            
                         )}
                     </React.Fragment>
                 );

@@ -42,6 +42,7 @@ export class Receivable {
 export type Payable = {
     id: number;
     property_id: number;
+    expense_name: string; 
     expense_amount: number;
     expense_date: string;
     paid_with: string;
