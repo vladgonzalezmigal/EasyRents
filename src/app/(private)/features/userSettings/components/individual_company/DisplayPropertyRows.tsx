@@ -114,6 +114,7 @@ const DisplayPropertyRows: React.FC<DisplayPropertyRowsProps> = ({ properties, d
                     </React.Fragment>
                 );
             })}
+            
         </>
     );
 };

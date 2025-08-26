@@ -2,13 +2,14 @@ import React, { useState } from "react";
 import ChevronIcon from "@/app/(private)/components/svgs/ChevronIcon";
 import { AccountingData, Payable, Receivable } from "./rentTypes";
 import { DisplayRecievableRows } from "./ReceivablesRows";
+import SumRow from "./SumRow";
 
 interface PropertyRowsProps {
     accounting_data: AccountingData;
     setAccountingData: React.Dispatch<React.SetStateAction<AccountingData>>;
 }
 
-export default function PropertyRows({ accounting_data, setAccountingData}: PropertyRowsProps) {
+export default function PropertyRows({ accounting_data, setAccountingData }: PropertyRowsProps) {
     const [expanded, setExpanded] = useState<Set<number>>(new Set());
 
     const toggleExpand = (propertyId: number) => {
@@ -23,15 +24,21 @@ export default function PropertyRows({ accounting_data, setAccountingData}: Prop
         });
     };
 
+    // high-level accounting vars 
+    const totalIncome = Array.from(accounting_data.values())
+        .reduce((sum, { receivables }) => sum + receivables.reduce((rSum, r) => rSum + Number(r.amount_paid), 0), 0);
+    const totalExpenses = Array.from(accounting_data.values())
+        .reduce((sum, { payables }) => sum + payables.reduce((rSum, r) => rSum + Number(r.expense_amount), 0), 0);
+
     // Render each property row
     return (
         <>
             {[...accounting_data.keys()].map(propertyId => {
                 const { property_name, payables, receivables } = accounting_data.get(propertyId)!;
                 // Calculate gross values
-                const totalRent = receivables.reduce((sum, r) => sum + Number(r.amount_due), 0);
-                const totalExpenses = payables.reduce((sum, p) => sum + Number(p.expense_amount), 0);
-                const grossIncome = totalRent - totalExpenses;
+                const totalPropertyIncome = receivables.reduce((sum, r) => sum + Number(r.amount_due), 0);
+                const totalPropertyExpenses = payables.reduce((sum, p) => sum + Number(p.expense_amount), 0);
+                const grossPropertyIncome = totalPropertyIncome - totalPropertyExpenses;
                 const isExpanded = expanded.has(propertyId);
                 return (
                     <React.Fragment key={propertyId}>
@@ -56,11 +63,11 @@ export default function PropertyRows({ accounting_data, setAccountingData}: Prop
                             {/* Address Column */}
                             <td className="w-[250px] min-w-[250px] max-w-[250px] pl-4 py-4 text-left font-medium ">{property_name}</td>
                             {/* Total Rent */}
-                            <td className="w-[150px] min-w-[150px] max-w-[150px] pl-4 py-4 font-medium text-left ">${totalRent.toLocaleString('en-US')}</td>
+                            <td className="w-[150px] min-w-[150px] max-w-[150px] pl-4 py-4 font-medium text-left ">${totalPropertyIncome.toLocaleString('en-US')}</td>
                             {/* Total Expenses */}
-                            <td className="w-[100px] min-w-[100px] max-w-[100px] pl-4 py-4 font-medium text-left">${totalExpenses.toLocaleString('en-US')}</td>
+                            <td className="w-[100px] min-w-[100px] max-w-[100px] pl-4 py-4 font-medium text-left">${totalPropertyExpenses.toLocaleString('en-US')}</td>
                             {/* Gross Income */}
-                            <td className="w-[150px] min-w-[150px] max-w-[150px] pl-4 py-4 font-medium text-left">${grossIncome.toLocaleString('en-US')}</td>
+                            <td className="w-[150px] min-w-[150px] max-w-[150px] pl-4 py-4 font-medium text-left">${grossPropertyIncome.toLocaleString('en-US')}</td>
                         </tr>
                         {/* Expandable Payables Details */}
                         {isExpanded && receivables.length > 0 && (
@@ -69,6 +76,8 @@ export default function PropertyRows({ accounting_data, setAccountingData}: Prop
                     </React.Fragment>
                 );
             })}
+            {/* Sum Row  */}
+            <SumRow totalIncome={totalIncome} totalExpenses={totalExpenses} />
         </>
     );
 }
