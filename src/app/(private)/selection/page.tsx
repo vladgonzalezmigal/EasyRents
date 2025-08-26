@@ -11,7 +11,7 @@ import BuildingIcon from "../components/svgs/BuildingIcon";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { companyState: companyState } = useStore();
+  const { companyState: companyState, propertyState, tenantState } = useStore();
   const companies: Company[] = companyState?.data?.filter(c => c.active) || [];
 
   // Get current month and year
@@ -54,9 +54,18 @@ export default function DashboardPage() {
                   </div>
                 </div>
                 {/* Total section */}
-                <div className="w-[136px] h-[68px] bg-[#DFF4F3] rounded-2xl pl-4 flex flex-col justify-center">
+                <div className="w-[160px] h-[68px] bg-[#DFF4F3] rounded-2xl pl-4 flex flex-col justify-center">
                   <p className="text-[#696969] text-[14px] font-semibold"> Total </p>
-                  <p className="text-[#2A7D7B] text-[18px] font-semibold"> $100,000</p>
+                  <p className="text-[#2A7D7B] text-[16px] font-semibold"> ${
+                    (propertyState.data?.get(company.id)
+                      ?.reduce((sum, property) => {
+                        // Get all tenants for this property
+                        const tenants = tenantState.data?.get(property.id) || [];
+                        // Sum rent_amount for each tenant
+                        const tenantTotal = tenants.reduce((tSum, tenant) => tSum + Number(tenant.rent_amount || 0), 0);
+                        return sum + tenantTotal;
+                      }, 0))?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                  } </p>
                 </div>
               </div>
               {/* Button section */}

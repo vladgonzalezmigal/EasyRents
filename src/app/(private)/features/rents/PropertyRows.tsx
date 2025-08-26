@@ -33,16 +33,17 @@ export default function PropertyRows({ accounting_data, setAccountingData }: Pro
     // Render each property row
     return (
         <>
-            {[...accounting_data.keys()].map(propertyId => {
+            {[...accounting_data.keys()].sort((a, b) => b - a).map(propertyId => {
                 const { property_name, payables, receivables } = accounting_data.get(propertyId)!;
                 // Calculate gross values
+                const totalPropertyIncomeOwed = receivables.reduce((sum, r) => sum + Number(r.amount_due), 0);
                 const totalPropertyIncome = receivables.reduce((sum, r) => sum + Number(r.amount_paid), 0);
                 const totalPropertyExpenses = payables.reduce((sum, p) => sum + Number(p.expense_amount), 0);
                 const grossPropertyIncome = totalPropertyIncome - totalPropertyExpenses;
                 const isExpanded = expanded.has(propertyId);
                 return (
                     <React.Fragment key={propertyId}>
-                        <tr className="relative table-row-style gap-x-4 hover:bg-gray-200 table-row-text mx-auto">
+                        <tr className={`${totalPropertyIncome < totalPropertyIncomeOwed ? 'table-row-style-not-payed' : 'table-row-style ' } relative gap-x-4 hover:bg-gray-200 table-row-text mx-auto`}>
                             {/* Carat Column */}
                             <td
                                 style={{ position: 'absolute', left: '-40px', top: '50%', transform: 'translateY(-50%)', zIndex: 2 }}
