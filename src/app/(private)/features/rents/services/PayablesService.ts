@@ -111,4 +111,42 @@ export class PayablesService {
 
 		return { data: payablesData, error: null };
 	}
+
+	/**
+     * Deletes specific payables by id for a given property
+     * @param payableIds Array of payable IDs to delete
+     * @returns Promise<{data: Payable[] | null; error: string | null}>
+     */
+	
+    static async deletePayables( payableIds: number[]): Promise<{ data: Payable[] | null; error: string | null }> {
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!user || !user.id) {
+            return { data: null, error: 'User id not found' };
+        }
+
+        const { data, error } = await supabase
+            .from(PayablesService.TABLE_NAME)
+            .delete()
+            .in('id', payableIds)
+            .select('id, property_id, expense_name, expense_amount, expense_date, paid_with, detail');
+
+        if (error) {
+            return { data: null, error: error.message };
+        }
+
+        // Map plain objects to Payable class instances
+        const payablesData = data ? data.map(item => new Payable(
+            item.id,
+            item.property_id,
+            item.expense_name,
+            item.expense_amount,
+            item.expense_date,
+            item.paid_with,
+            item.detail
+        )) : null;
+
+        return { data: payablesData, error: null };
+    }
 }
