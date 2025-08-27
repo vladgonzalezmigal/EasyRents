@@ -61,11 +61,9 @@ export default function PayrollTableRows({
         if (validationResult.value) {
             e.target.value = validationResult.value;
         }
-        console.log("currentValue", e.target.value);
         // Get the current row
         const currentRow = data.find(row => row.id === id);
         if (!currentRow) return;
-        console.log("currentValue after row validation", e.target.value);
         // Update the edited value
         editConfig.onRowEdit(id, name as keyof Payroll, value, colNumber);
 

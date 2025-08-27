@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { getDaysInMonth, formatDate, getMonthDateRange } from "../../../utils/dateUtils";
 import PropertyRows from "./PropertyRows";
 import { ReceivablesService } from "../services/ReceivableService";
+import { PayablesService } from "../services/PayablesService";
 
 interface RentTableProps {
     accounting_data: AccountingData
@@ -86,7 +87,7 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
             const last_save_prop = last_save.get(key)
             if (last_save_prop) {
                 const receivables_equal = receivablesEqual(accounting_data.get(key)?.receivables || [], last_save_prop.receivables)
-                const payables_equal = payablesEqual(accounting_data.get(key)?.payables || [], accounting_data.get(key)?.payables || []) 
+                const payables_equal = payablesEqual(accounting_data.get(key)?.payables || [], last_save_prop.payables || [])
                 if (!receivables_equal || !payables_equal) {
                     maps_equal = false
                     break
@@ -100,9 +101,6 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
     }
 
     useEffect(() => {
-        // handle new expense creation 
-        console.log("last sv", last_save)
-        console.log("acc data", accounting_data)
         const edited = !maps_equal(last_save, accounting_data);
         setHasEdits(edited);
     }, [accounting_data, last_save]);
@@ -114,7 +112,9 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
         setLoading(true)
         try {
             const promises: Promise<any>[] = [];
-            accounting_data.forEach(property => {
+            for (const prop_id of accounting_data.keys()) {
+                const property = accounting_data.get(prop_id)
+                if (!property) return
                 const new_receivables = property.receivables.filter(r => (r.id === undefined)).map(r => r.cloneWithoutId());
                 const existing_receivables = property.receivables.filter(r => (r.id !== undefined));
                 if (new_receivables.length > 0) {
@@ -131,19 +131,44 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
                         tenant_name: r.tenant_name
                     }))));
                 }
-            });
+                // for payables check if they are equal 
+                const last_save_payables = last_save.get(prop_id)?.payables
+                const updated_payables = last_save_payables ? // if there are specific edits change those to make it efficient
+                    property.payables.filter(p => {
+                        const last_save_payable = last_save_payables.find(ls => (ls.id === p.id))
+                        if (!last_save_payable || !last_save_payable?.equals(p)) {
+                            return p
+                        }
+                    }) :
+                    property.payables
+                if (updated_payables){
+                    promises.push(PayablesService.updatePayables(
+                        updated_payables.map(p => ({
+                            id: p.id,
+                            property_id: p.property_id,
+                            expense_name: p.expense_name,
+                            expense_amount: p.expense_amount,
+                            expense_date: p.expense_date,
+                            paid_with: p.paid_with,
+                            detail: p.detail
+                        }))
+                    ))
+                }
+            }
             await Promise.all(promises);
         } catch (e) {
             console.error(e);
         } finally {
             let newAccountingData: AccountingData = new Map();
-
             const property_ids: number[] = propertyState.data.get(Number(company_id))?.filter(c => c.active).map(p => p.id) || []
-            const result = await ReceivablesService.fetchReceivables({ startDate, endDate, property_ids });
-            // TODO: need to fetch payables as well 
-            if (result.data) {
-                const grouped = new Map<number, { property_name: string; receivables: Receivable[]; payables: Payable[] }>();
-                result.data.forEach(r => {
+            const [receivable_result, payable_result] = await Promise.all([
+                ReceivablesService.fetchReceivables({ startDate, endDate, property_ids }),
+                PayablesService.fetchPayables({ startDate, endDate, property_ids })
+            ]);
+            const grouped = new Map<number, { property_name: string; receivables: Receivable[]; payables: Payable[] }>();
+
+            if (receivable_result.data) {
+                receivable_result.data.forEach(r => {
                     if (!grouped.has(r.property_id)) {
                         grouped.set(r.property_id, {
                             property_name: propertyState.data?.get(Number(company_id))?.find(p => p.id === r.property_id)?.address || "not found",
@@ -154,6 +179,20 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
                     grouped.get(r.property_id)!.receivables.push(r);
                 });
                 newAccountingData = grouped;
+            }
+            // Process payables
+            const { data: payableData, error: payableError } = payable_result;
+            if (payableData) {
+                payableData.forEach(pay => {
+                    if (!grouped.has(pay.property_id)) {
+                        grouped.set(pay.property_id, {
+                            property_name: propertyState.data?.get(Number(company_id))?.find(p => p.id === pay.property_id)?.address || "not found",
+                            receivables: [],
+                            payables: [],
+                        });
+                    }
+                    grouped.get(pay.property_id)!.payables.push(pay);
+                });
             }
             setLastSave(deepCopyMap(newAccountingData))
             setAccountingData(newAccountingData);
@@ -204,8 +243,8 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
                         {/* Main Content */}
                         <tbody className={`${hasEdits ? 'border-4 border-orange-400 shadow-[0_0_32px_8px_rgba(255,140,0,0.25)] backdrop-blur-sm' : 'border-[#ECECEE]'} w-[800px] flex flex-col gap-y-3 min-h-[304px] ${accounting_data.size === 0 ? 'h-[304px]' : ''} ${enlarged ? '' : 'max-h-[304px] overflow-y-auto'} relative z-10 border  table-input-shadow border-y-2 border-t-0 bg-[#FDFDFD] rounded-bottom relative z-0 py-4`}>
                             {
-                                accounting_data.size === 0 ? noDataDisplay : <PropertyRows accounting_data={accounting_data} setAccountingData={setAccountingData} filtered_property_ids={filtered_property_ids} 
-                                setLastSave={setLastSave}/>
+                                accounting_data.size === 0 ? noDataDisplay : <PropertyRows accounting_data={accounting_data} setAccountingData={setAccountingData} filtered_property_ids={filtered_property_ids}
+                                    setLastSave={setLastSave} />
                             }
                         </tbody>
                     </table>

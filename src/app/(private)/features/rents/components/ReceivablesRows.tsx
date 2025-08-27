@@ -36,14 +36,12 @@ export const DisplayRecievableRows: React.FC<DisplayTenantRowsProps> = ({ proper
             const propertyData = newMap.get(property_id);
             
             if (propertyData && checked) {
-                console.log("checked case ")
                 const nextReceivables = [...propertyData.receivables]
                 nextReceivables[idx].amount_paid = nextReceivables[idx].amount_due;
                 nextReceivables[idx].paid_by = nextReceivables[idx].due_date;
                 newMap.set(property_id, { ...propertyData, receivables: nextReceivables });
 
             } else if (propertyData && !checked) {
-                console.log("not checked case ")
                 const nextReceivables = [...propertyData.receivables]
                 nextReceivables[idx].amount_paid = 0;
                 newMap.set(property_id, { ...propertyData, receivables: nextReceivables });
