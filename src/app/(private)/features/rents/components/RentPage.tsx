@@ -61,34 +61,33 @@ export default function RentPage() {
             if (receivableData || payableData) {
                 const grouped = new Map<number, { property_name: string; receivables: Receivable[]; payables: Payable[] }>();
 
+                property_ids.forEach(property_id => {
+                    grouped.set(property_id, {
+                        property_name: propertyState.data?.get(Number(company_id))?.find(p => p.id === property_id)?.address || "not found",
+                        receivables: [],
+                        payables: [],
+                    });
+                });
+
                 // Process receivables
                 if (receivableData) {
                     receivableData.forEach(r => {
-                        if (!grouped.has(r.property_id)) {
-                            grouped.set(r.property_id, {
-                                property_name: propertyState.data?.get(Number(company_id))?.find(p => p.id === r.property_id)?.address || "not found",
-                                receivables: [],
-                                payables: [],
-                            });
+                        if (grouped.has(r.property_id)) {
+                            grouped.get(r.property_id)!.receivables.push(r);
                         }
-                        grouped.get(r.property_id)!.receivables.push(r);
                     });
                 }
 
                 // Process payables
                 if (payableData) {
                     payableData.forEach(pay => {
-                        if (!grouped.has(pay.property_id)) {
-                            grouped.set(pay.property_id, {
-                                property_name: propertyState.data?.get(Number(company_id))?.find(p => p.id === pay.property_id)?.address || "not found",
-                                receivables: [],
-                                payables: [],
-                            });
+                        if (grouped.has(pay.property_id)) {
+                            grouped.get(pay.property_id)!.payables.push(pay);
                         }
-                        grouped.get(pay.property_id)!.payables.push(pay);
                     });
                 }
-
+                // create properties with no tenants 
+                // const all_property_ids = propertyState.data.
                 newAccountingData = grouped;
             }
 

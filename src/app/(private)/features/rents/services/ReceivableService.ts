@@ -94,4 +94,45 @@ export class ReceivablesService {
         }
         return { data : data as Receivable[] | null, error: null };
     }
+
+     /**
+     * Deletes specific receivables by id for a given property
+     * @param receivableIds Array of receivable IDs to delete
+     * @returns Promise<{data: Receivable[] | null; error: string | null}>
+     */
+    static async deleteReceivables(receivableIds: number[]): Promise<{ data: Receivable[] | null; error: string | null }> {
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!user || !user.id) {
+            return { data: null, error: 'User id not found' };
+        }
+
+        if (receivableIds.length === 0) {
+            return { data: null, error: 'No receivable IDs provided' };
+        }
+
+        const { data, error } = await supabase
+            .from(ReceivablesService.TABLE_NAME)
+            .delete()
+            .in('id', receivableIds)
+            .select('id, property_id, amount_paid, amount_due, due_date, paid_by, tenant_name');
+
+        if (error) {
+            return { data: null, error: error.message };
+        }
+
+        // Map plain objects to Receivable class instances
+        const receivablesData = data ? data.map(item => new Receivable(
+            item.id,
+            item.property_id,
+            item.amount_paid,
+            item.amount_due,
+            item.due_date,
+            item.paid_by,
+            item.tenant_name
+        )) : null;
+
+        return { data: receivablesData, error: null };
+    }
 }
