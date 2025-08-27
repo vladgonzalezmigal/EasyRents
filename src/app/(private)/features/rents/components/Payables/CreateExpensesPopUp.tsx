@@ -3,6 +3,7 @@ import { PayablesService } from "../../services/PayablesService";
 import { createPortal } from "react-dom";
 import CreateBtn from "../../../userSettings/components/CreateBtn";
 import { AccountingData } from "../../types/rentTypes";
+import { PAYMENT_OPTIONS } from "../../types/rentTypes";
 
 interface CreateExpensesPopUpProps {
     property_id: number;
@@ -12,7 +13,6 @@ interface CreateExpensesPopUpProps {
     setCreateExpenseMode: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const PAYMENT_OPTIONS = ['CASH', 'CHECK', 'CARD']
 
 export default function CreateExpensesPopUp({ property_id, property_name, setCreateExpenseMode, setAccountingData, setLastSave}: CreateExpensesPopUpProps) {
     const [expenseCount, setExpenseCount] = useState(1);

@@ -86,12 +86,8 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
             const last_save_prop = last_save.get(key)
             if (last_save_prop) {
                 const receivables_equal = receivablesEqual(accounting_data.get(key)?.receivables || [], last_save_prop.receivables)
-                if (!receivables_equal) {
-                    maps_equal = false
-                    break
-                }
                 const payables_equal = payablesEqual(accounting_data.get(key)?.payables || [], accounting_data.get(key)?.payables || []) 
-                if (!payables_equal) {
+                if (!receivables_equal || !payables_equal) {
                     maps_equal = false
                     break
                 }

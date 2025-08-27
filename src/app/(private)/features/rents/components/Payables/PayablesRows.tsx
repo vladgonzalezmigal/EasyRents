@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { AccountingData, Payable } from "../../types/rentTypes";
 import CreateBtn from "./CreateBtn";
 import CreateExpensesPopUp from "./CreateExpensesPopUp";
-import { useStore } from "@/store";
+import { PAYMENT_OPTIONS } from "../../types/rentTypes";
 
 interface DisplayPayableRowsProps {
 	property_id: number;
@@ -52,42 +52,42 @@ export const DisplayPayableRows: React.FC<DisplayPayableRowsProps> = ({ property
 							<table className=" border border-[#E4F0F6]">
 								<thead className="bg-[#F8F9FA] border-b border-[#E4F0F6]">
 									<tr>
-										<th className="bb-red-300 w-[120px] px-6 py-3  text-xs text-[#80848A] font-semibold tracking-wider">Name</th>
-										<th className="bb-red-300 w-[120px] px-6 py-3  text-xs text-[#80848A] font-semibold tracking-wider">Amount</th>
+										<th className="w-[80px] px-6 py-3  text-xs text-[#80848A] font-semibold tracking-wider">Name</th>
+										<th className="w-[120px] px-6 py-3  text-xs text-[#80848A] font-semibold tracking-wider">Amount</th>
 										<th className="px-6 py-3 w-[120px]  text-xs text-[#80848A] font-semibold tracking-wider">Date</th>
 										<th className="px-6 py-3 w-[120px] text-xs text-[#80848A] font-semibold tracking-wider">Paid With</th>
-										<th className="px-6 py-3 w-[200px]  text-xs text-[#80848A] font-semibold tracking-wider">Detail</th>
+										<th className="px-6 py-3 w-[100px]  text-xs text-[#80848A] font-semibold tracking-wider">Detail</th>
 									</tr>
 								</thead>
 								<tbody className="divide-y divide-[#E4F0F6] bg-white">
 									{rows.map((payable, idx) => (
 										<tr key={idx} className="hover:bg-gray-50">
 											{/* Name */}
-											<td className="px-6 py-3 text-sm text-gray-700">
+											<td className="px-3 py-3 text-sm text-gray-700">
 												<input
 													type="text"
 													value={payable.expense_name}
 													onChange={e => handleInputChange(idx, 'expense_name', e.target.value)}
 													onFocus={() => setActiveInput({ row: idx, field: 'expense_name' })}
 													onBlur={() => setActiveInput(null)}
-													className={`w-[120px] px-2 ${activeInput?.row === idx && activeInput?.field === 'detail' ? 'border-2 rounded' : 'border-none'}`}
+													className={`w-[100px] px-2 ${activeInput?.row === idx && activeInput?.field === 'expense_name' ? 'border-2 rounded' : 'border-none'}`}
 												/>
 											</td>
 											{/* Amount */}
-											<td className="px-6 py-3 text-sm text-gray-700">
+											<td className="px-3 py-3 text-sm text-gray-700">
 												<input
 													type="number"
 													value={payable.expense_amount}
 													onChange={e => handleInputChange(idx, 'expense_amount', Number(e.target.value))}
 													onFocus={() => setActiveInput({ row: idx, field: 'expense_amount' })}
 													onBlur={() => setActiveInput(null)}
-													className={`w-[120px] px-2 ${activeInput?.row === idx && activeInput?.field === 'expense_amount' ? 'border-2 rounded' : 'border-none'}`}
+													className={`w-[100px] px-2 ${activeInput?.row === idx && activeInput?.field === 'expense_amount' ? 'border-2 rounded' : 'border-none'}`}
 												/>
 											</td>
 											{/* Date */}
-											<td className="px-6 py-3 text-sm text-gray-700">
+											<td className="px-3 py-3 text-sm text-gray-700">
 												<input
-													type="text"
+													type="date"
 													value={payable.expense_date}
 													onChange={e => handleInputChange(idx, 'expense_date', e.target.value)}
 													onFocus={() => setActiveInput({ row: idx, field: 'expense_date' })}
@@ -96,25 +96,28 @@ export const DisplayPayableRows: React.FC<DisplayPayableRowsProps> = ({ property
 												/>
 											</td>
 											{/* Paid With */}
-											<td className="px-6 py-3 text-sm text-gray-700">
-												<input
-													type="text"
+											<td className="px-3 py-3 text-sm text-gray-700">
+												<select
 													value={payable.paid_with}
 													onChange={e => handleInputChange(idx, 'paid_with', e.target.value.toUpperCase())}
-													onFocus={() => setActiveInput({ row: idx, field: 'paid_with' })}
-													onBlur={() => setActiveInput(null)}
-													className={`w-[120px] px-2 ${activeInput?.row === idx && activeInput?.field === 'paid_with' ? 'border-2 rounded' : 'border-none'}`}
-												/>
+													className="w-[100px] px-2 border rounded"
+													required
+												>
+													<option value="" disabled>Select Payment</option>
+													{PAYMENT_OPTIONS.map(option => (
+														<option key={option} value={option}>{option}</option>
+													))}
+												</select>
 											</td>
 											{/* Detail */}
-											<td className="px-6 py-3 text-sm text-gray-700">
+											<td className="px-3 py-3 text-sm text-gray-700">
 												<input
 													type="text"
 													value={payable.detail}
 													onChange={e => handleInputChange(idx, 'detail', e.target.value)}
 													onFocus={() => setActiveInput({ row: idx, field: 'detail' })}
 													onBlur={() => setActiveInput(null)}
-													className={`w-[200px] px-2 ${activeInput?.row === idx && activeInput?.field === 'detail' ? 'border-2 rounded' : 'border-none'}`}
+													className={`w-[140px] px-2 ${activeInput?.row === idx && activeInput?.field === 'detail' ? 'border-2 rounded' : 'border-none'}`}
 												/>
 											</td>
 										</tr>

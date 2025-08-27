@@ -102,3 +102,5 @@ export function deepCopyMap(originalMap: AccountingData): AccountingData {
 
     return newMap;
 }
+
+export const PAYMENT_OPTIONS = ['CASH', 'CHECK', 'CARD']
