@@ -1,16 +1,24 @@
 import React, { useState } from "react";
 import { AccountingData, Payable } from "../../types/rentTypes";
+import CreateBtn from "./CreateBtn";
+import CreateExpensesPopUp from "./CreateExpensesPopUp";
+import { useStore } from "@/store";
 
 interface DisplayPayableRowsProps {
 	property_id: number;
 	accountingData: AccountingData;
 	setAccountingData: React.Dispatch<React.SetStateAction<AccountingData>>;
+	setLastSave: React.Dispatch<React.SetStateAction<AccountingData>>;
 }
 
-export const DisplayPayableRows: React.FC<DisplayPayableRowsProps> = ({ property_id, accountingData, setAccountingData }) => {
+export const DisplayPayableRows: React.FC<DisplayPayableRowsProps> = ({ property_id, accountingData, setAccountingData,
+	setLastSave
+}) => {
 	// Local editable payable inputs
-	const rows = accountingData.get(property_id)?.payables.map(p => ({ ...p })) || [];
+	const rows = accountingData.get(property_id)?.payables.sort((a, b) => b.id - a.id).map(p => ({ ...p })) || [];
 	const [activeInput, setActiveInput] = useState<{ row: number; field: string } | null>(null);
+	const [createExpenseMode, setCreateExpenseMode] = useState<boolean>(false)
+
 
 	// Handle input change
 	const handleInputChange = (idx: number, field: keyof Payable, value: string | number) => {
@@ -19,7 +27,7 @@ export const DisplayPayableRows: React.FC<DisplayPayableRowsProps> = ({ property
 			const propertyData = newMap.get(property_id);
 			if (propertyData) {
 				const nextPayables = [...propertyData.payables];
-				nextPayables[idx] = { ...nextPayables[idx], [field]: value };
+				nextPayables[idx] = { ...nextPayables[idx], [field]: value, equals: nextPayables[idx].equals };
 				newMap.set(property_id, { ...propertyData, payables: nextPayables });
 			}
 			return newMap;
@@ -33,9 +41,12 @@ export const DisplayPayableRows: React.FC<DisplayPayableRowsProps> = ({ property
 					<div className="px-10 pb-3">
 						<div className="rounded-lg overflow-hidden">
 							{/* Title & buttons */}
-							<div>
+							<div className="flex items-center gap-x-3">
 								<h4 className="text-lg font-bold text-[#404040] pt-2 pb-4">Expenses</h4>
 								{/* Create Button */}
+								<div className="pb-1.5">
+									<CreateBtn onClick={() => setCreateExpenseMode(prev => !prev)} />
+								</div>
 								{/* Delete Button */}
 							</div>
 							<table className=" border border-[#E4F0F6]">
@@ -108,6 +119,19 @@ export const DisplayPayableRows: React.FC<DisplayPayableRowsProps> = ({ property
 											</td>
 										</tr>
 									))}
+									{createExpenseMode &&
+										<tr>
+											<td>
+												<CreateExpensesPopUp
+													property_id={property_id}
+													property_name={accountingData.get(property_id)?.property_name || "not found"}
+													setAccountingData={setAccountingData}
+													setCreateExpenseMode={setCreateExpenseMode}
+													setLastSave={setLastSave}
+												/>
+											</td>
+										</tr>
+									}
 								</tbody>
 							</table>
 						</div>

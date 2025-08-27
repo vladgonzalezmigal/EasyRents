@@ -39,15 +39,29 @@ export class Receivable {
     }
 }
 
-export type Payable = {
-    id: number;
-    property_id: number;
-    expense_name: string; 
-    expense_amount: number;
-    expense_date: string;
-    paid_with: string;
-    detail: string;
-};
+export class Payable {
+    constructor(
+        public id: number,
+        public property_id: number,
+        public expense_name: string,
+        public expense_amount: number,
+        public expense_date: string,
+        public paid_with: string,
+        public detail: string
+    ) { }
+
+    equals(other: Payable): boolean {
+        return (
+            this.id === other.id &&
+            this.property_id === other.property_id &&
+            this.expense_name === other.expense_name &&
+            this.expense_amount === other.expense_amount &&
+            this.expense_date === other.expense_date &&
+            this.paid_with === other.paid_with &&
+            this.detail === other.detail
+        );
+    }
+}
 
 // maps property id to information about the property's rents and expenses
 export type AccountingData = Map<number, { property_name: string, receivables: Receivable[], payables: Payable[] }>; // Map of property_id to array of Payables
@@ -67,8 +81,16 @@ export function deepCopyMap(originalMap: AccountingData): AccountingData {
             item.tenant_name
         ));
 
-        // Deep copy payables (since Payable is a plain object, a shallow copy is sufficient)
-        const payablesCopy = value.payables.map(item => ({ ...item }));
+        // Deep copy payables 
+        const payablesCopy = value.payables.map(item => new Payable(
+            item.id,
+            item.property_id,
+            item.expense_name,
+            item.expense_amount,
+            item.expense_date,
+            item.paid_with,
+            item.detail
+        ));
 
         // Set the new entry in the map
         newMap.set(key, {

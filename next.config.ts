@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // reactStrictMode: process.env.ENV === 'development',
+  reactStrictMode: false,
 
   // devIndicators: {
   //     appIsrStatus: process.env.ENV === 'development',

@@ -23,7 +23,6 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
     const [enlarged, setEnlarged] = useState<boolean>(true)
     const { startDate, endDate } = getMonthDateRange(String(year), String(month));
 
-
     const onSync = () => {
 
         if (propertyState.data?.get(Number(company_id)) && tenantState.data) {
@@ -39,7 +38,6 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
                     const existing_tenant = last_save_existing_receivables.find(r =>
                         r.tenant_name.toLowerCase().trim() === (tenant.first_name.toLowerCase().trim() + " " + tenant.last_name.toLowerCase().trim()))
                     if (existing_tenant) {
-                        console.log("pushing existing tenant", existing_tenant)
                         receivables.push(new Receivable(
                             existing_tenant.id,
                             existing_tenant.property_id,
@@ -61,7 +59,6 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
                             null,
                             `${tenant.first_name.trim()} ${tenant.last_name.trim()}`,
                         )
-                        console.log("pushing new tenant", new_tenant)
 
                         receivables.push(new_tenant)
                     }
@@ -77,7 +74,8 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
         }
     }
 
-    const arraysEqual = (a1: Receivable[], a2: Receivable[]) => a1.every(item1 => a2.some(item2 => item1.equals(item2)));
+    const receivablesEqual = (a1: Receivable[], a2: Receivable[]) => a1.every(item1 => a2.some(item2 => item1.equals(item2)));
+    const payablesEqual = (a1: Payable[], a2: Payable[]) => a1.every(item1 => a2.some(item2 => item1.equals(item2)));
 
     const maps_equal = (last_save: AccountingData, accounting_data: AccountingData): boolean => {
         if (last_save.size != accounting_data.size) {
@@ -87,8 +85,13 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
         for (const key of accounting_data.keys()) {
             const last_save_prop = last_save.get(key)
             if (last_save_prop) {
-                const receivables_equal = arraysEqual(accounting_data.get(key)?.receivables || [], last_save_prop.receivables)
+                const receivables_equal = receivablesEqual(accounting_data.get(key)?.receivables || [], last_save_prop.receivables)
                 if (!receivables_equal) {
+                    maps_equal = false
+                    break
+                }
+                const payables_equal = payablesEqual(accounting_data.get(key)?.payables || [], accounting_data.get(key)?.payables || []) 
+                if (!payables_equal) {
                     maps_equal = false
                     break
                 }
@@ -101,12 +104,15 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
     }
 
     useEffect(() => {
+        // handle new expense creation 
+        console.log("last sv", last_save)
+        console.log("acc data", accounting_data)
         const edited = !maps_equal(last_save, accounting_data);
         setHasEdits(edited);
     }, [accounting_data, last_save]);
 
     const [loading, setLoading] = useState<boolean>(false)
- 
+
     const onSave = async () => {
         if (!hasEdits) { return }
         setLoading(true)
@@ -138,6 +144,7 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
 
             const property_ids: number[] = propertyState.data.get(Number(company_id))?.filter(c => c.active).map(p => p.id) || []
             const result = await ReceivablesService.fetchReceivables({ startDate, endDate, property_ids });
+            // TODO: need to fetch payables as well 
             if (result.data) {
                 const grouped = new Map<number, { property_name: string; receivables: Receivable[]; payables: Payable[] }>();
                 result.data.forEach(r => {
@@ -179,7 +186,7 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
                 <div className={`w-[800px]`}>
                     {/* Header */}
                     <table className="w-full">
-                        <thead className="px-4 bg-[#F5F5F5] z-30 border border-b-0 border-t-2 border-x-2 border-[#ECECEE] h-[60px] rounded-top header-shadow flex items-center relative z-10">
+                        <thead className="px-4 bg-[#F5F5F5] z-20 isolate border border-b-0 border-t-2 border-x-2 border-[#ECECEE] h-[60px] rounded-top header-shadow flex items-center relative z-10">
                             <tr className="flex flex-row gap-x-4 bg-[#F5F5F5] w-full  ">
                                 <th className="w-[25px] ">
                                     {/* Carat Col */}
@@ -201,7 +208,8 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
                         {/* Main Content */}
                         <tbody className={`${hasEdits ? 'border-4 border-orange-400 shadow-[0_0_32px_8px_rgba(255,140,0,0.25)] backdrop-blur-sm' : 'border-[#ECECEE]'} w-[800px] flex flex-col gap-y-3 min-h-[304px] ${accounting_data.size === 0 ? 'h-[304px]' : ''} ${enlarged ? '' : 'max-h-[304px] overflow-y-auto'} relative z-10 border  table-input-shadow border-y-2 border-t-0 bg-[#FDFDFD] rounded-bottom relative z-0 py-4`}>
                             {
-                                accounting_data.size === 0 ? noDataDisplay : <PropertyRows accounting_data={accounting_data} setAccountingData={setAccountingData} filtered_property_ids={filtered_property_ids} />
+                                accounting_data.size === 0 ? noDataDisplay : <PropertyRows accounting_data={accounting_data} setAccountingData={setAccountingData} filtered_property_ids={filtered_property_ids} 
+                                setLastSave={setLastSave}/>
                             }
                         </tbody>
                     </table>

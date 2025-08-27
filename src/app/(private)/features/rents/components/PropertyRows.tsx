@@ -1,24 +1,29 @@
 import React, { useState } from "react";
 import ChevronIcon from "@/app/(private)/components/svgs/ChevronIcon";
-import { AccountingData, Payable, Receivable } from "../types/rentTypes";
+import { AccountingData } from "../types/rentTypes";
 import { DisplayRecievableRows } from "./ReceivablesRows";
 import SumRow from "./SumRow";
 import { DisplayPayableRows } from "./Payables/PayablesRows";
+import CreateExpensesPopUp from "./Payables/CreateExpensesPopUp";
 
 interface PropertyRowsProps {
     accounting_data: AccountingData;
     filtered_property_ids: number[]
     setAccountingData: React.Dispatch<React.SetStateAction<AccountingData>>;
+    setLastSave: React.Dispatch<React.SetStateAction<AccountingData>>;
 }
 
-export default function PropertyRows({ accounting_data, setAccountingData, filtered_property_ids}: PropertyRowsProps) {
+export default function PropertyRows({ accounting_data, setAccountingData, filtered_property_ids, setLastSave
+}: PropertyRowsProps) {
     const [expanded, setExpanded] = useState<Set<number>>(new Set(
-        filtered_property_ids.filter(id => 
+        filtered_property_ids.filter(id =>
             // tenant(s) haven't paid yet 
-            (accounting_data.get(id)?.receivables.reduce((sum, r) => sum + Number(r.amount_due), 0) || 0) != 
+            (accounting_data.get(id)?.receivables.reduce((sum, r) => sum + Number(r.amount_due), 0) || 0) !=
             (accounting_data.get(id)?.receivables.reduce((sum, r) => sum + Number(r.amount_paid), 0) || 0)
         )
     ));
+
+
 
     const toggleExpand = (propertyId: number) => {
         setExpanded(prev => {
@@ -51,7 +56,7 @@ export default function PropertyRows({ accounting_data, setAccountingData, filte
                 const isExpanded = expanded.has(propertyId);
                 return (
                     <React.Fragment key={propertyId}>
-                        <tr className={`${totalPropertyIncome < totalPropertyIncomeOwed ? 'table-row-style-not-payed' : 'table-row-style ' } relative gap-x-4 hover:bg-gray-200 table-row-text mx-auto`}>
+                        <tr className={`${totalPropertyIncome < totalPropertyIncomeOwed ? 'table-row-style-not-payed' : 'table-row-style '} relative gap-x-4 hover:bg-gray-200 table-row-text mx-auto`}>
                             {/* Carat Column */}
                             <td
                                 style={{ position: 'absolute', left: '-40px', top: '50%', transform: 'translateY(-50%)', zIndex: 2 }}
@@ -80,17 +85,23 @@ export default function PropertyRows({ accounting_data, setAccountingData, filte
                         </tr>
                         {/* Expandable Financial Details */}
                         {isExpanded && receivables.length > 0 && (
-                            <> 
-                            <DisplayRecievableRows property_id={propertyId} accountingData={accounting_data} setAccountingData={setAccountingData} />
-                            <DisplayPayableRows property_id={propertyId} accountingData={accounting_data} setAccountingData={setAccountingData} />
+                            <>
+                                <DisplayRecievableRows property_id={propertyId} accountingData={accounting_data} setAccountingData={setAccountingData} />
+                                <DisplayPayableRows property_id={propertyId} accountingData={accounting_data} setAccountingData={setAccountingData}
+                                    setLastSave={setLastSave}
+                                    />
                             </>
-                            
+
                         )}
+                        {/* Create Expense PopUp */}
+                       
                     </React.Fragment>
                 );
+
             })}
             {/* Sum Row  */}
             <SumRow totalIncome={totalIncome} totalExpenses={totalExpenses} />
+
         </>
     );
 }

@@ -10,6 +10,7 @@ import RentTable from './RentTable';
 import { AccountingData, Payable, Receivable, deepCopyMap } from '../types/rentTypes';
 import { useStore } from '@/store';
 import { Property } from '../../userSettings/types/propertyTypes';
+import { PayablesService } from '../services/PayablesService';
 
 export default function RentPage() {
 
@@ -25,34 +26,73 @@ export default function RentPage() {
         const fetchRentData = async () => {
             let newAccountingData: AccountingData = new Map();
             const property_ids: number[] = propertyState.data.get(Number(company_id))?.filter(c => c.active).map(p => p.id) || []
-            const result = await ReceivablesService.fetchReceivables({ startDate, endDate, property_ids });
-            if (!result) {
+            const [receivable_result, payable_result] = await Promise.all([
+                ReceivablesService.fetchReceivables({ startDate, endDate, property_ids }),
+                PayablesService.fetchPayables({ startDate, endDate, property_ids })
+            ]);
+
+            // Handle receivables error
+            if (!receivable_result) {
                 setFetchError('Failed to fetch receivables.');
                 setFetchLoading(false);
                 return;
             }
-            const { data, error } = result;
-            if (error) {
-                setFetchError(error);
+            const { data: receivableData, error: receivableError } = receivable_result;
+            if (receivableError) {
+                setFetchError(receivableError);
                 setFetchLoading(false);
                 return;
             }
-            // Group receivables by property_id
-            if (data) {
+
+            // Handle payables error
+            if (!payable_result) {
+                setFetchError('Failed to fetch payables.');
+                setFetchLoading(false);
+                return;
+            }
+            const { data: payableData, error: payableError } = payable_result;
+            if (payableError) {
+                setFetchError(payableError);
+                setFetchLoading(false);
+                return;
+            }
+
+            // Group receivables and payables by property_id
+            if (receivableData || payableData) {
                 const grouped = new Map<number, { property_name: string; receivables: Receivable[]; payables: Payable[] }>();
-                data.forEach(r => {
-                    if (!grouped.has(r.property_id)) {
-                        grouped.set(r.property_id, {
-                            property_name: propertyState.data?.get(Number(company_id))?.find(p => p.id === r.property_id)?.address || "not found",
-                            receivables: [],
-                            payables: [],
-                        });
-                    }
-                    grouped.get(r.property_id)!.receivables.push(r);
-                });
+
+                // Process receivables
+                if (receivableData) {
+                    receivableData.forEach(r => {
+                        if (!grouped.has(r.property_id)) {
+                            grouped.set(r.property_id, {
+                                property_name: propertyState.data?.get(Number(company_id))?.find(p => p.id === r.property_id)?.address || "not found",
+                                receivables: [],
+                                payables: [],
+                            });
+                        }
+                        grouped.get(r.property_id)!.receivables.push(r);
+                    });
+                }
+
+                // Process payables
+                if (payableData) {
+                    payableData.forEach(pay => {
+                        if (!grouped.has(pay.property_id)) {
+                            grouped.set(pay.property_id, {
+                                property_name: propertyState.data?.get(Number(company_id))?.find(p => p.id === pay.property_id)?.address || "not found",
+                                receivables: [],
+                                payables: [],
+                            });
+                        }
+                        grouped.get(pay.property_id)!.payables.push(pay);
+                    });
+                }
+
                 newAccountingData = grouped;
             }
-            setLastSave(deepCopyMap(newAccountingData))
+
+            setLastSave(deepCopyMap(newAccountingData));
             setAccountingData(newAccountingData);
             setFetchLoading(false);
         }
