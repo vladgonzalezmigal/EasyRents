@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { months } from '../../../../utils/dateUtils';
+import { months } from '../../utils/dateUtils';
 import DocumentSearchHeader from './DocumentSearchHeader';
-import { daysInMonth } from '../../../../utils/dateUtils';
+import { daysInMonth } from '../../utils/dateUtils';
 // import { useStore } from '@/store';
 interface DocumentSelectionProps {
     split?: boolean;

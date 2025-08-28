@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { validateYearInput } from '../../../../utils/dateUtils';
+import { validateYearInput } from '../../utils/dateUtils';
 import SearchIcon from '@/app/(private)/components/svgs/SearchIcon';
 import ChevronIcon from '@/app/(private)/components/svgs/ChevronIcon';
 

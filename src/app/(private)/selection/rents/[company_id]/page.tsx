@@ -1,6 +1,6 @@
 'use client';
-import DocSearchTitle from "@/app/(private)/features/handleForms/components/DocSearch/DocSearchTitle";
-import DocumentSelection from "@/app/(private)/features/handleForms/components/DocSearch/DocumentSelection";
+import DocSearchTitle from "@/app/(private)/features/DocSearch/DocSearchTitle";
+import DocumentSelection from "@/app/(private)/features/DocSearch/DocumentSelection";
 import { useStore } from "@/store";
 import { usePathname } from "next/navigation";
 
