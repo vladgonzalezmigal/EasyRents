@@ -4,13 +4,11 @@ import React, { useEffect, useState } from 'react';
 import TableTitle from './TableTitle';
 import { Loading } from '@/app/components/Loading';
 import { useParams } from 'next/navigation';
-import { ReceivablesService } from '../services/ReceivableService';
 import { getMonthDateRange } from '../../../utils/dateUtils';
 import RentTable from './RentTable';
-import { AccountingData, Payable, Receivable, deepCopyMap } from '../types/rentTypes';
+import { AccountingData, deepCopyMap } from '../types/rentTypes';
 import { useStore } from '@/store';
 import { Property } from '../../userSettings/types/propertyTypes';
-import { PayablesService } from '../services/PayablesService';
 import { fetchRents } from '../utils';
 
 export default function RentPage() {
@@ -28,12 +26,13 @@ export default function RentPage() {
             const propertyData = propertyState.data 
             let newAccountingData: AccountingData = new Map();
             newAccountingData = await fetchRents({propertyData: propertyData, company_id: Number(company_id), startDate: startDate, endDate: endDate, setFetchError: setFetchError, setFetchLoading: setFetchLoading})
+            console.log("accounting Data",newAccountingData )
             setLastSave(deepCopyMap(newAccountingData));
             setAccountingData(newAccountingData);
             setFetchLoading(false);
         }
         fetchRentData();
-    }, [startDate, endDate, company_id]);
+    }, [startDate, endDate, company_id, propertyState.data]);
 
     const allProperties: Property[] = propertyState.data.get(Number(company_id))?.filter(c => c.active) || []
 
@@ -76,7 +75,8 @@ export default function RentPage() {
                     </div>
                     {/* Table Component */}
                     <div className={`w-full flex items-center justify-center pb-4`}>
-                        <RentTable accounting_data={accountingData} setAccountingData={setAccountingData} last_save={lastSave} setLastSave={setLastSave} filtered_property_ids={filteredProperties.map(p => p.id)} />
+                        <RentTable accounting_data={accountingData} setAccountingData={setAccountingData} last_save={lastSave} setLastSave={setLastSave} filtered_property_ids={filteredProperties.map(p => p.id)}  setFetchLoading={setFetchLoading}
+                         setFetchError={setFetchError} />
                     </div>
                 </div>
             )}

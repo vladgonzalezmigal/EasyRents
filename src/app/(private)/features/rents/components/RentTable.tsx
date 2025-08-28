@@ -15,16 +15,18 @@ interface RentTableProps {
     last_save: AccountingData;
     setLastSave: React.Dispatch<React.SetStateAction<AccountingData>>
     filtered_property_ids: number[]
+    setFetchError:  React.Dispatch<React.SetStateAction<string | null>>
+    setFetchLoading: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 
-export default function RentTable({ accounting_data, setAccountingData, last_save, setLastSave, filtered_property_ids }: RentTableProps) {
+export default function RentTable({ accounting_data, setAccountingData, last_save, setLastSave, filtered_property_ids,
+    setFetchError,setFetchLoading
+ }: RentTableProps) {
     const { company_id, year, month } = useParams();
     const { propertyState, tenantState } = useStore()
     const [hasEdits, setHasEdits] = useState<boolean>(false)
     const [enlarged, setEnlarged] = useState<boolean>(true)
-    const [fetchError, setFetchError] = useState<string | null>(null);
-    const [fetchLoading, setFetchLoading] = useState<boolean>(true);
     const { startDate, endDate } = getMonthDateRange(String(year), String(month));
 
     const onSync = () => {
@@ -34,7 +36,7 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
             propertyState.data.get(Number(company_id))?.filter(p => p.active).forEach(property => {
 
                 const receivables: Receivable[] = []
-                const payables: Payable[] = []
+                const payables: Payable[] = last_save.get(property.id)?.payables || []
                 // add income data 
                 tenantState.data.get(property.id)?.forEach(tenant => {
                     // check if exists 
@@ -81,40 +83,50 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
     const receivablesEqual = (a1: Receivable[], a2: Receivable[]) => a1.every(item1 => a2.some(item2 => item1.equals(item2)));
     const payablesEqual = (a1: Payable[], a2: Payable[]) => a1.every(item1 => a2.some(item2 => item1.equals(item2)));
 
-    const maps_equal = (last_save: AccountingData, accounting_data: AccountingData): boolean => {
-        if (last_save.size != accounting_data.size) {
-            return false
-        }
-        let maps_equal = true
-        for (const key of accounting_data.keys()) {
-            const last_save_prop = last_save.get(key)
-            if (last_save_prop) {
-                const receivables_equal = receivablesEqual(accounting_data.get(key)?.receivables || [], last_save_prop.receivables)
-                const payables_equal = payablesEqual(accounting_data.get(key)?.payables || [], last_save_prop.payables || [])
-                if (!receivables_equal || !payables_equal) {
+    useEffect(() => {
+        const maps_equal = (last_save: AccountingData, accounting_data: AccountingData): boolean => {
+            if (last_save.size != accounting_data.size) {
+                return false
+            }
+            let maps_equal = true
+            for (const key of accounting_data.keys()) {
+                const last_save_prop = last_save.get(key)
+                if (last_save_prop) {
+                    const receivables_equal = receivablesEqual(accounting_data.get(key)?.receivables || [], last_save_prop.receivables)
+                    const payables_equal = payablesEqual(accounting_data.get(key)?.payables || [], last_save_prop.payables || [])
+                    if (!receivables_equal || !payables_equal) {
+                        maps_equal = false
+                        break
+                    }
+                } else {
                     maps_equal = false
                     break
                 }
-            } else {
-                maps_equal = false
-                break
             }
+            return maps_equal
         }
-        return maps_equal
-    }
-
-    useEffect(() => {
         const edited = !maps_equal(last_save, accounting_data);
         setHasEdits(edited);
     }, [accounting_data, last_save]);
 
     const [loading, setLoading] = useState<boolean>(false)
 
+    type ReceivableResult = {
+        data: Receivable[] | null;
+        error: string | null;
+      };
+      
+      type PayableResult = {
+        data: Payable[] | null;
+        error: string | null;
+    };
+
     const onSave = async () => {
         if (!hasEdits) { return }
         setLoading(true)
         try {
-            const promises: Promise<any>[] = [];
+            const promises: Promise<ReceivableResult | PayableResult
+                >[] = [];
             for (const prop_id of accounting_data.keys()) {
                 const property = accounting_data.get(prop_id)
                 if (!property) return
@@ -164,7 +176,6 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
         } finally {
             let newAccountingData: AccountingData = new Map();
             newAccountingData = await fetchRents({ propertyData: propertyState.data, company_id: Number(company_id), startDate: startDate, endDate: endDate, setFetchError: setFetchError, setFetchLoading: setFetchLoading })
-
             setLastSave(deepCopyMap(newAccountingData))
             setAccountingData(newAccountingData);
             setLoading(false)

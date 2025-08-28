@@ -1,6 +1,6 @@
-import { Sales, Payroll, Expense } from '@/app/(private)/types/formTypes';
+import { Sales, } from '@/app/(private)/types/formTypes';
 import { getMonthDateRange } from '@/app/(private)/utils/dateUtils';
-import { fetchSalesData, fetchPayrollData, fetchExpenseData } from '../utils/mailUtils';
+import { fetchSalesData } from '../utils/mailUtils';
 import { Company } from "../../features/userSettings/types/CompanyTypes";
 
 interface StoreSalesData {

@@ -36,9 +36,6 @@ export default function MailPage() {
  const [currentMonth, setCurrentMonth] = useState(today.getMonth());
  const [currentYear, setCurrentYear] = useState(today.getFullYear());
  const [selectedCompanies, setSelectedCompanies] = useState<number[]>([]);
- const [selectedExpenses, setSelectedExpenses] = useState<string[]>([]);
- const [selectedPayrolls, setSelectedPayrolls] = useState<{ startDate: string; endDate: string }[]>([]);
-
 
  // generate document state
  const [generatedDocs, setGeneratedDocs] = useState<Doc[]>([]);

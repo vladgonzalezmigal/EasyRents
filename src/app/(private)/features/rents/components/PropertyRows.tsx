@@ -4,7 +4,6 @@ import { AccountingData } from "../types/rentTypes";
 import { DisplayRecievableRows } from "./ReceivablesRows";
 import SumRow from "./SumRow";
 import { DisplayPayableRows } from "./Payables/PayablesRows";
-import CreateExpensesPopUp from "./Payables/CreateExpensesPopUp";
 
 interface PropertyRowsProps {
     accounting_data: AccountingData;
@@ -63,7 +62,7 @@ export default function PropertyRows({ accounting_data, setAccountingData, filte
                                 style={{ position: 'absolute', left: '-40px', top: '50%', transform: 'translateY(-50%)', zIndex: 2 }}
                                 className=" px-1 py-4 text-center "
                             >
-                                {receivables.length > 0 && (
+                                {(receivables.length > 0 || (payables.length > 0)) && (
                                     <button
                                         onClick={e => {
                                             e.stopPropagation();
@@ -85,14 +84,13 @@ export default function PropertyRows({ accounting_data, setAccountingData, filte
                             <td className="w-[150px] min-w-[150px] max-w-[150px] pl-4 py-4 font-medium text-left">${grossPropertyIncome.toLocaleString('en-US')}</td>
                         </tr>
                         {/* Expandable Financial Details */}
-                        {isExpanded && receivables.length > 0 && (
+                        {isExpanded && (receivables.length > 0 || payables.length > 0) && (
                             <>
                                 <DisplayRecievableRows property_id={propertyId} accountingData={accounting_data} setAccountingData={setAccountingData} setLastSave={setLastSave}/>
                                 <DisplayPayableRows property_id={propertyId} accountingData={accounting_data} setAccountingData={setAccountingData}
                                     setLastSave={setLastSave}
                                     />
                             </>
-
                         )}
                         {/* Create Expense PopUp */}
                        
