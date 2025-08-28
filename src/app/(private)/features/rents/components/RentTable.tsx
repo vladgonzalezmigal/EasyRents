@@ -191,7 +191,7 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
     )
 
     return (
-        <div className={`w-[800px]`}>
+        <div className={`w-[930px]`}>
             <div className="w-full flex flex-col items-center">
                 <div className="h-[20px]">
                     {/* {cudError &&
@@ -200,7 +200,7 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
                         </div>} */}
                 </div>
                 {/* Main Table */}
-                <div className={`w-[800px]`}>
+                <div className={`w-[930px]`}>
                     {/* Header */}
                     <table className="w-full">
                         <thead className="px-4 bg-[#F5F5F5] z-20 isolate border border-b-0 border-t-2 border-x-2 border-[#ECECEE] h-[60px] rounded-top header-shadow flex items-center relative z-10">
@@ -208,22 +208,25 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
                                 <th className="w-[25px] ">
                                     {/* Carat Col */}
                                 </th>
-                                <th className="w-[250px] text-left pl-2  flex items-center ">
+                                <th className="w-[250px] text-left pl-1 flex items-center ">
                                     <span className="text-[16px] text-[#80848A]">Address</span>
                                 </th>
-                                <th className="w-[150px] pl-2 text-left flex items-center ">
+                                <th className="w-[150px]  text-left flex items-center ">
                                     <span className="text-[16px] text-[#80848A]">Rent Collected</span>
                                 </th>
-                                <th className="w-[100px] pl-2 flex items-center text-left">
+                                <th className="w-[100px] pl-1 flex items-center text-left">
                                     <span className="text-[16px] text-[#80848A]">Expenses</span>
                                 </th>
-                                <th className="w-[150px] flex items-center pl-2 text-left">
+                                <th className="w-[150px] flex items-center  text-left">
                                     <span className="text-[16px] text-[#80848A]">Gross Income</span>
+                                </th>
+                                <th className="w-[130px] flex items-center  text-left">
+                                    <span className="text-[16px] text-[#80848A]">Balance</span>
                                 </th>
                             </tr>
                         </thead>
                         {/* Main Content */}
-                        <tbody className={`${hasEdits ? 'border-4 border-orange-400 shadow-[0_0_32px_8px_rgba(255,140,0,0.25)] backdrop-blur-sm' : 'border-[#ECECEE]'} w-[800px] flex flex-col gap-y-3 min-h-[304px] ${accounting_data.size === 0 ? 'h-[304px]' : ''} ${enlarged ? '' : 'max-h-[304px] overflow-y-auto'} relative z-10 border  table-input-shadow border-y-2 border-t-0 bg-[#FDFDFD] rounded-bottom relative z-0 py-4`}>
+                        <tbody className={`${hasEdits ? 'border-4 border-orange-400 shadow-[0_0_32px_8px_rgba(255,140,0,0.25)] backdrop-blur-sm' : 'border-[#ECECEE]'} w-[930px] flex flex-col gap-y-3 min-h-[304px] ${accounting_data.size === 0 ? 'h-[304px]' : ''} ${enlarged ? '' : 'max-h-[304px] overflow-y-auto'} relative z-10 border  table-input-shadow border-y-2 border-t-0 bg-[#FDFDFD] rounded-bottom relative z-0 py-4`}>
                             {
                                 accounting_data.size === 0 ? noDataDisplay : <PropertyRows accounting_data={accounting_data} setAccountingData={setAccountingData} filtered_property_ids={filtered_property_ids}
                                     setLastSave={setLastSave} />

@@ -9,7 +9,7 @@ interface PayrollBtnsProps {
     hasEdits: boolean;
     onSync: () => void;
     onSave: () => void; 
-    enlarged: Boolean; 
+    enlarged: boolean; 
     loading: boolean;
     setEnlarged: React.Dispatch<React.SetStateAction<boolean>>; 
 }
@@ -24,7 +24,7 @@ export default function TableBtns({
 }: PayrollBtnsProps) {
 
     return (
-        <div className="w-[800px]">
+        <div className="w-[930px]">
             <div className="w-full relative h-[148px] bg-[#F2FBFA] border border-t-0 border-[#ECECEE] header-shadow rounded-bottom z-0 mt-[-20px]">
                 <div className="flex flex-row gap-x-4 items-center justify-center absolute bottom-4 left-1/2 transform -translate-x-1/2">
                     {/* Sync Button */}

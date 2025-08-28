@@ -41,6 +41,8 @@ export default function PropertyRows({ accounting_data, setAccountingData, filte
         .reduce((sum, { receivables }) => sum + receivables.reduce((rSum, r) => rSum + Number(r.amount_paid), 0), 0);
     const totalExpenses = Array.from(accounting_data.values())
         .reduce((sum, { payables }) => sum + payables.reduce((rSum, r) => rSum + Number(r.expense_amount), 0), 0);
+    const totalBalance = Array.from(accounting_data.values())
+    .reduce((sum, { receivables }) => sum + receivables.reduce((rSum, r) => rSum +  (Number(r.amount_due) - Number(r.amount_paid)), 0), 0);
 
     // Render each filtered property row
     return (
@@ -82,6 +84,8 @@ export default function PropertyRows({ accounting_data, setAccountingData, filte
                             <td className="w-[100px] min-w-[100px] max-w-[100px] pl-4 py-4 font-medium text-left">${totalPropertyExpenses.toLocaleString('en-US')}</td>
                             {/* Gross Income */}
                             <td className="w-[150px] min-w-[150px] max-w-[150px] pl-4 py-4 font-medium text-left">${grossPropertyIncome.toLocaleString('en-US')}</td>
+                            {/* Balance */}
+                            <td className="w-[130px] min-w-[130px] max-w-[130px] pl-4 py-4 font-medium text-left">${totalPropertyIncomeOwed - totalPropertyIncome}</td>
                         </tr>
                         {/* Expandable Financial Details */}
                         {isExpanded && (receivables.length > 0 || payables.length > 0) && (
@@ -99,8 +103,7 @@ export default function PropertyRows({ accounting_data, setAccountingData, filte
 
             })}
             {/* Sum Row  */}
-            <SumRow totalIncome={totalIncome} totalExpenses={totalExpenses} />
-
+            <SumRow totalIncome={totalIncome} totalExpenses={totalExpenses} totalBalance={totalBalance} />
         </>
     );
 }
