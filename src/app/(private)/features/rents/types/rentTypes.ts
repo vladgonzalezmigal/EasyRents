@@ -63,6 +63,12 @@ export class Payable {
     }
 }
 
+export interface Unoccupied {
+    id: number;
+    property_id: number; 
+    month: string
+}
+
 // maps property id to information about the property's rents and expenses
 export type AccountingData = Map<number, { property_name: string, receivables: Receivable[], payables: Payable[] }>; // Map of property_id to array of Payables
 

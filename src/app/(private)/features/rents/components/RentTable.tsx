@@ -7,6 +7,7 @@ import { getDaysInMonth, formatDate, getMonthDateRange } from "../../../utils/da
 import PropertyRows from "./PropertyRows";
 import { ReceivablesService } from "../services/ReceivableService";
 import { PayablesService } from "../services/PayablesService";
+import { fetchRents } from "../utils";
 
 interface RentTableProps {
     accounting_data: AccountingData
@@ -22,6 +23,8 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
     const { propertyState, tenantState } = useStore()
     const [hasEdits, setHasEdits] = useState<boolean>(false)
     const [enlarged, setEnlarged] = useState<boolean>(true)
+    const [fetchError, setFetchError] = useState<string | null>(null);
+    const [fetchLoading, setFetchLoading] = useState<boolean>(true);
     const { startDate, endDate } = getMonthDateRange(String(year), String(month));
 
     const onSync = () => {
@@ -141,7 +144,7 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
                         }
                     }) :
                     property.payables
-                if (updated_payables){
+                if (updated_payables) {
                     promises.push(PayablesService.updatePayables(
                         updated_payables.map(p => ({
                             id: p.id,
@@ -160,40 +163,8 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
             console.error(e);
         } finally {
             let newAccountingData: AccountingData = new Map();
-            const property_ids: number[] = propertyState.data.get(Number(company_id))?.filter(c => c.active).map(p => p.id) || []
-            const [receivable_result, payable_result] = await Promise.all([
-                ReceivablesService.fetchReceivables({ startDate, endDate, property_ids }),
-                PayablesService.fetchPayables({ startDate, endDate, property_ids })
-            ]);
-            const grouped = new Map<number, { property_name: string; receivables: Receivable[]; payables: Payable[] }>();
+            newAccountingData = await fetchRents({ propertyData: propertyState.data, company_id: Number(company_id), startDate: startDate, endDate: endDate, setFetchError: setFetchError, setFetchLoading: setFetchLoading })
 
-            if (receivable_result.data) {
-                receivable_result.data.forEach(r => {
-                    if (!grouped.has(r.property_id)) {
-                        grouped.set(r.property_id, {
-                            property_name: propertyState.data?.get(Number(company_id))?.find(p => p.id === r.property_id)?.address || "not found",
-                            receivables: [],
-                            payables: [],
-                        });
-                    }
-                    grouped.get(r.property_id)!.receivables.push(r);
-                });
-                newAccountingData = grouped;
-            }
-            // Process payables
-            const { data: payableData, error: payableError } = payable_result;
-            if (payableData) {
-                payableData.forEach(pay => {
-                    if (!grouped.has(pay.property_id)) {
-                        grouped.set(pay.property_id, {
-                            property_name: propertyState.data?.get(Number(company_id))?.find(p => p.id === pay.property_id)?.address || "not found",
-                            receivables: [],
-                            payables: [],
-                        });
-                    }
-                    grouped.get(pay.property_id)!.payables.push(pay);
-                });
-            }
             setLastSave(deepCopyMap(newAccountingData))
             setAccountingData(newAccountingData);
             setLoading(false)

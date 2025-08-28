@@ -11,6 +11,7 @@ import { AccountingData, Payable, Receivable, deepCopyMap } from '../types/rentT
 import { useStore } from '@/store';
 import { Property } from '../../userSettings/types/propertyTypes';
 import { PayablesService } from '../services/PayablesService';
+import { fetchRents } from '../utils';
 
 export default function RentPage() {
 
@@ -24,73 +25,9 @@ export default function RentPage() {
 
     useEffect(() => {
         const fetchRentData = async () => {
+            const propertyData = propertyState.data 
             let newAccountingData: AccountingData = new Map();
-            const property_ids: number[] = propertyState.data.get(Number(company_id))?.filter(c => c.active).map(p => p.id) || []
-            const [receivable_result, payable_result] = await Promise.all([
-                ReceivablesService.fetchReceivables({ startDate, endDate, property_ids }),
-                PayablesService.fetchPayables({ startDate, endDate, property_ids })
-            ]);
-
-            // Handle receivables error
-            if (!receivable_result) {
-                setFetchError('Failed to fetch receivables.');
-                setFetchLoading(false);
-                return;
-            }
-            const { data: receivableData, error: receivableError } = receivable_result;
-            if (receivableError) {
-                setFetchError(receivableError);
-                setFetchLoading(false);
-                return;
-            }
-
-            // Handle payables error
-            if (!payable_result) {
-                setFetchError('Failed to fetch payables.');
-                setFetchLoading(false);
-                return;
-            }
-            const { data: payableData, error: payableError } = payable_result;
-            if (payableError) {
-                setFetchError(payableError);
-                setFetchLoading(false);
-                return;
-            }
-
-            // Group receivables and payables by property_id
-            if (receivableData || payableData) {
-                const grouped = new Map<number, { property_name: string; receivables: Receivable[]; payables: Payable[] }>();
-
-                property_ids.forEach(property_id => {
-                    grouped.set(property_id, {
-                        property_name: propertyState.data?.get(Number(company_id))?.find(p => p.id === property_id)?.address || "not found",
-                        receivables: [],
-                        payables: [],
-                    });
-                });
-
-                // Process receivables
-                if (receivableData) {
-                    receivableData.forEach(r => {
-                        if (grouped.has(r.property_id)) {
-                            grouped.get(r.property_id)!.receivables.push(r);
-                        }
-                    });
-                }
-
-                // Process payables
-                if (payableData) {
-                    payableData.forEach(pay => {
-                        if (grouped.has(pay.property_id)) {
-                            grouped.get(pay.property_id)!.payables.push(pay);
-                        }
-                    });
-                }
-                // create properties with no tenants 
-                // const all_property_ids = propertyState.data.
-                newAccountingData = grouped;
-            }
-
+            newAccountingData = await fetchRents({propertyData: propertyData, company_id: Number(company_id), startDate: startDate, endDate: endDate, setFetchError: setFetchError, setFetchLoading: setFetchLoading})
             setLastSave(deepCopyMap(newAccountingData));
             setAccountingData(newAccountingData);
             setFetchLoading(false);
