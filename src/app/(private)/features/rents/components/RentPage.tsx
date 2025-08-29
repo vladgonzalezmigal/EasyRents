@@ -25,8 +25,9 @@ export default function RentPage() {
         const fetchRentData = async () => {
             const propertyData = propertyState.data 
             let newAccountingData: AccountingData = new Map();
-            newAccountingData = await fetchRents({propertyData: propertyData, company_id: Number(company_id), startDate: startDate, endDate: endDate, setFetchError: setFetchError, setFetchLoading: setFetchLoading})
-            console.log("accounting Data",newAccountingData )
+            newAccountingData = await fetchRents({propertyData: propertyData, company_id: Number(company_id), 
+                startDate: startDate, endDate: endDate, 
+                setFetchError: setFetchError, setFetchLoading: setFetchLoading})
             setLastSave(deepCopyMap(newAccountingData));
             setAccountingData(newAccountingData);
             setFetchLoading(false);

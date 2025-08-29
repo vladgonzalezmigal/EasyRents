@@ -209,7 +209,6 @@ export default function MailPage() {
            onCompanySelect={handleCompanySelect}
          />
        </div>
-       <LineBreak className="mb-6" />
      </div>
    </div>
  );

@@ -55,7 +55,6 @@ export default function PropertyRows({ accounting_data, setAccountingData, filte
     return (
         <>
             {filtered_property_ids.sort((a, b) => b - a).map(propertyId => {
-                console.log("getting accounting data result for", propertyId, accounting_data.get(propertyId))
                 const { property_name, payables, receivables } = accounting_data.get(propertyId)!;
                 // Calculate gross values
                 const totalPropertyIncomeOwed = receivables.reduce((sum, r) => sum + Number(r.amount_due), 0);
@@ -66,7 +65,6 @@ export default function PropertyRows({ accounting_data, setAccountingData, filte
                 const num_tens: number = tenantState.data.get(propertyId)?.length ?? 0
 
                 const unoccupiedIncludes: boolean = accounting_data.get(propertyId).unoccupied.map(p => p.property_id).includes(propertyId) || null
-                console.log("prop id", propertyId, unoccupiedIncludes)
                 
                 return (
                     <React.Fragment key={propertyId}>
