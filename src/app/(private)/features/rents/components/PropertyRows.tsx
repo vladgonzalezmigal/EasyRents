@@ -10,12 +10,13 @@ import ToggleUnoccupiedPopUp from "./UnoccupiedPopUp";
 
 interface PropertyRowsProps {
     accounting_data: AccountingData;
+    last_save: AccountingData;
     filtered_property_ids: number[]
     setAccountingData: React.Dispatch<React.SetStateAction<AccountingData>>;
     setLastSave: React.Dispatch<React.SetStateAction<AccountingData>>;
 }
 
-export default function PropertyRows({ accounting_data, setAccountingData, filtered_property_ids, setLastSave
+export default function PropertyRows({ accounting_data, setAccountingData, filtered_property_ids, last_save, setLastSave
 }: PropertyRowsProps) {
     const { tenantState } = useStore()
     const { month, year } = useParams()
@@ -64,15 +65,13 @@ export default function PropertyRows({ accounting_data, setAccountingData, filte
                 const isExpanded = expanded.has(propertyId);
                 const num_tens: number = tenantState.data.get(propertyId)?.length ?? 0
 
-                const unoccupiedIncludes: boolean = accounting_data.get(propertyId).unoccupied.map(p => p.property_id).includes(propertyId)
+                const unoccupiedIncludes: boolean = accounting_data.get(propertyId).unoccupied.map(p => p.property_id).includes(propertyId) || null
                 console.log("prop id", propertyId, unoccupiedIncludes)
-
-
-
+                
                 return (
                     <React.Fragment key={propertyId}>
-                        <tr className={`${totalPropertyIncome < totalPropertyIncomeOwed ? 'table-row-style-not-payed' : `${unoccupiedIncludes ? 'table-row-style-unoccupied' : 'table-row-style '}`} relative gap-x-4 hover:bg-gray-200 table-row-text mx-auto ${(!num_tens) ? 'cursor-pointer' : ''}`}
-                            onClick={!num_tens ? () => setActiveUnoccupiedPropertyId(propertyId) : () => {}}>
+                        <tr className={`${totalPropertyIncome < totalPropertyIncomeOwed ? 'table-row-style-not-payed' : `${unoccupiedIncludes ? 'table-row-style-unoccupied' : 'table-row-style '}`} relative gap-x-4 hover:bg-gray-200 table-row-text mx-auto ${(!num_tens || unoccupiedIncludes) ? 'cursor-pointer' : ''}`}
+                            onClick={(!num_tens || unoccupiedIncludes) ? () => setActiveUnoccupiedPropertyId(propertyId) : () => {}}>
                             {/* Carat Column */}
                             <td
                                 style={{ position: 'absolute', left: '-40px', top: '50%', transform: 'translateY(-50%)', zIndex: 2 }}
@@ -121,6 +120,8 @@ export default function PropertyRows({ accounting_data, setAccountingData, filte
                                 accountingData={accounting_data}
                                 setToggleUnoccupiedMode={() => setActiveUnoccupiedPropertyId(null)}
                                 setAccountingData={setAccountingData}
+                                setLastSave={setLastSave}
+                                lastSave={last_save}
                             />
                         )}
 

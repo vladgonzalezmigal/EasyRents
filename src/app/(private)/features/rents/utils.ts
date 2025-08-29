@@ -63,8 +63,7 @@ export const fetchRents = async ({ propertyData, company_id, startDate, endDate,
         setFetchLoading(false);
         return newAccountingData;
     }
-    console.log("receivables", receivableData)
-    console.log("payalbe", payableData)
+    
     // Group receivables and payables by property_id
     if (receivableData || payableData || unoccupiedData) {
         const grouped = new Map<number, { property_name: string; unoccupied: Unoccupied[]; receivables: Receivable[]; payables: Payable[] }>();

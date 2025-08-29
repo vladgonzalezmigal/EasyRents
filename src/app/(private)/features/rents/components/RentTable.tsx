@@ -1,5 +1,5 @@
 import { useStore } from "@/store";
-import { AccountingData, deepCopyMap, Payable, Receivable } from "../types/rentTypes";
+import { AccountingData, deepCopyMap, Payable, Receivable, Unoccupied } from "../types/rentTypes";
 import TableBtns from "./TableBtns";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
@@ -37,6 +37,7 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
 
                 const receivables: Receivable[] = []
                 const payables: Payable[] = last_save.get(property.id)?.payables || []
+                const unoccupied: Unoccupied[] = last_save.get(property.id)?.unoccupied || []
                 // add income data 
                 tenantState.data.get(property.id)?.forEach(tenant => {
                     // check if exists 
@@ -53,7 +54,7 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
                             existing_tenant.paid_by,
                             existing_tenant.tenant_name
                         ))
-                    } else {
+                    } else if (unoccupied.length === 0) {
                         // need to check that the name doesn't exist before adding 
                         const rent_due_day = Math.min((Number(tenant.rent_due_date)), getDaysInMonth(Number(month), Number(year))).toString()
                         const new_tenant = new Receivable(
@@ -72,6 +73,7 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
 
                 newAccountingData.set(property.id, {
                     property_name: property.address,
+                    unoccupied: unoccupied,
                     payables: payables,
                     receivables: receivables,
                 });
@@ -229,7 +231,7 @@ export default function RentTable({ accounting_data, setAccountingData, last_sav
                         <tbody className={`${hasEdits ? 'border-4 border-orange-400 shadow-[0_0_32px_8px_rgba(255,140,0,0.25)] backdrop-blur-sm' : 'border-[#ECECEE]'} w-[930px] flex flex-col gap-y-3 min-h-[304px] ${accounting_data.size === 0 ? 'h-[304px]' : ''} ${enlarged ? '' : 'max-h-[304px] overflow-y-auto'} relative z-10 border  table-input-shadow border-y-2 border-t-0 bg-[#FDFDFD] rounded-bottom relative z-0 py-4`}>
                             {
                                 accounting_data.size === 0 ? noDataDisplay : <PropertyRows accounting_data={accounting_data} setAccountingData={setAccountingData} filtered_property_ids={filtered_property_ids}
-                                    setLastSave={setLastSave} />
+                                  last_save={last_save}  setLastSave={setLastSave} />
                             }
                         </tbody>
                     </table>
