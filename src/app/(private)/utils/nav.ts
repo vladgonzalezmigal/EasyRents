@@ -38,7 +38,7 @@ export const getActiveForm = (pathname: string, company_name?: string): string =
  */
 
 export const getPagesLink = (currentPath: string, company_id: string): string => {
-  let layers = currentPath.split('/')
+  const layers = currentPath.split('/')
 
   if (layers.length === 4) { // calendar level 
     return root + '/rents/' + company_id; 
@@ -73,7 +73,7 @@ interface BackConfig {
 
 export const getBackConfig = (path: string): BackConfig => {
     let backURL: string | undefined;
-    let layers = path.split('/')
+    const layers = path.split('/')
     if (layers.length === 4) { // calendar level 
       return { backURL: root  };
     } else if (layers.length === 6) { // rents level

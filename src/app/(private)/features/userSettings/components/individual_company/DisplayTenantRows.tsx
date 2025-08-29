@@ -50,8 +50,16 @@ const DisplayTenantRows: React.FC<DisplayTenantRowsProps> = ({ property_id, prop
                 property_id,
                 first_name: data.first_name ?? propertyTenants.find(t => t.id === id)?.first_name ?? "",
                 last_name: data.last_name ?? propertyTenants.find(t => t.id === id)?.last_name ?? "",
-                rent_amount: isNaN(Number(data.rent_amount)) || Number(data.rent_amount) < 0 ? Number(propertyTenants.find(t => t.id === id)?.rent_amount) ?? 0 : Number(data.rent_amount) ?? 0,
-                rent_due_date: isNaN(Number(data.rent_due_date)) || Number(data.rent_due_date) <= 0 ? Number(propertyTenants.find(t => t.id === id)?.rent_due_date) ?? 1: Number(data.rent_due_date) ?? 1,
+                rent_amount: isNaN(Number(data.rent_amount)) || Number(data.rent_amount) < 0
+                    ? (isNaN(Number(propertyTenants.find(t => t.id === id)?.rent_amount))
+                        ? 0
+                        : Number(propertyTenants.find(t => t.id === id)?.rent_amount))
+                    : Number(data.rent_amount),
+                rent_due_date: isNaN(Number(data.rent_due_date)) || Number(data.rent_due_date) <= 0
+                    ? (isNaN(Number(propertyTenants.find(t => t.id === id)?.rent_due_date))
+                        ? 1
+                        : Number(propertyTenants.find(t => t.id === id)?.rent_due_date))
+                    : Number(data.rent_due_date),
                 phone_number: data.phone_number ?? propertyTenants.find(t => t.id === id)?.phone_number ?? "",
                 email: data.email ?? propertyTenants.find(t => t.id === id)?.email ?? "",
             }));
@@ -139,26 +147,26 @@ const DisplayTenantRows: React.FC<DisplayTenantRowsProps> = ({ property_id, prop
                                             onClick={() => { if (deleteMode) addToDelete(tenant.id); }}
                                         >
                                             <td className="px-4 py-3 text-sm text-gray-700">
-                                                    {editMode ? (
-                                                        <input
-                                                            type="text"
-                                                            value={editedTenants.get(tenant.id)?.first_name ?? tenant.first_name}
-                                                            onChange={e => handleTenantEdit(tenant.id, "first_name", e.target.value)}
-                                                            className="w-[70px] border border-[#8ABBFD] rounded-md px-2"
-                                                        />
-                                                    ) : (tenant.first_name)}
+                                                {editMode ? (
+                                                    <input
+                                                        type="text"
+                                                        value={editedTenants.get(tenant.id)?.first_name ?? tenant.first_name}
+                                                        onChange={e => handleTenantEdit(tenant.id, "first_name", e.target.value)}
+                                                        className="w-[70px] border border-[#8ABBFD] rounded-md px-2"
+                                                    />
+                                                ) : (tenant.first_name)}
                                             </td>
                                             <td className="px-4 py-3 text-sm text-gray-700">
-                                                    {editMode ? (
-                                                        <input
-                                                            type="text"
-                                                            value={editedTenants.get(tenant.id)?.last_name ?? tenant.last_name}
-                                                            onChange={e => handleTenantEdit(tenant.id, "last_name", e.target.value)}
-                                                            className="w-[70px] border border-[#8ABBFD] rounded-md px-2"
-                                                        />
-                                                    ) : (tenant.last_name)}
+                                                {editMode ? (
+                                                    <input
+                                                        type="text"
+                                                        value={editedTenants.get(tenant.id)?.last_name ?? tenant.last_name}
+                                                        onChange={e => handleTenantEdit(tenant.id, "last_name", e.target.value)}
+                                                        className="w-[70px] border border-[#8ABBFD] rounded-md px-2"
+                                                    />
+                                                ) : (tenant.last_name)}
                                             </td>
-                                            
+
                                             <td className="px-4 py-3 text-sm text-gray-700">
                                                 {editMode ? (
                                                     <input
