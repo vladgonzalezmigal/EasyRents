@@ -1,38 +1,23 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { useStore } from "@/store";
 import { Company } from "@/app/(private)/features/userSettings/types/CompanyTypes";
 import LineBreak from "@/app/(private)/features/userSettings/components/LineBreak";
 import LargeSearchBar from "@/app/(private)/features/rents/components/LargeSearchBar";
 import PropertySelector from "./PropertySelector";
-import { Property } from "@/app/(private)/features/userSettings/types/propertyTypes";
-
 
 interface CompanySelectProps {
     selectedCompanies: string[];
     onCompanySelect: (storeId: string) => void;
+    selectedPropertiesByCompany: Map<number, Map<number, boolean>>;
+    setSelectedPropertiesByCompany: React.Dispatch<React.SetStateAction<Map<number, Map<number, boolean>>>>;
 }
 
-export default function CompanySelect({ selectedCompanies, onCompanySelect }: CompanySelectProps) {
-    const { companyState, propertyState } = useStore();
-    const activeCompanies: Company[] | null = companyState.data?.filter(company => company.active) || null;
+export default function CompanySelect({ selectedCompanies, onCompanySelect, selectedPropertiesByCompany, setSelectedPropertiesByCompany }: CompanySelectProps) {
+    const { companyState } = useStore();
 
-    // State to track selected properties per company
-    const [selectedPropertiesByCompany, setSelectedPropertiesByCompany] = useState<Map<number, Map<number, boolean>>>(
-        () => {
-            const newMap = new Map<number, Map<number, boolean>>();
-            if (activeCompanies && propertyState) {
-                activeCompanies.forEach(company => {
-                    // Filter properties for this company
-                    const allProperties: Property[] = propertyState.data.get(Number(company.id))?.filter(p => p.company_id === company.id) || []
-                    const companyProperties = allProperties.map((property) => [property.id, true] as [number, boolean]);
-                    newMap.set(company.id, new Map(companyProperties));
-                });
-            }
-            return newMap
-        }
-    );
+    const activeCompanies: Company[] | null = companyState.data?.filter(company => company.active) || null;
 
     const selectAll = (company_id: number, checked: boolean) => {
         setSelectedPropertiesByCompany(

@@ -7,6 +7,7 @@ import { Property } from "@/app/(private)/features/userSettings/types/propertyTy
 interface PropertySelectorProps {
     company_id: number;
     selected_properties: Map<number, boolean>;
+    // selectedPropertiesByCompany: 
     setSelectedProperties: React.Dispatch<React.SetStateAction<Map<number, Map<number, boolean>>>>;
 }
 
@@ -16,10 +17,8 @@ export default function PropertySelector({
     setSelectedProperties,
 }: PropertySelectorProps) {
     const { propertyState } = useStore(); // Assuming propertyState is Map<number, { address: string }>
-    console.log("selected props", selected_properties)
 
     const allProperties: Property[] = propertyState.data.get(Number(company_id))?.filter(c => c.active) || []
-    console.log("all props", allProperties)
     // Handle checkbox toggle
     const handleCheckboxChange = (propertyId: number) => {
         setSelectedProperties(prev => {
