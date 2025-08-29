@@ -4,14 +4,14 @@ import { Page, Text, View } from '@react-pdf/renderer';
 import { companyStyles } from './CompanyStyles';
 import { AccountingData } from '@/app/(private)/features/rents/types/rentTypes';
 
-interface SalesDocsProps {
+interface CompanyDocsProps {
     accountingData: AccountingData;
     companyName: string;
     startDate: string;
     endDate: string;
 }
 
-export default function CompanyDoc({ accountingData, companyName, startDate, endDate }: SalesDocsProps) {
+export default function CompanyDoc({ accountingData, companyName, startDate, endDate }: CompanyDocsProps) {
     // Compute totals across all properties
     const totalIncome = Array.from(accountingData.values())
         .reduce((sum, { receivables }) => sum + receivables.reduce((rSum, r) => rSum + Number(r.amount_paid), 0), 0);
