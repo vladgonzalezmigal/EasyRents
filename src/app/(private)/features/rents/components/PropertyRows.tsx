@@ -4,6 +4,9 @@ import { AccountingData } from "../types/rentTypes";
 import { DisplayRecievableRows } from "./ReceivablesRows";
 import SumRow from "./SumRow";
 import { DisplayPayableRows } from "./Payables/PayablesRows";
+import { useStore } from "@/store";
+import { useParams } from "next/navigation";
+import ToggleUnoccupiedPopUp from "./UnoccupiedPopUp";
 
 interface PropertyRowsProps {
     accounting_data: AccountingData;
@@ -14,6 +17,9 @@ interface PropertyRowsProps {
 
 export default function PropertyRows({ accounting_data, setAccountingData, filtered_property_ids, setLastSave
 }: PropertyRowsProps) {
+    const { tenantState } = useStore()
+    const { month, year } = useParams()
+
     const [expanded, setExpanded] = useState<Set<number>>(new Set(
         filtered_property_ids.filter(id =>
             // tenant(s) haven't paid yet 
@@ -21,8 +27,7 @@ export default function PropertyRows({ accounting_data, setAccountingData, filte
             (accounting_data.get(id)?.receivables.reduce((sum, r) => sum + Number(r.amount_paid), 0) || 0)
         )
     ));
-
-
+    const [activeUnoccupiedPropertyId, setActiveUnoccupiedPropertyId] = useState<number | null>(null)
 
     const toggleExpand = (propertyId: number) => {
         setExpanded(prev => {
@@ -42,13 +47,14 @@ export default function PropertyRows({ accounting_data, setAccountingData, filte
     const totalExpenses = Array.from(accounting_data.values())
         .reduce((sum, { payables }) => sum + payables.reduce((rSum, r) => rSum + Number(r.expense_amount), 0), 0);
     const totalBalance = Array.from(accounting_data.values())
-    .reduce((sum, { receivables }) => sum + receivables.reduce((rSum, r) => rSum +  (Number(r.amount_due) - Number(r.amount_paid)), 0), 0);
+        .reduce((sum, { receivables }) => sum + receivables.reduce((rSum, r) => rSum + (Number(r.amount_due) - Number(r.amount_paid)), 0), 0);
+
 
     // Render each filtered property row
     return (
         <>
             {filtered_property_ids.sort((a, b) => b - a).map(propertyId => {
-                console.log("getting accounting data result for", propertyId , accounting_data.get(propertyId))
+                console.log("getting accounting data result for", propertyId, accounting_data.get(propertyId))
                 const { property_name, payables, receivables } = accounting_data.get(propertyId)!;
                 // Calculate gross values
                 const totalPropertyIncomeOwed = receivables.reduce((sum, r) => sum + Number(r.amount_due), 0);
@@ -56,15 +62,23 @@ export default function PropertyRows({ accounting_data, setAccountingData, filte
                 const totalPropertyExpenses = payables.reduce((sum, p) => sum + Number(p.expense_amount), 0);
                 const grossPropertyIncome = totalPropertyIncome - totalPropertyExpenses;
                 const isExpanded = expanded.has(propertyId);
+                const num_tens: number = tenantState.data.get(propertyId)?.length ?? 0
+
+                const unoccupiedIncludes: boolean = accounting_data.get(propertyId).unoccupied.map(p => p.property_id).includes(propertyId)
+                console.log("prop id", propertyId, unoccupiedIncludes)
+
+
+
                 return (
                     <React.Fragment key={propertyId}>
-                        <tr className={`${totalPropertyIncome < totalPropertyIncomeOwed ? 'table-row-style-not-payed' : 'table-row-style '} relative gap-x-4 hover:bg-gray-200 table-row-text mx-auto`}>
+                        <tr className={`${totalPropertyIncome < totalPropertyIncomeOwed ? 'table-row-style-not-payed' : `${unoccupiedIncludes ? 'table-row-style-unoccupied' : 'table-row-style '}`} relative gap-x-4 hover:bg-gray-200 table-row-text mx-auto ${(!num_tens) ? 'cursor-pointer' : ''}`}
+                            onClick={!num_tens ? () => setActiveUnoccupiedPropertyId(propertyId) : () => {}}>
                             {/* Carat Column */}
                             <td
                                 style={{ position: 'absolute', left: '-40px', top: '50%', transform: 'translateY(-50%)', zIndex: 2 }}
                                 className=" px-1 py-4 text-center "
                             >
-                                {(receivables.length > 0 || (payables.length > 0)) && (
+                                {(
                                     <button
                                         onClick={e => {
                                             e.stopPropagation();
@@ -88,22 +102,35 @@ export default function PropertyRows({ accounting_data, setAccountingData, filte
                             <td className="w-[130px] min-w-[130px] max-w-[130px] pl-4 py-4 font-medium text-left">${totalPropertyIncomeOwed - totalPropertyIncome}</td>
                         </tr>
                         {/* Expandable Financial Details */}
-                        {isExpanded && (receivables.length > 0 || payables.length > 0) && (
+                        {isExpanded && (
                             <>
-                                <DisplayRecievableRows property_id={propertyId} accountingData={accounting_data} setAccountingData={setAccountingData} setLastSave={setLastSave}/>
+                                <DisplayRecievableRows property_id={propertyId} accountingData={accounting_data} setAccountingData={setAccountingData} setLastSave={setLastSave} />
                                 <DisplayPayableRows property_id={propertyId} accountingData={accounting_data} setAccountingData={setAccountingData}
                                     setLastSave={setLastSave}
-                                    />
+                                />
                             </>
                         )}
-                        {/* Create Expense PopUp */}
-                       
+                        {/* Toggle Unoccupied PopUp */}
+                        {activeUnoccupiedPropertyId === propertyId && (
+                            <ToggleUnoccupiedPopUp
+                                property_id={propertyId}
+                                property_name={property_name}
+                                month={Number(month)}
+                                year={Number(year)}
+                                num_tens={num_tens}
+                                accountingData={accounting_data}
+                                setToggleUnoccupiedMode={() => setActiveUnoccupiedPropertyId(null)}
+                                setAccountingData={setAccountingData}
+                            />
+                        )}
+
                     </React.Fragment>
                 );
 
             })}
             {/* Sum Row  */}
             <SumRow totalIncome={totalIncome} totalExpenses={totalExpenses} totalBalance={totalBalance} />
+
         </>
     );
 }

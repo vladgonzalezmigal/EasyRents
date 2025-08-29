@@ -32,8 +32,9 @@ export class Receivable {
             this.tenant_name
         );
     }
-
+    
     cloneWithoutId() {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { id, ...rest } = this;
         return { ...rest }; // Return plain object
     }
@@ -64,16 +65,16 @@ export class Payable {
 }
 
 export interface Unoccupied {
-    id: number;
+    id: number | undefined;
     property_id: number; 
     month: string
 }
 
 // maps property id to information about the property's rents and expenses
-export type AccountingData = Map<number, { property_name: string, receivables: Receivable[], payables: Payable[] }>; // Map of property_id to array of Payables
+export type AccountingData = Map<number, { property_name: string, unoccupied: Unoccupied[], receivables: Receivable[], payables: Payable[] }>; 
 
 export function deepCopyMap(originalMap: AccountingData): AccountingData {
-    const newMap = new Map<number, { property_name: string, receivables: Receivable[], payables: Payable[] }>();
+    const newMap = new Map<number, { property_name: string, unoccupied: Unoccupied[], receivables: Receivable[], payables: Payable[] }>();
 
     for (const [key, value] of originalMap) {
         // Deep copy receivables by creating new Receivable instances
@@ -98,9 +99,17 @@ export function deepCopyMap(originalMap: AccountingData): AccountingData {
             item.detail
         ));
 
+        // Deep copy unnocupied
+        const unoccupiedCopy : Unoccupied[] = value.unoccupied.map(item => ({
+            id: item.id,
+            property_id: item.property_id,
+            month: item.month
+        }));
+
         // Set the new entry in the map
         newMap.set(key, {
             property_name: value.property_name,
+            unoccupied: unoccupiedCopy,
             receivables: receivablesCopy,
             payables: payablesCopy
         });

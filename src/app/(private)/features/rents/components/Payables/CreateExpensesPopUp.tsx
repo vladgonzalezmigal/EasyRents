@@ -58,7 +58,7 @@ export default function CreateExpensesPopUp({ property_id, property_name, setCre
             const result = await PayablesService.createExpense(expensesWithPropertyId)
             if (result.data && result.data.length > 0) {
                 setAccountingData(prev => {
-                    let newMap = new Map(prev);
+                    const newMap = new Map(prev);
                     if (result.data != null) {
                         const property_id = result.data[0].property_id;
 
@@ -67,7 +67,7 @@ export default function CreateExpensesPopUp({ property_id, property_name, setCre
                     return newMap
                 })
                 setLastSave(prev => {
-                    let newMap = new Map(prev);
+                    const newMap = new Map(prev);
                     if (result.data != null) {
                         const property_id = result.data[0].property_id;
                         newMap.get(property_id)?.payables.push(...result.data)

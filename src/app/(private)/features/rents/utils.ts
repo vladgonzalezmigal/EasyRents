@@ -25,8 +25,6 @@ export const fetchRents = async ({ propertyData, company_id, startDate, endDate,
         UnoccupiedService.fetchUnoccupied({ startDate, endDate, property_ids })
     ]);
 
-    console.log("res res:",receivable_result)
-
     // Handle receivables error
     if (!receivable_result) {
         setFetchError('Failed to fetch receivables.');

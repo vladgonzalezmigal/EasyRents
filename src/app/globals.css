@@ -175,6 +175,17 @@ body {
   border-radius: 1rem;
 }
 
+.table-row-style-unoccupied {
+  border: 1px solid #1c64ff;
+  box-shadow: 0 4px 4px 1px rgba(0, 0, 0, 0.15);
+  background-color: white;
+  /* width: 772px; */
+  /* position: relative; */
+  display: flex;
+  align-items: center;
+  border-radius: 1rem;
+}
+
 .table-row-style-not-payed {
   border: 1px solid #a80000;
   box-shadow: 0 4px 4px 1px rgba(0, 0, 0, 0.15);
