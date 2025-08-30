@@ -2,113 +2,113 @@ import { StyleSheet } from '@react-pdf/renderer';
 
 export const companyStyles = StyleSheet.create({
     page: {
-        padding: 20,
-        height: '100%',
-        width: '100%',
+        padding: 30,
+        fontFamily: 'Helvetica',
         fontSize: 10,
-        color: '#2F2F2F',
+        color: '#1A1A1A',
+        backgroundColor: '#FFFFFF',
     },
     title: {
-        fontSize: 14,
+        fontSize: 16,
         fontWeight: 'bold',
-        color: '#2F2F2F',
-        marginBottom: 12,
+        color: '#1A1A1A',
+        marginBottom: 16,
         textAlign: 'center',
-    },
-    total: {
-        fontSize: 11,
-        color: '#333333',
-        marginBottom: 6,
-        textAlign: 'left',
-        paddingBottom: 4,
-        borderBottomWidth: 1,
-        borderBottomColor: '#DFDFDF',
-    },
-
-    // Sections
-    section: {
-        marginBottom: 12,
+        letterSpacing: 0.5,
     },
     subTitle: {
         fontSize: 14,
         fontWeight: 'bold',
-        marginBottom: 4,
-        color: '#2F2F2F',
+        color: '#1A1A1A',
+        marginBottom: 8,
     },
-
     h3: {
-        fontSize: 10,
+        fontSize: 11,
         fontWeight: 'bold',
-        marginBottom: 6,
-        color: '#666666',
+        color: '#3A3A3A',
+        marginBottom: 8,
+        marginTop: 8,
     },
-
-    // Property block
+    total: {
+        fontSize: 11,
+        color: '#2A2A2A',
+        marginBottom: 6,
+        paddingVertical: 4,
+        paddingHorizontal: 8,
+    },
+    section: {
+        marginBottom: 8,
+    },
     propertySection: {
-        marginBottom: 16,
-        paddingBottom: 8,
-        borderBottomWidth: 1,
-        borderBottomColor: '#CCCCCC',
+        marginBottom: 24,
+        padding: 12,
+        borderWidth: 0.5,
+        borderColor: '#E0E0E0',
     },
     propertyHeader: {
         marginBottom: 12,
     },
-
     propertyTitle: {
-        fontSize: 12,
-        fontWeight: "bold",
-        marginBottom: 4, // space between title and totals row
+        fontSize: 13,
+        fontWeight: 'bold',
+        color: '#1A1A1A',
+        marginBottom: 8,
     },
-
     propertyTotalsRow: {
-        flexDirection: "row",
-        justifyContent: "flex-start",
-        alignItems: "center",
-        gap: 20, // spacing between each total (or use marginRight if gap unsupported)
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        gap: 16,
+        flexWrap: 'wrap',
     },
-
     propertyTotals: {
-        fontSize: 12,
-        color: "#555",
+        fontSize: 11,
+        color: '#3A3A3A',
+        paddingVertical: 4,
+        paddingHorizontal: 8,
     },
-
-    // Sub-sections inside property
     subSection: {
-        marginTop: 6,
-        marginBottom: 4,
+        marginVertical: 10,
     },
     rowText: {
         fontSize: 10,
-        marginBottom: 2,
+        color: '#2A2A2A',
+        marginBottom: 4,
+        paddingHorizontal: 4,
     },
     totalsRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 10,
-        gap: 20, // 20px space between items
+        gap: 16,
+        flexWrap: 'wrap',
+        marginBottom: 16,
+        padding: 8,
     },
-
-    // Table-like rows
     row: {
         flexDirection: 'row',
-        borderBottomWidth: 1,
-        borderBottomColor: '#DFDFDF',
-        minHeight: 18,
+        minHeight: 20,
         alignItems: 'center',
+        borderTopWidth: 0.5,
+        borderTopColor: '#E0E0E0',
+        borderBottomWidth: 0.5,
+        borderBottomColor: '#E0E0E0',
     },
-    header: {
-        backgroundColor: '#F2FBFA',
-        fontWeight: 'bold',
+    headerRow: {
+        fontWeight: 'medium',
     },
     cell: {
         flex: 1,
-        padding: 2,
+        padding: 6,
         fontSize: 9,
+        color: '#2A2A2A',
         textAlign: 'left',
-        borderRightWidth: 1,
-        borderRightColor: '#DFDFDF',
+        borderRightWidth: 0.5,
+        borderRightColor: '#E0E0E0',
     },
-    firstCell: {
-        textAlign: 'left',
+    divider: {
+        height: 1,
+        backgroundColor: '#E0E0E0',
+        marginTop: 12,
+        marginBottom: 4,
     },
 });
