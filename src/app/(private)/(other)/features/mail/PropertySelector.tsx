@@ -3,29 +3,42 @@
 import React from "react";
 import { useStore } from "@/store";
 import { Property } from "@/app/(private)/features/userSettings/types/propertyTypes";
+import { filterByIncludes } from "@/app/(private)/features/utils/searchUtils";
 
 interface PropertySelectorProps {
     company_id: number;
     selected_properties: Map<number, boolean>;
-    // selectedPropertiesByCompany: 
-    setSelectedProperties: React.Dispatch<React.SetStateAction<Map<number, Map<number, boolean>>>>;
+    setSelectedProperties: React.Dispatch<
+        React.SetStateAction<Map<number, Map<number, boolean>>>
+    >;
+    searchQuery: string;
 }
 
 export default function PropertySelector({
     company_id,
     selected_properties,
     setSelectedProperties,
+    searchQuery,
 }: PropertySelectorProps) {
-    const { propertyState } = useStore(); // Assuming propertyState is Map<number, { address: string }>
+    const { propertyState } = useStore();
 
-    const allProperties: Property[] = propertyState.data.get(Number(company_id))?.filter(c => c.active) || []
-    // Handle checkbox toggle
+    const allProperties: Property[] =
+        propertyState.data.get(Number(company_id))?.filter((c) => c.active) || [];
+
+    // Filter by search query
+    const filteredProperties =
+        searchQuery.trim().length > 0
+            ? allProperties.filter((p) =>
+                  filterByIncludes([p.address], searchQuery).length > 0
+              )
+            : allProperties;
+
     const handleCheckboxChange = (propertyId: number) => {
-        setSelectedProperties(prev => {
+        setSelectedProperties((prev) => {
             const newMap = new Map(prev);
-            const companyMap = newMap.get(company_id)
-            companyMap.set(propertyId, !companyMap.get(propertyId))
-            newMap.set(company_id, companyMap); // Default to true if undefined
+            const companyMap = newMap.get(company_id);
+            companyMap.set(propertyId, !companyMap.get(propertyId));
+            newMap.set(company_id, companyMap);
             return newMap;
         });
     };
@@ -44,26 +57,31 @@ export default function PropertySelector({
                     </tr>
                 </thead>
                 <tbody>
-                    {Array.from(selected_properties.entries()).map(([propertyId, checked]) => (
+                    {filteredProperties.map((p) => (
                         <tr
-                            key={propertyId}
+                            key={p.id}
                             className="border-b border-[#E4F0F6] hover:bg-gray-100 transition-colors duration-150"
                         >
                             <td className="w-12 px-2 py-3 text-center">
                                 <input
                                     type="checkbox"
-                                    checked={checked}
-                                    onChange={() => handleCheckboxChange(propertyId)}
+                                    checked={selected_properties.get(p.id) || false}
+                                    onChange={() => handleCheckboxChange(p.id)}
                                     className="h-4 w-4 text-[#2A7D7B] border-[#E4F0F6] rounded focus:ring-[#2A7D7B]"
                                 />
                             </td>
-                            <td className="px-2 py-3 text-[#404040] overflow-x-auto">{allProperties.find(p => p.id === propertyId)?.address || ""}</td>
+                            <td className="px-2 py-3 text-[#404040] overflow-x-auto">
+                                {p.address}
+                            </td>
                         </tr>
                     ))}
-                    {propertyState.data?.size === 0 && (
+                    {filteredProperties.length === 0 && (
                         <tr>
-                            <td colSpan={2} className="px-2 py-4 text-center text-[#404040]">
-                                No properties available
+                            <td
+                                colSpan={2}
+                                className="px-2 py-4 text-center text-[#404040]"
+                            >
+                                No properties match your search
                             </td>
                         </tr>
                     )}
