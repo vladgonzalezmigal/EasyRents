@@ -7,7 +7,7 @@ import SearchBar from '../SearchBar';
 import MaximizeIcon from '@/app/(private)/components/svgs/MaximizeIcon';
 import MinimizeIcon from '@/app/(private)/components/svgs/MinimizeIcon';
 import DisplayCompanyRows from './DisplayStoreRows';
-// import { storeFormValidation } from '@/app/(private)/features/userSettings/utils/formValidation/formValidationUtil';
+import { companyFormValidation } from '@/app/(private)/features/userSettings/utils/formValidation/formValidationUtil';
 import { useStore } from '@/store';
 
 export default function DisplayCompanies() {
@@ -86,12 +86,10 @@ export default function DisplayCompanies() {
                filteredStores.find(s => s.id === storeId);
     };
 
-    const isValidName = () => {
-        // storeId: number
-        // const storeData = getStoreData(storeId);
-        // const originalStoreName = companies.find(s => s.id === storeId)?.company_name || '';
-        // return !storeFormValidation.validateStoreForm(storeData, storeNames, originalStoreName).isValid;
-        return true
+    const isValidName = (storeId: number) => {
+        const storeData = getStoreData(storeId);
+        const originalStoreName = companies.find(s => s.id === storeId)?.company_name || '';
+        return !companyFormValidation.validateCompanyForm(storeData, storeNames, originalStoreName).isValid;
     };
 
     return (
