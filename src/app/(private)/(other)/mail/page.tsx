@@ -21,7 +21,6 @@ type Doc = {
   metadata: DocMetaData;
 }
 
-
 export default function MailPage() {
   // awake backend for email generation
   useEffect(() => {
@@ -29,28 +28,35 @@ export default function MailPage() {
       try {
         await fetchHealth();
       } catch {
-        console.log("error occured while checking health")
+        console.log("error occurred while checking health")
       }
     }
     awakeBackend();
   }, []);
+
   const today = new Date();
   const { companyState, emailState, propertyState } = useStore();
-  const [currentMonth, setCurrentMonth] = useState(today.getMonth());
+  const [currentStartMonth, setCurrentStartMonth] = useState(today.getMonth());
+  const [currentEndMonth, setCurrentEndMonth] = useState(today.getMonth());
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [selectedCompanies, setSelectedCompanies] = useState<number[]>([]);
 
   // generate document state
   const [generatedDocs, setGeneratedDocs] = useState<Doc[]>([]);
 
-
-  const handleMonthChange = (month: number) => {
-    setCurrentMonth(month);
+  const handleStartMonthChange = (month: number) => {
+    setCurrentStartMonth(month);
     // Clear generated docs when month changes
     setGeneratedDocs([]);
     setSelectedCompanies([]);
   };
 
+  const handleEndMonthChange = (month: number) => {
+    setCurrentEndMonth(month);
+    // Clear generated docs when month changes
+    setGeneratedDocs([]);
+    setSelectedCompanies([]);
+  };
 
   const handleYearChange = (year: number) => {
     setCurrentYear(year);
@@ -58,7 +64,6 @@ export default function MailPage() {
     setGeneratedDocs([]);
     setSelectedCompanies([]);
   };
-
 
   const handleCompanySelect = (companyId: string) => {
     const storeIdInt = parseInt(companyId);
@@ -96,19 +101,15 @@ export default function MailPage() {
     }
   );
 
-
   const [companyError, setCompanyError] = useState<string | null>(null);
-  // const [fetchError, setFetchError] = useState<string | null>(null)
   const [fetchLoading, setFetchLoading] = useState<boolean>(false)
 
   const handleGenerateDocuments = async () => {
     // set all errors to null
     let docs: Doc[] = [];
 
-
     setGeneratedDocs([]);
     setCompanyError(null);
-
 
     if (selectedCompanies.length === 0) {
       setCompanyError('Please select at least one company');
@@ -118,41 +119,46 @@ export default function MailPage() {
       return;
     }
 
+    // check that we didn't select later month first
+    if (currentStartMonth > currentEndMonth) {
+      setCompanyError('Please pick the same or later month second');
+      return;
+    }
+
 
     try {
       // generate company rent documents
       if (selectedCompanies.length > 0) {
         // get raw data
-        const filteredPropertyMap : PropertyMap = new Map()
+        const filteredPropertyMap: PropertyMap = new Map()
         selectedPropertiesByCompany.forEach(
-          (prop_map, co_id)=> {
+          (prop_map, co_id) => {
             const active_props = [...prop_map.entries()]
-            .filter(([, value]) => value === true)
-            .map(([key]) => key)
+              .filter(([, value]) => value === true)
+              .map(([key]) => key)
             const updated_properties = propertyState.data.get(co_id).filter(prop => Array.from(active_props).includes(prop.id))
             filteredPropertyMap.set(co_id, updated_properties)
-            }
+          }
         )
-        const startDate = formatDate("1", String(currentMonth+1), String(currentYear))
-        const endDate = formatDate(String(getDaysInMonth(Number(currentMonth+1), Number(currentYear))), String(currentMonth+1), String(currentYear))
-        const { data: companyValidResults, errors } = await generateCompanyPdfs(filteredPropertyMap, activeCompanies, startDate, 
-        endDate, setCompanyError, setFetchLoading )
+        const startDate = formatDate("1", String(currentStartMonth + 1), String(currentYear))
+        const endDate = formatDate(String(getDaysInMonth(Number(currentEndMonth), Number(currentYear))), String(currentEndMonth + 1), String(currentYear))
+        const { data: companyValidResults, errors } = await generateCompanyPdfs(filteredPropertyMap, activeCompanies, startDate,
+          endDate, setCompanyError, setFetchLoading)
         if (errors.length > 0 || !companyValidResults) {
           setCompanyError(errors.join() || 'An error occurred while generating company documents');
           return;
         }
-        console.log("data", companyValidResults)
 
         const companyDocs = companyValidResults.map(result => ({
           metadata: {
-            subject: `Rental information for ${result.companyName}, ${months[currentMonth]} ${currentYear}`,
+            subject: `Rental information for ${result.companyName}, ${months[currentStartMonth]} - ${months[currentEndMonth]} ${currentYear}`,
             sender: emailState.emails![0].sender_email,
             receiver: emailState.emails![0].recipient_email,
-            bodyText: `Rental information for ${result.companyName}, ${months[currentMonth]} ${currentYear}, sent by ${emailState.emails![0].sender_email}`,
-            fileName: `Sales_${months[currentMonth]}_${currentYear}_${result.companyName.replace(/\s+/g, '_')}.pdf`
+            bodyText: `Rental information for ${result.companyName}, ${months[currentStartMonth]} - ${months[currentEndMonth]} ${currentYear}, sent by ${emailState.emails![0].sender_email}`,
+            fileName: `Sales_${months[currentStartMonth]}_${months[currentEndMonth]}_${currentYear}_${result.companyName.replace(/\s+/g, '_')}.pdf`
           },
           displayPdf: (
-            <CompanyDoc 
+            <CompanyDoc
               key={result.companyName}
               companyName={result.companyName}
               accountingData={result.accountingData}
@@ -161,7 +167,6 @@ export default function MailPage() {
             />
           )
         }));
-
 
         docs = [...docs, ...companyDocs]
       }
@@ -175,11 +180,9 @@ export default function MailPage() {
     }
   };
 
-
   const handleClosePdfs = () => {
     setGeneratedDocs([]);
   };
-
 
   return (
     <div className="container px-16 py-8 min-h-screen h-full max-h-screen overflow-y-auto bg-[#FAFAFA] min-w-full">
@@ -194,14 +197,15 @@ export default function MailPage() {
       </div>
       <LineBreak className="mb-6" />
 
-
       {/* Select Month, Year  */}
       <div className=" max-w-[1000px]">
         <div className="mb-8 flex justify-between pr-16  w-full">
           <MailSearch
-            onMonthChange={handleMonthChange}
+            onStartMonthChange={handleStartMonthChange}
+            onEndMonthChange={handleEndMonthChange}
             onYearChange={handleYearChange}
-            currentMonth={currentMonth}
+            currentMonth={currentStartMonth}
+            currentEndMonth={currentEndMonth}
             currentYear={currentYear}
           />
           {/* Generate Documents Button */}
@@ -217,7 +221,6 @@ export default function MailPage() {
           </div>
         </div>
         <LineBreak className="mb-6" />
-
 
         {/* Company Selection */}
         <div className="mb-8">

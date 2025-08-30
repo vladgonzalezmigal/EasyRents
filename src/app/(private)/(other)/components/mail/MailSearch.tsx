@@ -5,33 +5,42 @@ import { months } from '@/app/(private)/utils/dateUtils';
 import SearchIcon from '@/app/(private)/components/svgs/SearchIcon';
 
 interface MailSearchProps {
-    onMonthChange: (month: number) => void;
+    onStartMonthChange: (month: number) => void;
+    onEndMonthChange: (month: number) => void;
     onYearChange: (year: number) => void;
     currentMonth: number;
+    currentEndMonth: number;
     currentYear: number;
 }
 
 export default function MailSearch({ 
-    onMonthChange, 
+    onStartMonthChange, 
+    onEndMonthChange,
     onYearChange, 
     currentMonth,
+    currentEndMonth,
     currentYear
 }: MailSearchProps) {
-    const [isOpen, setIsOpen] = useState(false);
+    const [isStartOpen, setIsStartOpen] = useState(false);
+    const [isEndOpen, setIsEndOpen] = useState(false);
     const [yearInput, setYearInput] = useState<string>(currentYear.toString());
     const [validYear, setValidYear] = useState<boolean>(true);
-    const dropdownRef = useRef<HTMLDivElement>(null);
+    const dropdownRef1 = useRef<HTMLDivElement>(null);
+    const dropdownRef2 = useRef<HTMLDivElement>(null);
 
     // Update yearInput when currentYear changes
     useEffect(() => {
         setYearInput(currentYear.toString());
     }, [currentYear]);
 
-    // Close dropdown when clicking outside
+    // Close dropdowns when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-                setIsOpen(false);
+            if (dropdownRef1.current && !dropdownRef1.current.contains(event.target as Node)) {
+                setIsStartOpen(false);
+            }
+            if (dropdownRef2.current && !dropdownRef2.current.contains(event.target as Node)) {
+                setIsEndOpen(false);
             }
         };
 
@@ -70,30 +79,36 @@ export default function MailSearch({
         searchYear();
     };
 
-    // Handle month change
-    const handleMonthChange = (monthIndex: number) => {
-        onMonthChange(monthIndex);
-        setIsOpen(false);
+    // Handle start month change
+    const handleStartMonthChange = (monthIndex: number) => {
+        onStartMonthChange(monthIndex);
+        setIsStartOpen(false);
+    };
+
+    // Handle end month change
+    const handleEndMonthChange = (monthIndex: number) => {
+        onEndMonthChange(monthIndex);
+        setIsEndOpen(false);
     };
 
     return (
         <div className="flex flex-row items-center gap-4">
-            {/* Month Toggle Button */}
-            <div className="relative flex flex-row items-center" ref={dropdownRef}>
+            {/* Start Date Month Toggle Button */}
+            <div className="relative flex flex-row items-center" ref={dropdownRef1}>
                 <button
-                    onClick={() => setIsOpen(!isOpen)}
+                    onClick={() => setIsStartOpen(!isStartOpen)}
                     className="w-[120px] px-4 py-2 bg-white border-2 border-[#5CB8B1] rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2A7D7B] text-[#585858] text-[18px] font-semibold"
                 >
                     {months[currentMonth]}
                 </button>
                 
-                {isOpen && (
+                {isStartOpen && (
                     <div className="absolute z-50 top-full left-0 mt-1 w-[120px] bg-white rounded-md shadow-lg border border-[#DFDFDF]">
                         <div className="py-1 max-h-60 overflow-auto">
                             {months.map((month, index) => (
                                 <button
                                     key={month}
-                                    onClick={() => handleMonthChange(index)}
+                                    onClick={() => handleStartMonthChange(index)}
                                     className={`w-full text-left px-4 py-2 text-sm hover:bg-[#DFF4F3] ${
                                         index === currentMonth ? 'bg-[#DFF4F3] text-[#2A7D7B]' : 'text-[#585858]'
                                     }`}
@@ -105,7 +120,35 @@ export default function MailSearch({
                     </div>
                 )}
             </div>
-
+            <p>to</p>
+            {/* End Date Month Toggle Button */}
+            <div className="relative flex flex-row items-center" ref={dropdownRef2}>
+                <button
+                    onClick={() => setIsEndOpen(!isEndOpen)}
+                    className="w-[120px] px-4 py-2 bg-white border-2 border-[#5CB8B1] rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2A7D7B] text-[#585858] text-[18px] font-semibold"
+                >
+                    {months[currentEndMonth]}
+                </button>
+                
+                {isEndOpen && (
+                    <div className="absolute z-50 top-full left-0 mt-1 w-[120px] bg-white rounded-md shadow-lg border border-[#DFDFDF]">
+                        <div className="py-1 max-h-60 overflow-auto">
+                            {months.map((month, index) => (
+                                <button
+                                    key={month}
+                                    onClick={() => handleEndMonthChange(index)}
+                                    className={`w-full text-left px-4 py-2 text-sm hover:bg-[#DFF4F3] ${
+                                        index === currentEndMonth ? 'bg-[#DFF4F3] text-[#2A7D7B]' : 'text-[#585858]'
+                                    }`}
+                                >
+                                    {month}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </div>
+            
             {/* Year Search Bar */}
             <div className="relative">
                 <input
