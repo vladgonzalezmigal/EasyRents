@@ -34,12 +34,13 @@ export default function SettingsPage() {
             </a>
           ))}
           {
+            // Company names
             companies.filter(c => c.active).map(
               (company) => (
                 <a
                   key={company.id}
                   href={`#${company.company_name.replaceAll(" ", "")}`}
-                  className="w-[150px] py-2 flex items-center justify-center bg-[#DFF4F3] text-[#2A7D7B] text-[12px] rounded-lg hover:bg-[#B6E8E4] transition-colors duration-200"
+                  className="w-[200px] py-2 flex items-center justify-center bg-[#DFF4F3] text-[#2A7D7B] text-[12px] rounded-lg hover:bg-[#B6E8E4] transition-colors duration-200"
                 >
                   {company.company_name}
                 </a>
