@@ -131,15 +131,20 @@ export default function MailPage() {
       if (selectedCompanies.length > 0) {
         // get raw data
         const filteredPropertyMap: PropertyMap = new Map()
-        selectedPropertiesByCompany.forEach(
-          (prop_map, co_id) => {
-            const active_props = [...prop_map.entries()]
-              .filter(([, value]) => value === true)
-              .map(([key]) => key)
-            const updated_properties = propertyState.data.get(co_id).filter(prop => Array.from(active_props).includes(prop.id))
-            filteredPropertyMap.set(co_id, updated_properties)
+        selectedPropertiesByCompany.forEach((prop_map, co_id) => {
+          const active_props = [...prop_map.entries()]
+            .filter(([, value]) => value === true)
+            .map(([key]) => key);
+        
+          const companyProperties = propertyState.data
+            .get(co_id)
+            ?.filter(prop => active_props.includes(prop.id) && prop.active) || [];
+        
+          if (selectedCompanies.includes(co_id)) {
+            filteredPropertyMap.set(co_id, companyProperties);
           }
-        )
+        });
+        console.log("fitlred map is", filteredPropertyMap)
         const startDate = formatDate("1", String(currentStartMonth + 1), String(currentYear))
         const endDate = formatDate(String(getDaysInMonth(Number(currentEndMonth), Number(currentYear))), String(currentEndMonth + 1), String(currentYear))
         const { data: companyValidResults, errors } = await generateCompanyPdfs(filteredPropertyMap, activeCompanies, startDate,
@@ -155,7 +160,7 @@ export default function MailPage() {
             sender: emailState.emails![0].sender_email,
             receiver: emailState.emails![0].recipient_email,
             bodyText: `Rental information for ${result.companyName}, ${months[currentStartMonth]} - ${months[currentEndMonth]} ${currentYear}, sent by ${emailState.emails![0].sender_email}`,
-            fileName: `Sales_${months[currentStartMonth]}_${months[currentEndMonth]}_${currentYear}_${result.companyName.replace(/\s+/g, '_')}.pdf`
+            fileName: `Rental_Income_From_${months[currentStartMonth]}_${months[currentEndMonth]}_${currentYear}_${result.companyName.replace(/\s+/g, '_')}.pdf`
           },
           displayPdf: (
             <CompanyDoc

@@ -179,9 +179,9 @@ export default function CreateExpensesPopUp({ property_id, property_name, setCre
                     <table className="min-w-full border border-[#E4F0F6] mb-4">
                         <thead className="bg-[#F8F9FA] border-b border-[#E4F0F6]">
                             <tr>
-                                <th className="px-2 py-2 text-left text-xs text-[#80848A] font-semibold tracking-wider">Name</th>
+                                <th className="px-2 py-2 text-left text-xs text-[#80848A] font-semibold tracking-wider">Expense Name</th>
                                 <th className="px-2 py-2 text-left text-xs text-[#80848A] font-semibold tracking-wider">Amount</th>
-                                <th className="px-2 py-2 text-left text-xs text-[#80848A] font-semibold tracking-wider">Date</th>
+                                <th className="px-2 py-2 text-left text-xs text-[#80848A] font-semibold tracking-wider">Paid On</th>
                                 <th className="px-2 py-2 text-left text-xs text-[#80848A] font-semibold tracking-wider">Paid With</th>
                                 <th className="px-2 py-2 text-left text-xs text-[#80848A] font-semibold tracking-wider">Detail</th>
                             </tr>

@@ -102,12 +102,13 @@ export default function CompanyDoc({ accountingData, companyName, startDate, end
                         {/* Payables */}
                         {payables.length > 0 && (
                             <View style={companyStyles.subSection}>
-                                <Text style={companyStyles.h3}>Payables</Text>
+                                <Text style={companyStyles.h3}>Expenses</Text>
                                 <View style={[companyStyles.row, companyStyles.headerRow]}>
                                     <Text style={companyStyles.cell}>Expense</Text>
                                     <Text style={companyStyles.cell}>Amount</Text>
                                     <Text style={companyStyles.cell}>Paid Date</Text>
                                     <Text style={companyStyles.cell}>Paid With</Text>
+                                    <Text style={companyStyles.cell}>Detail</Text>
                                 </View>
                                 {payables.map((p, idx) => (
                                     <View key={idx} style={[companyStyles.row, idx === 0 && companyStyles.headerRow]}>
@@ -115,6 +116,7 @@ export default function CompanyDoc({ accountingData, companyName, startDate, end
                                         <Text style={companyStyles.cell}>Amount: ${p.expense_amount}</Text>
                                         <Text style={companyStyles.cell}>Date: {p.expense_date}</Text>
                                         <Text style={companyStyles.cell}>Paid With: {p.paid_with}</Text>
+                                        <Text style={companyStyles.cell}>{p.detail}</Text>
                                     </View>
                                 ))}
                             </View>

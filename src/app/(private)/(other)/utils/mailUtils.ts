@@ -12,7 +12,7 @@ import { DocMetaData } from "../types/mailTypes";
  */
 
 export const fetchHealth = async () => {
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_BASE_URL;
+  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_BASE_URL || "";
   try {
     if (!BACKEND_URL) {
       throw new Error("Missing BACKEND_URL environment variable");
