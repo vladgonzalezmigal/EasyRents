@@ -1,6 +1,6 @@
 'use client';
 
-import CreateCompany from "./СreateStore";
+import CreateCompany from "./СreateCompany";
 import DisplayCompanies from "./DisplayCompanies";
 
 export default function CompanySection() {

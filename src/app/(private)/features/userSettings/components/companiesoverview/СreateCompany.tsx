@@ -20,7 +20,8 @@ export default function CreateCompany() {
         setValidInput(isValid);
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
         if (validInput && storeName.trim()) {
             createStore(storeName).then(() => {
                 setStoreName('');
