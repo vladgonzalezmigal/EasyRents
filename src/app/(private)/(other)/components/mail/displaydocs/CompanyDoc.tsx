@@ -93,7 +93,7 @@ export default function CompanyDoc({ accountingData, companyName, startDate, end
                                         <Text style={companyStyles.cell}>{r.tenant_name}</Text>
                                         <Text style={companyStyles.cell}>${r.amount_paid}</Text>
                                         <Text style={companyStyles.cell}>${r.amount_due}</Text>
-                                        <Text style={companyStyles.cell}>{r.due_date}</Text>
+                                        <Text style={companyStyles.cell}>{r.due_date.substring(5,)+"-"+r.due_date.substring(0,4)}</Text>
                                     </View>
                                 ))}
                             </View>
@@ -114,7 +114,7 @@ export default function CompanyDoc({ accountingData, companyName, startDate, end
                                     <View key={idx} style={[companyStyles.row, idx === 0 && companyStyles.headerRow]}>
                                         <Text style={companyStyles.cell}>{p.expense_name}</Text>
                                         <Text style={companyStyles.cell}>Amount: ${p.expense_amount}</Text>
-                                        <Text style={companyStyles.cell}>Date: {p.expense_date}</Text>
+                                        <Text style={companyStyles.cell}>Date: {p.expense_date.substring(5,)+"-"+p.expense_date.substring(0,4)}</Text>
                                         <Text style={companyStyles.cell}>Paid With: {p.paid_with}</Text>
                                         <Text style={companyStyles.cell}>{p.detail}</Text>
                                     </View>
